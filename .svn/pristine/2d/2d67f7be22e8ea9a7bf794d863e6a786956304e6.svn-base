@@ -1,0 +1,43 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.31101.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XDD.Core", "XDD.Core\XDD.Core.csproj", "{8FD65930-D5AF-4DB0-BD2F-3FE9BF479BE2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XDD.Web", "XDD.Web\XDD.Web.csproj", "{2D2FB8DA-E17F-4366-BC1D-A0163672472D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XDD.SMS", "XDD.SMS\XDD.SMS.csproj", "{266E9DDD-D5C7-479C-BA10-0B219C099DD2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XDD.Payment", "XDD.Payment\XDD.Payment.csproj", "{BC5E3D14-9B8E-473E-8ED1-B2F027EB4A5A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8FD65930-D5AF-4DB0-BD2F-3FE9BF479BE2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8FD65930-D5AF-4DB0-BD2F-3FE9BF479BE2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8FD65930-D5AF-4DB0-BD2F-3FE9BF479BE2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8FD65930-D5AF-4DB0-BD2F-3FE9BF479BE2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2D2FB8DA-E17F-4366-BC1D-A0163672472D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2D2FB8DA-E17F-4366-BC1D-A0163672472D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2D2FB8DA-E17F-4366-BC1D-A0163672472D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2D2FB8DA-E17F-4366-BC1D-A0163672472D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{266E9DDD-D5C7-479C-BA10-0B219C099DD2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{266E9DDD-D5C7-479C-BA10-0B219C099DD2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{266E9DDD-D5C7-479C-BA10-0B219C099DD2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{266E9DDD-D5C7-479C-BA10-0B219C099DD2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BC5E3D14-9B8E-473E-8ED1-B2F027EB4A5A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BC5E3D14-9B8E-473E-8ED1-B2F027EB4A5A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BC5E3D14-9B8E-473E-8ED1-B2F027EB4A5A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BC5E3D14-9B8E-473E-8ED1-B2F027EB4A5A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		VisualSVNWorkingCopyRoot = .
+	EndGlobalSection
+EndGlobal

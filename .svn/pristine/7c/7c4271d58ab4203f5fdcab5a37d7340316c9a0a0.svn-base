@@ -1,0 +1,54 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+using XDD.Core.DataAccess;
+using XDD.Core.Model;
+
+namespace XDD.Web.Controllers
+{
+    public class MessageController : Controller
+    {
+        // GET: Message
+        [Authorize(Roles = "管理员")]
+        public ActionResult Index()
+        {
+            return View();
+        }
+        public JsonResult Get(string keyword = null, int page = 1, int rows = 10)
+        {
+            XDDDbContext ctx = new XDDDbContext();
+            List<Message> list = new List<Message>();
+            IQueryable<Message> query;
+            if (string.IsNullOrEmpty(keyword))
+            {
+                query = ctx.Messages;
+                
+                //没有传递keyword或者keyword为""
+            }
+            else
+            {
+                //有传递keyword并且keyword的值不为空字符串
+                query = ctx.Messages.Where(s => s.FromId.ToString().Contains(keyword) || s.ToId.ToString().Contains(keyword) || s.SendTime.ToString().Contains(keyword) || s.Content.Contains(keyword)); 
+            }//查询
+            return Json(
+            new
+            {
+                total = query.Count(),
+                rows = query.OrderByDescending(s => s.SendTime).Skip((page - 1) * rows).Take(rows).Select(s => new
+                {
+                    s.Id,
+                    s.FromId,
+                    s.ToId,
+                    s.SendTime,
+                    s.Content,
+                    s.HasRead,
+                   
+                    //获取数据
+                })
+
+            }, JsonRequestBehavior.AllowGet);
+        }
+    }
+    }

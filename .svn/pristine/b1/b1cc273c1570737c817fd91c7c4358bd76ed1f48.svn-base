@@ -1,0 +1,93 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+using XDD.Core.DataAccess;
+using XDD.Core.Model;
+
+namespace XDD.Web.Controllers
+{
+    public class BBSCategoryController : Controller
+    {
+        XDDDbContext Context = new XDDDbContext();
+        // GET: BBSCategory
+        public ActionResult Index()
+        {
+            return View();
+        }
+
+        public JsonResult Get(string keyword,int page=1,int rows=15) {
+            IQueryable<BBSCategory> query = Context.BBSCategories;
+            if (!string.IsNullOrEmpty(keyword))
+            {
+                query = query.Where(s => s.Name.Contains(keyword));
+            }
+            return Json(new
+            {
+                total = query.Count(),
+                rows = query.OrderBy(s => s.SN).Skip((page - 1) * rows).Take(rows).Select(s => new { s.Enable,s.Icon,s.Id,s.Name,s.Option,s.Required,s.SN ,s.TimeAreaOneStart,s.TimeAreaOneEnd,s.TimeAreaTwoStart,s.TimeAreaTwoEnd}).ToList()
+            },JsonRequestBehavior.AllowGet);
+           
+        }
+
+        public JsonResult Add(BBSCategory category)
+        {
+            Context.BBSCategories.Add(category);
+            Context.SaveChanges();
+            return Json(new { ResultCode = 1, Message = "添加成功" });
+        }
+
+        public JsonResult Edit(BBSCategory category)
+        {
+            var target = Context.BBSCategories.FirstOrDefault(s => s.Id == category.Id);
+            if ((int)(category.Required & category.Option) == 0) {
+                if (target != null)
+                {
+                    target.Icon = category.Icon;
+                    target.Enable = category.Enable;
+                    target.Name = category.Name;
+                    target.Option = category.Option;
+                    target.Required = category.Required;
+                    target.TimeAreaOneStart = category.TimeAreaOneStart;
+                    target.TimeAreaOneEnd = category.TimeAreaOneEnd;
+                    target.TimeAreaTwoStart = category.TimeAreaTwoStart;
+                    target.TimeAreaTwoEnd = category.TimeAreaTwoEnd;
+                    Context.SaveChanges();
+                    return Json(new { ResultCode = 1, Message = "修改成功" });
+                }
+                else
+                {
+                    return Json(new { ResultCode = 0, Message = "没有找到指定的频道" });
+                }
+            }
+            else
+            {
+                return Json(new { ResultCode = -1, Message = "参数有误" });
+            }
+        }
+
+        public JsonResult Remove(int id)
+        {
+            var target = Context.BBSCategories.FirstOrDefault(s => s.Id == id);
+            if (target != null) {
+                if (target.BBSArticles.Count == 0)
+                {
+
+                    Context.BBSCategories.Remove(target);
+                    Context.SaveChanges();
+
+                    return Json(new { ResultCode = 1, Message = "删除成功" });
+                }
+                else
+                {
+                    return Json(new { ResultCode = 0, Message = "有文章的频道无法删除，请删除频道下所有文章或将频道设为禁用" });
+                }
+            }
+            else
+            {
+                return Json(new { ResultCode = 0, Message = "没有找到指定的频道" });
+            }
+        }
+    }
+}

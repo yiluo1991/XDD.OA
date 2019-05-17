@@ -1,0 +1,155 @@
+﻿@{
+
+}
+
+<!----------------------建立datagrid---------------------->
+<table id="statement_datagrid" style="width: 700px;" ></table>
+<div class="easyui-layout" data-options="fit:true">
+    <div id="table">
+        <div id="maintabletoolbar">
+            <table cellpadding="0" cellspacing="0">
+                <tr>
+                    <td>
+                        <input class="easyui-switchbutton" id="btnSwitch"
+                               data-options="onText:'收款',offText:'付款',plain:true">
+                    </td>
+                    <td>
+                        <div class="datagrid-btn-separator"></div>
+                    </td>
+                    <td>
+                        查询交易记录：
+                        从 <input class="easyui-datetimebox" name="BeginTime" id="BeginTime" 
+                                             data-options="showSeconds:true,plain:true" style="width:200px">
+                        至 <input class="easyui-datetimebox" name="EndTime" id="EndTime" 
+                                      data-options="showSeconds:true,plain:true" style="width:200px">
+                        <input id="searchbox" style="width:250px;" class="easyui-searchbox" prompt="请输入查询关键字"
+                               data-options="searcher:function(value,name){
+                                $('#statement_datagrid').datagrid('load', {
+                                    'show': $('#btnSwitch').switchbutton('options').checked,
+                                    'Begin': $('#BeginTime').datetimebox('getValue'),
+                                    'End': $('#EndTime').datetimebox('getValue'),
+                                    'Keyword': value,
+                                })
+                               }">
+                    </td>
+                    <td>
+                        <div class="datagrid-btn-separator"></div>
+                    </td>
+                    <td>
+                        <span id="Sum"></span>
+                    </td>
+                    <td>
+                        <div class="datagrid-btn-separator"></div>
+                    </td>
+                    <td>
+                        <a class="easyui-linkbutton" iconcls="icon-reload" plain="true" onclick="$('#statement_datagrid').datagrid('reload')">刷新</a>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    </div>
+
+    <script type="text/javascript">
+        $(function () {
+            loadData();
+            //$('#EndTime').datetimebox('setValue', formatterDate(new Date()));
+            //$('#BeginTime').datetimebox('setValue', formatterDate(new Date()));
+
+            $('#statement_datagrid').datagrid({
+                onLoadSuccess: function (data) {
+                    //$('#statement_datagrid').datagrid('selectAll');//获取所有页的数据行
+                    //var rows = $('#statement_datagrid').datagrid('getSelections');
+                    //var total = 0;
+                    //for (var i = 0; i < rows.length; i++) {
+                    //    total += rows[i]['Money']; //获取指定列
+                    //}
+                    //$('#statement_datagrid').datagrid('unselectAll');
+                    //document.getElementById('Sum').innerHTML = '总金额: ' + Math.abs(total.toFixed(2)) + '元';
+                    document.getElementById('Sum').innerHTML = '总金额: ' + Math.abs(data.totalAmount) + '元';
+                }
+            });
+            $('#btnSwitch').switchbutton({
+                checked: true,
+                onChange: function (checked) {
+
+                    $("#statement_datagrid").datagrid('load', {
+                        "show": checked,
+                    })
+                }
+            });
+            if ($("#btnSwitch").switchbutton("options").checked == true) {
+            }
+        });
+        //展示数据
+        function loadData() {
+            $('#statement_datagrid').datagrid({
+                url: '/PlatformStatement/GetStatements',
+                type: "post",
+                fit: true,
+                autoRowHeight: true,
+                striped: true,
+                rownumbers: true,
+                fitColumns: true, //列自适应
+                nowrap: false,
+                loadMsg: '正在加载流水信息...',
+                pagination: true,//是否有分页
+                singleSelect: false,//是否单行选择
+                pageSize: 10,//页大小，一页多少条数据
+                pageNumber: 1,//当前页，默认的
+                pageList: [10, 20, 30, 40, 50],
+                queryParams: {},//往后台传递参数
+                columns: [[
+                    { field: 'Type', title: '交易类型', width: 100, align: 'center' },
+                    { field: 'MemberName', title: '客户名', width: 150, align: 'center' },
+                    { field: 'Money', title: '交易金额', width: 150, align: 'center' },
+                    {
+                        field: 'CreateTime', title: '交易时间', align: 'center', width: 180, formatter: function (value) { return $.formatJsonDate(value); }
+                    },
+                ]],
+                toolbar: '#maintabletoolbar',
+            });
+            count();
+        }
+        function count() {
+            $('#statement_datagrid').datagrid('selectAll');//获取所有页的数据行
+            var rows = $('#statement_datagrid').datagrid('getSelections');
+            var total = 0;
+            for (var i = 0; i < rows.length; i++) {
+                total += rows[i]['Money']; //获取指定列
+            }
+            $('#statement_datagrid').datagrid('unselectAll');
+            document.getElementById('Sum').innerHTML = '总金额: ' + Math.abs(total.toFixed(2)) + '元';
+        }
+        formatterDate = function (date) {
+            var day = date.getDate() > 9 ? date.getDate() : "0" + date.getDate();
+            var month = (date.getMonth() + 1) > 9 ? (date.getMonth() + 1) : "0"
+            + (date.getMonth() + 1);
+            var hor = date.getHours();
+            var min = date.getMinutes();
+            var sec = date.getSeconds();
+            return date.getFullYear() + '-' + month + '-' + day + " " + hor + ":" + min + ":" + sec;
+        };
+        $.extend($.fn.validatebox.defaults.rules, {
+            BeginTimeCheck: {
+                validator: function (value, param) {
+                    var s = $("#" + param[0]).datetimebox("getValue");
+                    if (value > s)
+                        $('#btnsearch').linkbutton('disable');
+                    else $('#btnsearch').linkbutton('enable');
+                    return value <= s;
+                },
+                message: '非法数据'
+            },
+            EndTimeCheck: {
+                validator: function (value, param) {
+                    var s = $("#" + param[0]).datetimebox("getValue");
+                    if (value < s)
+                        $('#btnsearch').linkbutton('disable');
+                    else $('#btnsearch').linkbutton('enable');
+                    return value >= s;
+                },
+                message: '非法数据'
+            }
+        });
+    </script>

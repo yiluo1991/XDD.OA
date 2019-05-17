@@ -1,0 +1,114 @@
+﻿@{
+    ViewBag.Title = "Index";
+}
+
+
+<div class="easyui-layout" data-options="fit:true">
+    <div id="table">
+        <div id="maintabletoolbar">
+            <table cellpadding="0" cellspacing="0">
+                <tr>
+                    <td>
+                        <div class="datagrid-btn-separator"></div>
+                    </td>
+                    <td>
+                        <input id="searchbox" class="easyui-searchbox" style="width:200px" prompt="请输入搜索的内容" data-options="searcher:function(value){$('#table').datagrid('load',{keyword:value})}" />
+                    </td>
+                    <td>
+                        <div class="datagrid-btn-separator"></div>
+                    </td>
+                    <td>
+                        <a class="easyui-linkbutton" iconcls="icon-reload" plain="true" onclick="$('#table').datagrid('reload')">刷新</a>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('#table').datagrid({
+            toolbar: '#maintabletoolbar',
+            fit: true,
+            closable: true,
+            collapsible: true,
+            method: 'get',
+            fitColumns: true,
+            singleSelect: true,
+            pageList: [1, 2, 5, 10, 20, 30, 40, 50],
+            url: '/Member/Get',
+            columns: [[
+                  {
+                      field: 'Id', title: 'ID', width: 60, align: 'center'
+                  },
+                  {
+                      field: 'NickName', title: '昵称', width: 60, align: 'center'
+                  }, {
+                      field: 'AvatarUrl', title: '头像', width: 40, align: 'center', formatter: function (value, row, index) {
+                          return '<img style="width:30px;height:30px;border-radius:50%"  src=' + value + ' />'
+                      }
+                  }, {
+                      field: 'RealName', title: '真实姓名', width: 60, align: 'center'
+                  }, {
+                      field: 'Sex', title: '性别', width: 40, align: 'center',
+                      formatter: function (value, row, index) {
+                          switch (value) {
+                              case 0:
+                                  return "女";
+                              case 1:
+                                  return "男";
+                              case 2:
+                                  return "未知";
+                              default:
+                                  return "未知";
+                          }
+                      }
+                  }, {
+                      field: 'Country', title: '国家', width: 60, align: 'center'
+                  }, {
+                      field: 'Province', title: '省份', width: 60, align: 'center'
+                  }, {
+                      field: 'City', title: '城市', width: 60, align: 'center'
+                  }, {
+                      field: 'WeChatBindPhone', title: '微信号绑定的手机号', width: 120, align: 'center'
+                  }, {
+                      field: 'PlatformBindPhone', title: '平台绑定的手机号', width: 120, align: 'center'
+                  }, {
+                      field: 'Account', title: '账户余额', width: 60, align: 'center'
+                  }, {
+                      field: 'Status', title: '状态', width: 40, align: 'center', fixed: true,
+                      formatter: function (value, row, index) {
+                          if ((value&8)==0) {
+                              return '<a onclick="enable(true,\'' + row.Id + '\')" style="width:16px;height:16px;background:green;display:inline-block;vertical-align:middle;border-radius:50%;"></a>'
+                          } else {
+                              return '<a onclick="enable(false,\'' + row.Id + '\')" style="width:16px;height:16px;background:red;display:inline-block;vertical-align:middle;border-radius:50%;"></a>'
+                          }
+
+                      }
+                  }
+            ]],
+           
+        
+
+            
+        })
+    })
+    function enable(blea, index) {
+        $.ajax({
+            
+            url: '/Member/put',
+            data:{id:index,blea:blea},
+            success: function (data) {
+                $('#table').datagrid('reload');
+            }
+        });
+    }
+       
+   
+</script>
+
+
+
+
+

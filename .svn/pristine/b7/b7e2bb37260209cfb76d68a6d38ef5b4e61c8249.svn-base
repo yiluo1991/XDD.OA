@@ -1,0 +1,218 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
+using System.Text;
+using System.Threading.Tasks;
+using System.Web.Configuration;
+using System.Xml;
+
+namespace XDD.Payment
+{
+    public static class PaymentProvider
+    {
+
+        public static void WriteLogs(string content)
+        {
+            string path = AppDomain.CurrentDomain.BaseDirectory;
+            if (!string.IsNullOrEmpty(path))
+            {
+                path = AppDomain.CurrentDomain.BaseDirectory + "log";
+                if (!Directory.Exists(path))
+                {
+                    Directory.CreateDirectory(path);
+                }
+
+                path = path + "\\" + DateTime.Now.ToString("yyyyMMdd") + ".txt";
+                if (!File.Exists(path))
+                {
+                    FileStream fs = File.Create(path);
+                    fs.Close();
+                }
+                if (File.Exists(path))
+                {
+                    StreamWriter sw = new StreamWriter(path, true, System.Text.Encoding.Default);
+                    sw.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff") + "-->" + content);
+                    //  sw.WriteLine("----------------------------------------");
+                    sw.Close();
+                }
+            }
+        }
+
+        public static Dictionary<string, string> Pay(DateTime now, string openid, string orderSN, decimal Price, string body)
+        {
+
+
+            string appid = WebConfigurationManager.AppSettings["AppId"];
+            string secret = WebConfigurationManager.AppSettings["AppSecret"];
+            string key = WebConfigurationManager.AppSettings["key"];
+            string mch_id = WebConfigurationManager.AppSettings["mch_id"];
+            string ip = WebConfigurationManager.AppSettings["ip"];
+            string PayResulturl = WebConfigurationManager.AppSettings["PayResulturl"];
+            string roomid = orderSN;
+
+            string totalfee = (Price * 100).ToString();
+
+            System.Random Random = new System.Random();
+            var dic = new Dictionary<string, string>(){
+                {"appid", appid},
+                {"mch_id", mch_id},
+                {"nonce_str", GetRandomString(20)/*Random.Next().ToString()*/},
+                {"body",body},
+                {"out_trade_no",orderSN},//商户自己的订单号码
+                {"total_fee",totalfee},
+                {"spbill_create_ip",ip},//服务器的IP地址
+                {"notify_url",PayResulturl},//异步通知的地址，不能带参数
+                {"trade_type","JSAPI" },
+                {"openid",openid}
+            };
+
+            //加入签名
+            dic.Add("sign", GetSignString(dic));
+            var sb = new StringBuilder();
+            sb.Append("<xml>");
+
+
+            foreach (var d in dic)
+            {
+                sb.Append("<" + d.Key + ">" + d.Value + "</" + d.Key + ">");
+            }
+            sb.Append("</xml>");
+            var xml = new XmlDocument();
+
+            CookieCollection coo = new CookieCollection();
+            Encoding en = Encoding.GetEncoding("UTF-8");
+
+            HttpWebResponse response = CreatePostHttpResponse("https://api.mch.weixin.qq.com/pay/unifiedorder", sb.ToString(), en);
+            //打印返回值
+            Stream stream = response.GetResponseStream();   //获取响应的字符串流
+            StreamReader sr = new StreamReader(stream); //创建一个stream读取流
+            string html = sr.ReadToEnd();   //从头读到尾，放到字符串html
+
+            xml.LoadXml(html);
+
+
+            var root = xml.DocumentElement;
+            DataSet ds = new DataSet();
+            StringReader stram = new StringReader(html);
+            XmlTextReader reader = new XmlTextReader(stram);
+            ds.ReadXml(reader);
+            string return_code = ds.Tables[0].Rows[0]["return_code"].ToString();
+            if (return_code.ToUpper() == "SUCCESS")
+            {
+                //通信成功
+                string result_code = ds.Tables[0].Rows[0]["result_code"].ToString();//业务结果
+                if (result_code.ToUpper() == "SUCCESS")
+                {
+                    var res = new Dictionary<string, string>
+                    {
+                        {"appId", appid},
+                        {"timeStamp", GetTimeStamp()},
+                        {"nonceStr", dic["nonce_str"]},
+                        {"package",  "prepay_id="+ds.Tables[0].Rows[0]["prepay_id"].ToString()},
+                        {"signType", "MD5"}
+                    };
+                    //在服务器上签名
+                    res.Add("paySign", GetSignString(res));
+                    return res;
+                }
+                else
+                {
+                    WriteLogs(ds.Tables[0].Rows[0]["return_msg"].ToString());
+                }
+
+            }
+            else if (return_code.ToUpper() == "FAIL")
+            {
+                WriteLogs(ds.Tables[0].Rows[0]["return_msg"].ToString());
+            }
+            return null;
+        }
+
+        /// <summary>  
+        /// 获取时间戳  
+        /// </summary>  
+        /// <returns></returns>  
+        public static string GetTimeStamp()
+        {
+            TimeSpan ts = DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, 0);
+            return Convert.ToInt64(ts.TotalSeconds).ToString();
+
+        }
+        public static HttpWebResponse CreatePostHttpResponse(string url, string datas, Encoding charset)
+        {
+            HttpWebRequest request = null;
+            //HTTPSQ请求
+            ServicePointManager.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(CheckValidationResult);
+            request = WebRequest.Create(url) as HttpWebRequest;
+            request.ProtocolVersion = HttpVersion.Version10;
+            request.Method = "POST";
+            request.ContentType = "application/x-www-form-urlencoded";
+            StringBuilder buffer = new StringBuilder();
+            buffer.AppendFormat(datas);
+            byte[] data = charset.GetBytes(buffer.ToString());
+            using (Stream stream = request.GetRequestStream())
+            {
+                stream.Write(data, 0, data.Length);
+            }
+            return request.GetResponse() as HttpWebResponse;
+
+        }
+        private static bool CheckValidationResult(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors errors)
+        {
+            return true; //总是接受   
+        }
+
+        /// <summary>
+        /// 从字符串里随机得到，规定个数的字符串.
+        /// </summary>
+        /// <param name="allChar"></param>
+        /// <param name="CodeCount"></param>
+        /// <returns></returns>
+        public static string GetRandomString(int CodeCount)
+        {
+            string allChar = "1,2,3,4,5,6,7,8,9,A,B,C,D,E,F,G,H,i,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z";
+            string[] allCharArray = allChar.Split(',');
+            string RandomCode = "";
+            int temp = -1;
+            Random rand = new Random();
+            for (int i = 0; i < CodeCount; i++)
+            {
+                if (temp != -1)
+                {
+                    rand = new Random(temp * i * ((int)DateTime.Now.Ticks));
+                }
+                int t = rand.Next(allCharArray.Length - 1);
+                while (temp == t)
+                {
+                    t = rand.Next(allCharArray.Length - 1);
+                }
+                temp = t;
+                RandomCode += allCharArray[t];
+            }
+
+            return RandomCode;
+
+        }
+
+        public static string GetSignString(Dictionary<string, string> dic)
+        {
+            string key = System.Web.Configuration.WebConfigurationManager.AppSettings["key"].ToString();//商户平台 API安全里面设置的KEY  32位长度
+            //排序
+            dic = dic.OrderBy(d => d.Key).ToDictionary(d => d.Key, d => d.Value);
+            //连接字段
+            var sign = dic.Aggregate("", (current, d) => current + (d.Key + "=" + d.Value + "&"));
+            sign += "key=" + key;
+            //MD5
+            // sign = System.Web.Security.FormsAuthentication.HashPasswordForStoringInConfigFile(sign, "MD5").ToUpper();
+            System.Security.Cryptography.MD5 md5 = System.Security.Cryptography.MD5.Create();
+            sign = BitConverter.ToString(md5.ComputeHash(Encoding.UTF8.GetBytes(sign))).Replace("-", null);
+            return sign;
+        }
+    }
+
+}

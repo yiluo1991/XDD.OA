@@ -1,0 +1,144 @@
+﻿@{
+}
+
+
+<div id="table">
+    <div id="maintabletoolbar">
+        <table cellpadding="0" cellspacing="0">
+            <tr>
+               
+                <td>
+                    <input id="searchbox" menu="#mm" class="easyui-searchbox" style="width:300px" prompt="请输入搜索的内容" data-options="searcher:function(value,name){$('#table').datagrid('load',{keyword:value,type:name})}" />
+                    <div id="mm" style="width:150px">
+                        <div data-options="name:''">全部</div>
+                        <div data-options="name:'0'">出售</div>
+                        <div data-options="name:'1'">收购</div>
+                    </div>
+                </td>
+                <td>
+                    <div class="datagrid-btn-separator"></div>
+                </td>
+                <td>
+                    <a class="easyui-linkbutton" iconcls="icon-reload" plain="true" onclick="$('#table').datagrid('reload')">刷新</a>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+<style>
+    .full{
+        width:100%;
+    }
+</style>
+<div id="dialog" style="overflow:auto;padding:5px;">
+    <pre id="pre" style="width:100%;height:auto;"></pre>
+    <div id="paths">
+
+    </div>
+</div>
+<script>
+    function del(index) {
+        var row = $('#table').datagrid('getRows')[index];
+        $.post('/Commodity/Disable', { id: row.Id }, function (data) {
+            if (data.ResultCode == 1) {
+               
+            } else {
+                $.messager.alert('提示', data.message, 'info')
+            }
+            $('#table').datagrid('reload');
+        })
+    }
+    function view(index) {
+        var row = $('#table').datagrid('getRows')[index];
+        $('#pre').html(row.Content);
+        $('#paths').empty()
+        if (row.Paths) {
+            row.Paths.split('|').forEach(function (item) {
+                $('<img class="full" src="'+item+'">').appendTo('#paths')
+            })
+        }
+        $('#dialog').dialog('open')
+    }
+    $(function () {
+        $('#dialog').dialog({
+            width: 380,
+            height: 500,
+            closed:true,
+            modal: true,
+            title: '简介',
+            buttons: [{
+
+                text: '关闭',
+                iconCls: 'icon-cancel',
+                plain: true,
+                handler: function () {
+
+                    $('#dialog').dialog('close')
+                }
+            }]
+        })
+    })
+    var level = ['其他', '五新以下', '五新', '六新', '七新', '八新', '八五新', '九新', '九五新', '九八新', '全新'];
+    $(function () {
+        $('#table').datagrid({
+            toolbar: '#maintabletoolbar',
+            fit: true,
+            fitColumns: true,
+            singleSelect: true,
+            url: '/Commodity/GetComodities',
+            rowStyler: function (index, row) {
+                if (row.Type) {
+                    return 'color:orange;'
+                }
+            },
+            rownumbers:true,
+            columns: [[
+
+                {
+                    field: 'CommodityCategoryName', width: 60, title: '分类', align: 'center'
+
+                }, {
+                    field: 'Cover', width: 70, title: '封面', align: 'center', fixed: true, formatter: function (value) {
+                        return '<div  style="height:40px;width:60px;background:url(' + value + ')  center center/cover;">'
+                    }
+                }, {
+                    field: 'Name', width: 200, title: '标题', align: 'center'
+                }, {
+                    field: 'Type', width: 60, title: '交易类型', align: 'center', formatter: function (value) {
+                        return value ? '收购' : '出售'
+                    }
+                }, {
+                    field: 'Price', width: 60, title: '价格', align: 'right',halign:'center', formatter: function (value) {
+                        return '￥'+value.toFixed(2)
+                    }
+                }, {
+                    field: 'NewLevel', width: 60, fixed: true, title: '新旧', align: 'center', formatter: function (value) {
+                        return level[value]
+                    }
+                }, {
+                    field: 'NickName', width: 85, title: '发布人Id | 昵称', fixed: true, align: 'center', formatter: function (value, row) {
+                        return row.Id + " | " + value
+                    }
+                }, {
+                    field: 'OnSale', width: 85, title: '上架', fixed: true, align: 'center', formatter: function (value, row, index) {
+                        if (value) {
+                            return '<div class="icon-ok" style="height:18px;">&nbsp;</div>'
+                        } else {
+                            return '<div class="icon-cancel" style="height:18px;">&nbsp;</div>'
+                        }
+                    }
+                }, {
+                    field: 'edit', width: 160, title: '操作', align: 'center', fixed: true, formatter: function (value,row,index) {
+                        return '<a class="editbtn" iconcls="icon-search" onclick="view(' + index + ')">简介</a> <a class="editbtn"  iconcls="icon-remove" onclick="del(' + index + ')">删除</a>'
+                    }
+                },
+
+            ]],
+            pagination: true,
+            onLoadSuccess: function () {
+                $('.editbtn').linkbutton({plain:true})
+            }
+
+        })
+    })
+</script>

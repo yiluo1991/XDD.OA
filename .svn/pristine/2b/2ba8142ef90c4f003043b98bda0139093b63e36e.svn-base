@@ -1,0 +1,228 @@
+﻿<div id="table">
+    <div id="maintabletoolbar">
+        <table cellpadding="0" cellspacing="0">
+            <tr>
+                <td>
+                    <a class="easyui-linkbutton" iconcls="icon-add" plain="true" onclick=" $('#editform').form('reset').form('resetValidation'); $('#editdialog').dialog('open').dialog('setTitle', '添加分类');">添加</a>
+                </td>
+                <td>
+                    <div class="datagrid-btn-separator"></div>
+                </td>
+                <td>
+                    <a class="easyui-linkbutton" iconcls="icon-remove" plain="true" onclick="rm()">删除</a>
+                </td>
+                <td>
+                    <div class="datagrid-btn-separator"></div>
+                </td>
+                <td>
+                    <input id="searchbox" class="easyui-searchbox" style="width:200px" prompt="请输入搜索的内容" data-options="searcher:function(value){$('#table').datagrid('load',{keyword:value})}" />
+                </td>
+                <td>
+                    <div class="datagrid-btn-separator"></div>
+                </td>
+                <td>
+                    <a class="easyui-linkbutton" iconcls="icon-reload" plain="true" onclick="$('#table').datagrid('reload')">刷新</a>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+<script>
+    $(function () {
+        $('#table').datagrid({
+            toolbar: '#maintabletoolbar',
+            fit: true,
+            border: false,
+            fitColumns: true,
+            //分页
+            pagination: true,
+            rownumbers: true,
+            pageList: [1, 2, 5, 10, 20, 30, 40, 50],
+            closable: true,
+            collapsible: true,
+
+            url: '/BBSArticle/AllowGet',
+            singleSelect: true,
+            columns: [[
+                  {
+                      field: 'CategoryId', title: '分类名', width: 50, fixed: true, align: 'center'
+                  }, {
+                      field: 'Subject', title: '主题', width: 40, align: 'center'
+                  }, {
+                      field: 'SN', title: '排序号', width: 50, fixed: true, align: 'center'
+                  }, {
+                      field: 'Title', title: '标题', width: 50, fixed: true, align: 'center'
+                  }, {
+                      field: 'ReadCount', title: '阅读数', width: 60, align: 'center'
+                  }, {
+                      field: 'CommentCount', title: '评论数', width: 60, align: 'center'
+                  }, {
+                      field: 'CreateTime', title: '创建时间', width: 60, align: 'center', formatter: function (value) { return $.formatJsonDate(value) }
+                  }, {
+                      field: 'MemberId', title: '创建人', width: 60, align: 'center'
+                  },{
+                       field: 'Counter', title: '楼层计算器', width: 60, align: 'center', formatter: function (value) { return $.formatJsonDate(value) }
+                   }, {
+                      field: 'IsBackgroundArticle', title: '是否后台文章', width: 60, fixed: true, align: 'center', formatter: function (value) {
+                          if (value) {
+                              return "<span style='color:green;font-weight:bold;'>启用</span>"
+                          }
+                          else {
+                              return "<span style='color:red;font-weight:bold;'>禁用</span>"
+                          }
+                      }
+                  }, {
+                      field: 'AllowComment', title: '可评论', width: 60, fixed: true, align: 'center', formatter: function (value) {
+                          if (value) {
+                              return "<span style='color:green;font-weight:bold;'>启用</span>"
+                          }
+                          else {
+                              return "<span style='color:red;font-weight:bold;'>禁用</span>"
+                          }
+                      }
+                  },
+                  {
+                      field: 'ShowComment', title: '显示评论', width: 60, fixed: true, align: 'center', formatter: function (value) {
+                          if (value) {
+                              return "<span style='color:green;font-weight:bold;'>启用</span>"
+                          }
+                          else {
+                              return "<span style='color:red;font-weight:bold;'>禁用</span>"
+                          }
+                      }
+                  }, {
+                      field: 'edit', title: '操作', width: 160, halign: 'center',  fixed: true, formatter: function (value, row, index) {
+                          switch (row.IsBackgroundArticle) {
+                              case false: return '<a class=" editbtn"  onclick="edit(' + index + ')">修改</a>';
+                              case true: return '<a class="editbtn" onclick="edit(' + index + ')">修改</a> <a class="editbtn" onclick="">编辑</a>';
+                              default: return '';
+                          }
+
+                      }
+                  }
+            ]],
+
+
+            onLoadSuccess: function () {
+                $('.editbtn').linkbutton({ iconCls: 'icon-edit', plain: true });
+                $(this).datagrid('fixRowHeight');
+            }
+        })
+    })
+    $(function () {
+        $('#editdialog').dialog({
+            width: 400,
+            height: 610,
+            modal: true,
+            closed: true,
+            pageList: [1, 2, 5, 10, 20, 30, 40, 50],
+            pagination: true,
+            buttons: [{
+                iconCls: 'icon-ok',
+                text: '保存',
+                handler: function () {
+                    var url;
+                    if ($('#editid').val() == 0) {
+                        url = "/BBSArticle/Add"
+                    } else {
+                        url = "/BBSArticle/Edit"
+                    }
+                    if ($('#editform').form('validate')) {
+                        $.ajaxStart();
+                        $('#editform').ajaxSubmit({
+                            url: url,
+                            dataType: 'json',
+                            success: function (data) {
+                                $.ajaxEnd();
+                                $('#editdialog').dialog('close');
+                                if (data.ResultCode != 1) {
+                                    $.messager.alert('提示', data.message, "warning");
+                                }
+                                $('#table').datagrid('reload');
+
+                            }
+                        })
+                    }
+                },
+                plain: true
+            }, {
+                iconCls: 'icon-cancel',
+                text: '取消',
+                handler: function () {
+                    $('#editdialog').dialog('close')
+                },
+                plain: true
+            }]
+        })
+    })
+    function edit(index) {
+        var row = $('#table').datagrid('getRows')[index];
+        row.Pic = row.Src;
+        $('#editform').form('reset').form('resetValidation').form('load', row);
+        $('#pic').filebox('setText', row.Src);
+        $('#editdialog').dialog('open').dialog('setTitle', '修改分类');
+    }
+    function rm(index) {
+        var row = $('#table').datagrid('getSelected');
+        if (row) {
+            $.ajaxStart()
+            $.post('/BBSArticle/remove', { id: row.Id }, function (data) {
+                $.ajaxEnd();
+                $('#table').datagrid('load');
+            })
+        }
+    }
+
+</script>
+<style>
+    #editdialog p {
+        padding: 5px 0;
+    }
+</style>
+<div id="editdialog" style="padding:5px;text-align:center;overflow:hidden;">
+    <form id="editform" enctype="multipart/form-data" method="post">
+
+        <p>
+            <input id="editid" name="Id" value="0" hidden />
+            <input validateoncreate="false" prompt="请输入分类名" class="easyui-textbox" label="分类名" labelwidth="80" labelalign="center" name="CategoryId" style="width:99%;" required />
+        </p>
+        <p>
+            <input validateoncreate="false" prompt="请输入主题" class="easyui-numberbox" label="主题" labelwidth="80" labelalign="center" name="Subject" style="width:99%;" required value="100" />
+        </p>
+        <p>
+            <input validateoncreate="false" prompt="请输入标题" class="easyui-textbox" label="标题" labelwidth="80" labelalign="center" name="Title" style="width:99%;" required />
+        </p>
+        <p>
+            <input validateoncreate="false" prompt="请输入排序号" class="easyui-numberbox" label="排序号" labelwidth="80" labelalign="center" name="SN" style="width:99%;" required value="100" />
+        </p>
+        <p>
+            <input validateoncreate="false" prompt="请输入评论数" class="easyui-numberbox" label="评论数" labelwidth="80" labelalign="center" name="CommentCount" style="width:99%;" required value="100" />
+        </p>
+        <p>
+            <input validateoncreate="false" prompt="请输入楼层计数器" class="easyui-numberbox" label="楼层计数器" labelwidth="80" labelalign="center" name="Counter" style="width:99%;" required value="100" />
+        </p>
+        <p>
+            <input validateoncreate="false" prompt="请输入阅读数" class="easyui-textbox" label="阅读数" labelwidth="80" labelalign="center" name="ReadCount" style="width:99%;" required />
+        </p>
+        @*<p>
+                <input id="editid" name="Id" value="0" hidden />
+                <input validateoncreate="false" prompt="请输入创建时间" class="easyui-datetimebox" label="创建时间" labelwidth="80" labelalign="center" name="CreateTime" style="width:99%;" required />
+            </p>
+            <p>
+                <input validateoncreate="false" prompt="请输入创建人" class="easyui-numberbox" label="创建人" labelwidth="80" labelalign="center" name="MemberId" style="width:99%;" required value="100" />
+            </p>*@
+        <p>
+            <input validateoncreate="false" prompt="请输入楼层计数器" class="easyui-numberbox" label="楼层计数" labelwidth="80" labelalign="center" name="Counter" style="width:99%;" required value="100" />
+        </p>
+        <p>
+            <input validateoncreate="false" class="easyui-combobox" editable="false" label="是否后台文章" labelwidth="80" labelalign="center" name="IsBackgroundArticle" style="width:99%;" required data-options="data:[{text:'启用',value:true},{text:'禁用',value:false}],value:true" panelheight="80" />
+        </p>
+        <p>
+            <input validateoncreate="false" class="easyui-combobox" editable="false" label="可评论" labelwidth="80" labelalign="center" name="AllowComment" style="width:99%;" required data-options="data:[{text:'启用',value:true},{text:'禁用',value:false}],value:true" panelheight="80" />
+        </p>
+        <p>
+            <input validateoncreate="false" class="easyui-combobox" editable="false" label="显示评论" labelwidth="80" labelalign="center" name="ShowComment" style="width:99%;" required data-options="data:[{text:'启用',value:true},{text:'禁用',value:false}],value:true" panelheight="80" />
+        </p>
+    </form>
+</div>
+

@@ -1,0 +1,161 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+}
+
+<script>
+    $(function () {
+        $('#maintable').datagrid({
+            //data: [],
+            toolbar: '#maintabletoolbar',
+            url: '/MemberAccount/getmembers',
+            fit: true,
+            border: false,
+            fitColumns: true,
+            pagination: true,
+            pageSize: 10,
+            singleSelect: true,
+            columns: [[
+                {
+                    field: 'NickName', title: '昵称', align: 'center', width: 60,
+                },
+                 {
+                     field: 'RealName', title: '真实姓名', align: 'center', width: 60,
+                 }, {
+                     field: 'Account', title: '账户余额', align: 'right', width: 100, fixed: true, align: 'center',
+                    // formatter: function (value) {
+                    //     return '￥' + value.toFixed(2);
+                    //}
+                }, {    
+                    field: 'Country', title: '国籍', width: 45, align: 'center'
+                },
+                {
+                    field: 'Province', title: '省份', width: 45, align: 'center'
+                }, {
+                    field: 'City', title: '城市', width: 45, align: 'center'
+                },
+
+                {
+                    field: 'WeChatBindPhone', title: '微信绑定号码', width: 100, align: 'center'
+                },
+                {
+                    field: 'PlatformBindPhone', title: '平台绑定号码', width: 100, align: 'center'
+                }, {
+                    field: 'Sex', title: '性别', align: 'center', width: 50, fixed: true, formatter: function (value) {
+                        return sex[value];
+                    }
+                }, {
+                    field: 'Status', title: '状态', align: 'center', width: 60, fixed: true, formatter: function (value) {
+                        return ms[value];
+                    }
+                }, {
+                    field: 'edit', title: '操作', align: 'center', width: 100, fixed: true, formatter: function (value, row, index) {
+                        return '<a class="membereditbtn" onclick="OpenStatement(' + index + ')" >查看流水</a>'
+                    }
+                },
+            ]],
+            onLoadSuccess: function () {
+                $('.easyui-tooltip').tooltip();
+                $('.membereditbtn').linkbutton({ iconCls: 'icon-piece', plain: true })
+            },
+            onDblClickRow: function (index) {
+                OpenStatement(index)
+            }
+        });
+        $('#statementdialog').dialog({
+            modal: true,
+            width: 800,
+            height: 500,
+            title: '流水',
+            closed: true
+        });
+        $('#statement').datagrid({
+            data: [],
+            toolbar: '#statement_toolbar',
+            fit: true,
+            border: false,
+            fitColumns: true,
+            pagination: true,
+            rownumbers: true,
+            pageSize: 10,
+            singleSelect: true,
+            columns: [[
+                 {
+                     field: "BeforeBalance", title: '交易前余额', align: 'right', halign: 'center', width: 100, formatter: function (value) {
+                         return '￥' + value.toFixed(2);
+                     }
+                 }, {
+                     field: "Money", title: '交易金额', align: 'right', halign: 'center', width: 100, formatter: function (value) {
+                         return '￥' + value.toFixed(2);
+                     }, styler: function (value) {
+                         if (value > 0) {
+                             return 'color:darkgreen';
+                         }
+                         if (value < 0) {
+                             return 'color:red';
+                         }
+                     }
+                 },  {
+                     field: "Type", title: '交易类型', align: 'center', width: 100,
+                 }, {
+                     field: "CreateTime", title: '交易时间', align: 'center', width: 100, formatter: function (value) {
+                         return $.formatJsonDate(value, '{0}-{1}-{2} {3}:{4}:{5}')
+                     }
+                 }
+            ]]
+        })
+
+
+    })
+    var buttons = $.extend([], $.fn.datebox.defaults.buttons);
+    buttons.splice(1, 0, { text: '清空', handler: function (target) { $(target).datebox('clear') } });
+    var sex = ["女", "男", "未知"];
+    var ms = ["None", "Identity", "Agant", "Supplier", "Freeze"];
+    function doSearch() {
+        $('#maintable').datagrid('load', { keyword: $('#searchbox').searchbox('getValue') })
+    }
+    function OpenStatement(index) {
+        window.event.stopPropagation();
+        var row = $('#maintable').datagrid('getRows')[index];
+        if (!$('#statement').datagrid('options').url) { $('#statement').datagrid('options').url = '/MemberAccount/GetStatements' };
+        $('#statementdialog').dialog('open');
+        $('#statement').datagrid('load', { keyword: $('#statementsearchbox').searchbox('getValue'), start: $('#start').datebox('getValue'), end: $('#end').datebox('getValue'), id: row.Id });
+    }
+</script>
+
+<div id="maintable">
+    <div id="maintabletoolbar">
+        <table cellspacing="0" cellpadding="0">
+            <tbody>
+                <tr>
+                    <td>
+                        <input id="searchbox" class="easyui-searchbox" style="width:200px" data-options="prompt:'请输入查询关键字',searcher:doSearch" />
+                    </td>
+                    <td><div class="datagrid-btn-separator"></div></td>
+                    <td>
+                        <a href="javascript:void(0)" class="easyui-linkbutton" plain="true" iconcls="icon-reload" onclick=" $('#maintable').datagrid('reload')">刷新</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div id="statementdialog">
+            <div id="statement">
+                <div id="statement_toolbar">
+                    <table cellspacing="0" cellpadding="0">
+                        <tbody>
+                            <tr>
+                                <td>
+                                    搜索:<input class="easyui-datebox" editable="false" id="start" data-options="buttons:buttons" />- <input class="easyui-datebox" editable="false" id="end" data-options="buttons:buttons" /> <input id="statementsearchbox" class="easyui-searchbox" data-options="prompt:'请输入查询关键字',searcher:function(value){ $('#statement').datagrid('load',{keyword:value,start:$('#start').datebox('getValue'),end:$('#end').datebox('getValue'),id:$('#maintable').datagrid('getSelected').Id})}" />
+                                </td>
+                                <td><div class="datagrid-btn-separator"></div></td>
+                                <td>
+                                    <a href="javascript:void(0)" class="easyui-linkbutton" plain="true" iconcls="icon-reload" onclick=" $('#statement').datagrid('reload')">刷新</a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+</div>

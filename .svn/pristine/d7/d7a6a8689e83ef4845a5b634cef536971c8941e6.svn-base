@@ -1,0 +1,42 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+using XDD.Web.Infrastructure;
+using System.IO;
+namespace XDD.Web.Controllers
+{
+       [Authorize(Roles = "管理员")]
+    public class BasicController : Controller
+    {
+        // GET: Basic
+        [Authorize(Roles="管理员")]
+        public ActionResult Index()
+        {
+            return View();
+        }
+
+        public JsonResult Get() {
+            return Json(Setting.MySetting);
+        }
+
+
+        public JsonResult Save(SettingRoot root)
+        {
+           var path=  Server.MapPath("/views/config.json");
+           try
+           {
+               System.IO.File.WriteAllText(path, new System.Web.Script.Serialization.JavaScriptSerializer().Serialize(root));
+               return Json(new { ResultCode = 1, Message = "保存成功" });
+           }
+           catch (Exception)
+           {
+
+               return Json(new { ResultCode =0, Message = "保存失败" });
+           }
+         
+          
+        }
+    }
+}

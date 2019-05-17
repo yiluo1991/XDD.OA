@@ -1,0 +1,263 @@
+﻿
+<div id="table">
+    <div id="maintabletoolbar">
+        <table cellpadding="0" cellspacing="0">
+            <tr>
+                <td>
+                    <a class="easyui-linkbutton" iconcls="icon-add" plain="true" onclick=" $('#editform').form('reset').form('resetValidation'); $('#editdialog').dialog('open').dialog('setTitle', '添加');">添加</a>
+                </td>
+                <td>
+                    <div class="datagrid-btn-separator"></div>
+                </td>
+                <td>
+                    <a class="easyui-linkbutton" iconcls="icon-remove" plain="true" onclick="rm()">删除</a>
+                </td>
+                <td>
+                    <div class="datagrid-btn-separator"></div>
+                </td>
+                <td>
+                    <input id="searchbox" class="easyui-searchbox" style="width:200px" prompt="请输入搜索的内容" data-options="searcher:function(value){$('#table').datagrid('load',{keyword:value})}" />
+                </td>
+                <td>
+                    <div class="datagrid-btn-separator"></div>
+                </td>
+                <td>
+                    <a class="easyui-linkbutton" iconcls="icon-reload" plain="true" onclick="$('#table').datagrid('reload')">刷新</a>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<script>
+    function dd1(index) {
+        $('#dd').dialog('open').dialog('setTitle', '验证码');
+    }
+    $(function () {
+        //手机验证弹窗
+        $('#dd').dialog({
+            width: 400,
+            height: 300,
+            closed: true,
+            modal: true,
+            title: '验证码',
+            buttons: [{
+                text: '确定', iconCls: 'icon-save', plain: true, handler: function () {
+                    var inputCode = document.getElementById("input1").value.toUpperCase();
+
+                    if (inputCode.length <= 0) {
+                        alert("请输入验证码！");
+                        return false;
+                    }
+                    else if (inputCode == code) {
+                        alert("成功！");
+                        $('#dd').dialog('close');
+                        return true;
+                    }
+                    else {
+                        alert("验证码输入错误！");
+
+                        createCode();
+                        return false;
+                    }
+                    //更新表格数据
+                    $('#table').treegrid('reload');
+
+                }
+            }]
+        })
+        $(function () {
+            $('#editdialog').dialog({
+                width: 400,
+                height: 310,
+                modal: true,
+                closed: true,
+                buttons: [{
+                    iconCls: 'icon-ok',
+                    text: '保存',
+                    handler: function () {
+                        var url;
+                        if ($('#editid').val() == 0) {
+                            url = "/Supplier/Add"
+                        } else {
+                            url = "/Supplier/Edit"
+                        }
+                        if ($('#editform').form('validate')) {
+                            $.ajaxStart();
+                            $('#editform').ajaxSubmit({
+                                url: url,
+                                dataType: 'json',
+                                success: function (data) {
+                                    $.ajaxEnd();
+                                    $('#editdialog').dialog('close');
+                                    if (data.ResultCode != 1) {
+                                        $.messager.alert('提示', data.message, "warning");
+                                    }
+                                    $('#table').datagrid('reload');
+
+                                }
+                            })
+                        }
+                    },
+                    plain: true
+                }, {
+                    iconCls: 'icon-cancel',
+                    text: '取消',
+                    handler: function () {
+                        $('#editdialog').dialog('close')
+                    },
+                    plain: true
+                }]
+            })
+        })
+        $('#editdialog').dialog({
+            width: 300,
+            height: 250,
+            closed: true,//隐藏窗体
+            modal: true,//定义是否将窗体显示为模式化窗口。
+            title: '新增用户',
+            buttons: [{
+                text: '确定', iconCls: 'icon-save', plain: true, handler: function () {
+                    var url;
+                    if ($('#userid').val() == '0') {
+                        url = '/Supplier/Add'
+                    } else {
+                        url = '/Supplier/Edit'
+                    }
+                    //alert(url)
+                    if ($('#editform').form('validate')) {
+                        //alert("用户输入正确");
+                        $('#editform').form('submit', {
+                            url: url,
+                            success: function (data) {
+                                //更新表格数据
+                                $('#table').datagrid('reload');
+                                //关闭窗口
+                                $('#editdialog').dialog('close');
+
+                            }
+                        })
+                    }
+                }
+            }]
+        })
+    });
+
+    $(function () {
+        $('#table').datagrid({
+            toolbar: '#maintabletoolbar',
+            fit: true,
+            border: false,
+            fitColumns: true,
+            url: '/Supplier/Get',
+            rownumbers: true,
+            pagination:true,
+            singleSelect: true,
+            columns: [[
+                      {
+                          field: 'Description', title: '描述', width: 100, align: 'center'
+                      }, 
+                      {
+                          field: 'EmployeeId', title: '创建人', width: 160, align: 'center', 
+   
+                          },
+                      {
+                          field: 'CreateTime', title: '创建时间', width: 160, align: 'center' ,formatter: function (value) { return $.formatJsonDate(value) }
+                      },
+                         
+                      {
+                          field: 'MemberId', title: '绑定的用户', width: 60, fixed: true, align: 'center'
+                      }, 
+                      {
+                          field: 'dd', title: '验证', width: 60, fixed: true, align: 'center', formatter: function (value, row, index)
+                          {
+                              return '<a class="dd" onclick="dd1(' + index + ')">验证码</a>'
+                          }
+                      },
+                       {
+                          field: 'edit', title: '操作', width: 100, halign: 'center', width: 86, fixed: true, formatter: function (value, row, index) {
+                              return '<a class="editbtn" onclick="edit(' + index + ')">修改</a>'
+                          }
+                      }
+            ]],
+
+
+            onLoadSuccess: function () {
+                $('.editbtn').linkbutton({ iconCls: 'icon-edit', plain: true });
+                $(this).datagrid('fixRowHeight');
+            }
+        });
+    });
+
+    
+    function edit(index) {
+        var row = $('#table').datagrid('getRows')[index];
+        $('#editform').form('reset').form('resetValidation').form('load', row);
+        $('#pic').filebox('setText', row.Src);
+        $('#editdialog').dialog('open').dialog('setTitle', '修改');
+    }
+    function rm(index) {
+        var row = $('#table').datagrid('getSelected');
+        if (row) {
+            $.ajaxStart()
+            $.post('/Supplier/remove', { id: row.Id }, function (data) {
+                $.ajaxEnd();
+                $('#table').datagrid('load');
+            })
+        }
+    }
+
+</script>
+<style>
+    #editdialog p {
+        padding: 5px 0;
+    }
+</style>
+<div id="editdialog" style="padding:5px;text-align:center;overflow:hidden;">
+    <form id="editform" enctype="multipart/form-data" method="post">
+        <input id="editid" name="Id" value="0" hidden />
+        <p>
+
+            <input validateoncreate="false" prompt="请描述门票详情" validtype="length[0,20]" class="easyui-textbox" label="描述" labelwidth="80" labelalign="center" name="Description" style="width:99%;" required />
+        </p>
+
+  
+    </form>
+</div>
+<script>
+</script>
+
+<div id="dd" style="padding:5px;overflow:hidden" class="row">
+
+    <input type="button" id="checkCode" class="code" style="width:200px;height:30px;font-size:20px;background-color:aquamarine" onclick="createCode()" />
+    <a href="#" class="easyui-linkbutton" onclick="createCode()" style="width:30%;">看不清楚</a>
+
+    <input type="text" id="input1" class="easyui-textbox" label="验证码" labelwidth="100" style="width:98%;" validateoncreate="false" />
+
+
+
+</div>
+
+
+<script language="javascript" type="text/javascript">
+    var code; //在全局 定义验证码
+    function createCode() {
+        code = new Array();
+        var codeLength = 4;//验证码的长度
+        var checkCode = document.getElementById("checkCode");
+        checkCode.value = "";
+
+        var selectChar = new Array(2, 3, 4, 5, 6, 7, 8, 9, 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z');
+
+        for (var i = 0; i < codeLength; i++) {
+            var charIndex = Math.floor(Math.random() * 32);
+            code += selectChar[charIndex];
+        }
+        if (code.length != codeLength) {
+            createCode();
+        }
+        checkCode.value = code;
+    }
+
+
+</script>

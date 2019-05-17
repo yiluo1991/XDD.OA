@@ -1,0 +1,205 @@
+﻿@{
+    ViewBag.Title = "Index";
+}
+
+
+<div class="easyui-layout" data-options="fit:true">
+    <div id="table">
+        <div id="maintabletoolbar">
+            <table cellpadding="0" cellspacing="0">
+                <tr>
+                    <td>
+                        <a class="easyui-linkbutton" iconcls="icon-add" plain="true" onclick=" $('#editform').form('reset').form('resetValidation'); $('#editdialog').dialog('open').dialog('setTitle', '添加用户');">添加</a>
+                    </td>
+                    <td>
+                        <div class="datagrid-btn-separator"></div>
+                    </td>
+                    <td>
+                        <a class="easyui-linkbutton" iconcls="icon-redo" plain="true" onclick="rm()">重置密码</a>
+                    </td>
+                    <td>
+                        <div class="datagrid-btn-separator"></div>
+                    </td>
+                    <td>
+                        <input id="searchbox" class="easyui-searchbox" style="width:200px" prompt="请输入搜索的内容" data-options="searcher:function(value){$('#table').datagrid('load',{keyword:value})}" />
+                    </td>
+                    <td>
+                        <div class="datagrid-btn-separator"></div>
+                    </td>
+                    <td>
+                        <a class="easyui-linkbutton" iconcls="icon-reload" plain="true" onclick="$('#table').datagrid('reload')">刷新</a>
+                    </td>
+                
+                </tr>
+            </table>
+        </div>
+    </div>
+    <script>
+        function rm() {
+            var row = $("#table").datagrid('getSelected');
+            if (row) {
+                $.messager.confirm('确认重置', '您确定要重置' + row.LoginName + '?', function (r) {
+                    if (r) {
+                        $.ajax({
+                            url: '/Employee/pass',
+                            type: 'post',
+                             data:{user:row},
+                            success: function (data) {
+                                $.messager.alert('提示', '重置成功 密码为123456', 'warning');
+                                $('#table').datagrid('reload');
+                            }
+                        })
+                    }
+                });
+            } else {
+                $.messager.alert('提示', '请选择要重置密码的用户', 'warning');
+            }
+        }
+
+
+
+
+        $(function () {
+            $('#table').datagrid({
+                toolbar: '#maintabletoolbar',
+                fit: true,
+                border: false,
+                fitColumns: true,
+                url: '/Employee/Get',
+                rownumbers: true,
+                singleSelect: true,
+                columns: [[
+                      {
+                          field: 'Id', title: 'Id', width: 60, align: 'center'
+                      }, {
+                          field: 'LoginName', title: '用户名', width: 60, align: 'center'
+                      }, {
+                          field: 'Email', title: '邮箱', width: 100, align: 'center'
+                      }, {
+                          field: 'RealName', title: '真实姓名', width: 60, align: 'center'
+                      },
+                      {
+                          field: 'RoleName', title: '角色名', width: 60, align: 'center'
+                      },
+                      {
+                          field: 'Enable', title: '允许登录', width: 100, halign: 'center', width: 100, fixed: true, formatter: function (value, row, index) {
+                              if (value) {
+                                  return '<div class="icon-ok" style="height:18px;">&nbsp;</div>'
+                              } else {
+                                  return '<div class="icon-cancel" style="height:18px;">&nbsp;</div>'
+                              }
+                          }
+                      }, {
+                          field: 'CreateTime', title: '创建时间', width: 100, align: 'center', formatter: function (value) { return $.formatJsonDate(value) }
+                      }, {
+                          field: 'CreatorLoginName', title: '创建者', width: 60, align: 'center', formatter: function (value) {
+                             return value
+                          }
+                      }, {
+                          field: 'edit', title: '操作', width: 100, halign: 'center', width: 86, fixed: true, formatter: function (value, row, index) {
+                              return '<a class="editbtn" onclick="edit(' + index + ')">修改</a>'
+                          }
+                      }
+                ]],
+
+
+                onLoadSuccess: function () {
+                    $('.editbtn').linkbutton({ iconCls: 'icon-edit', plain: true });
+                    //$(this).datagrid('fixRowHeight');
+                }
+            })
+        })
+        $(function () {
+            $('#editdialog').dialog({
+                width: 400,
+                height: 310,
+                modal: true,
+                closed: true,
+                buttons: [{
+                    iconCls: 'icon-ok',
+                    text: '保存',
+                    handler: function () {
+                        var url;
+                        if ($('#editid').val() == 0) {
+                            url = "/Employee/Add"
+                        } else {
+                            url = "/Employee/Edit"
+                        }
+                        if ($('#editform').form('validate')) {
+                            $.ajaxStart();
+                        $.ajax({
+                            url: url,
+                            type:'post',
+                                dataType: 'json',
+                                data: {
+                                    RoleName: $('#cbbox').combobox('getText'),
+                                    Id:$('#editid').val(),
+                                    LoginName:$('#loginName').textbox('getValue'),
+                                    Email:$('#email1').textbox('getValue'),
+                                    RealName:$('#realname1').textbox('getValue'),
+                                    Enable:$('#enable1').combobox('getValue')
+                                },
+                                success: function (data) {
+                                    $.ajaxEnd();
+                                    $('#editdialog').dialog('close');
+                                    if (data.ResultCode != 1) {
+                                        $.messager.alert('提示', data.message, "warning");
+                                    }
+                                    $('#table').datagrid('reload');
+
+                                }
+                            })
+                        }
+                    },
+                    plain: true
+                }, {
+                    iconCls: 'icon-cancel',
+                    text: '取消',
+                    handler: function () {
+                        $('#editdialog').dialog('close')
+                    },
+                    plain: true
+                }]
+            })
+        })
+        function edit(index) {
+            var row = $('#table').datagrid('getRows')[index];
+            $('#editform').form('reset').form('resetValidation').form('load', row);
+            $('#editdialog').dialog('open').dialog('setTitle', '修改用户');
+        }
+        $.fn.validatebox.defaults.rules.username = {
+            validator: function (value) {
+                return /^[a-zA-Z0-9_-]{4,16}$/.test(value);//正则测试用户输入的内容是否匹配
+            },
+            message: "用户名仅支持4-16位的中英文、数字,下划线和减号"
+        }
+    </script>
+    <style>
+        #editdialog p {
+            padding: 5px 0;
+        }
+    </style>
+    <div id="editdialog" style="padding:5px;text-align:center;overflow:hidden;">
+        <form id="editform"  method="post">
+
+            <p>
+                <input id="editid" name="Id" value="0" hidden />
+                <input id="loginName" validateoncreate="false" prompt="请输入用户名" class="easyui-textbox" label="用户名" labelwidth="80" labelalign="center" name="LoginName" style="width:99%;" required validtype="username" />
+            </p>
+            <p>
+                <input  id="email1" validateoncreate="false" prompt="请输入邮箱" class="easyui-textbox" label="邮箱" labelwidth="80" labelalign="center" name="Email" style="width:99%;" required validtype="email" />
+            </p>
+            <p>
+                <input id="realname1" validateoncreate="false" prompt="请输入真实姓名" class="easyui-textbox" label="真实姓名" labelwidth="80" labelalign="center" name="RealName" style="width:99%;" required />
+            </p>
+            <p >
+                <input validateoncreate="false" panelheight="150" id="cbbox" multiple required class="easyui-combobox" editable="false" label="角色名" labelwidth="80" labelalign="center" name="RoleName" style="width:99%;"  data-options="data:[{text:'管理员',value:'管理员'},{text:'票务管理',value:'票务管理'} ,{text:'社交管理',value:'社交管理'} ,{text:'二手管理',value:'二手管理'}],value:'管理员'" panelheight="80" />
+            </p>
+            <p>
+                <input id="enable1" validateoncreate="false" class="easyui-combobox" editable="false" label="允许登录" labelwidth="80" labelalign="center" name="Enable" style="width:99%;" required data-options="data:[{text:'允许',value:true},{text:'禁止',value:false}],value:true" panelheight="80" />
+            </p>
+        </form>
+    </div>
+</div>
+
+

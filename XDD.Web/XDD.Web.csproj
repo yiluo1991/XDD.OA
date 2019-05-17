@@ -1,0 +1,1272 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>
+    </ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{2D2FB8DA-E17F-4366-BC1D-A0163672472D}</ProjectGuid>
+    <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>XDD.Web</RootNamespace>
+    <AssemblyName>XDD.Web</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <UseIISExpress>true</UseIISExpress>
+    <IISExpressSSLPort />
+    <IISExpressAnonymousAuthentication />
+    <IISExpressWindowsAuthentication />
+    <IISExpressUseClassicPipelineMode />
+    <UseGlobalApplicationHostFile />
+    <Use64BitIISExpress />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>App_Data\XDD.Web.XML</DocumentationFile>
+    <RegisterForComInterop>false</RegisterForComInterop>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="ICSharpCode.SharpZipLib, Version=1.0.0.999, Culture=neutral, PublicKeyToken=1b03e6acf1164f73, processorArchitecture=MSIL">
+      <HintPath>..\packages\SharpZipLib.1.0.0\lib\net45\ICSharpCode.SharpZipLib.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="MultipartDataMediaFormatter, Version=2.0.2.0, Culture=neutral, PublicKeyToken=67148dd0761d95a0, processorArchitecture=MSIL">
+      <HintPath>..\packages\MultipartDataMediaFormatter.V2.2.0.2\lib\net45\MultipartDataMediaFormatter.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="NPOI, Version=2.4.1.0, Culture=neutral, PublicKeyToken=0df73ec7942b34e1, processorArchitecture=MSIL">
+      <HintPath>..\packages\NPOI.2.4.1\lib\net45\NPOI.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="NPOI.OOXML, Version=2.4.1.0, Culture=neutral, PublicKeyToken=0df73ec7942b34e1, processorArchitecture=MSIL">
+      <HintPath>..\packages\NPOI.2.4.1\lib\net45\NPOI.OOXML.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="NPOI.OpenXml4Net, Version=2.4.1.0, Culture=neutral, PublicKeyToken=0df73ec7942b34e1, processorArchitecture=MSIL">
+      <HintPath>..\packages\NPOI.2.4.1\lib\net45\NPOI.OpenXml4Net.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="NPOI.OpenXmlFormats, Version=2.4.1.0, Culture=neutral, PublicKeyToken=0df73ec7942b34e1, processorArchitecture=MSIL">
+      <HintPath>..\packages\NPOI.2.4.1\lib\net45\NPOI.OpenXmlFormats.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Activities" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Net.Http.Formatting, Version=5.2.6.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.5.2.6\lib\net45\System.Net.Http.Formatting.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Security" />
+    <Reference Include="System.Transactions" />
+    <Reference Include="System.Web.DynamicData" />
+    <Reference Include="System.Web.Entity" />
+    <Reference Include="System.Web.ApplicationServices" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Web.Helpers, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.6\lib\net45\System.Web.Helpers.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.Http, Version=5.2.6.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Core.5.2.6\lib\net45\System.Web.Http.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.Http.WebHost, Version=5.2.6.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.WebHost.5.2.6\lib\net45\System.Web.Http.WebHost.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.Mvc, Version=5.2.6.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.Mvc.5.2.6\lib\net45\System.Web.Mvc.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.Razor.3.2.6\lib\net45\System.Web.Razor.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.WebPages, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.6\lib\net45\System.Web.WebPages.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Deployment, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.6\lib\net45\System.Web.WebPages.Deployment.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.6\lib\net45\System.Web.WebPages.Razor.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.EnterpriseServices" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.Web.Infrastructure">
+      <HintPath>..\packages\Microsoft.Web.Infrastructure.1.0.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="App_Data\XDD.Web.XML" />
+    <Content Include="App_Start\App_Data\XDD.Web.XML" />
+    <Content Include="Content\bootstrap.css" />
+    <Content Include="Content\bootstrap.min.css" />
+    <Content Include="Content\images\11.png" />
+    <Content Include="Content\images\22.png" />
+    <Content Include="Content\images\arrdowm.png" />
+    <Content Include="Content\images\arrup.png" />
+    <Content Include="Content\images\b-201411070347205.jpg" />
+    <Content Include="Content\images\b-201411070347211.jpg" />
+    <Content Include="Content\images\casefile.png" />
+    <Content Include="Content\images\close.gif" />
+    <Content Include="Content\images\credit.png" />
+    <Content Include="Content\images\finance.png" />
+    <Content Include="Content\images\folder.png" />
+    <Content Include="Content\images\icon.png" />
+    <Content Include="Content\images\loading.gif" />
+    <Content Include="Content\images\loginbg.jpg" />
+    <Content Include="Content\images\loginbg2.jpg" />
+    <Content Include="Content\images\loginbtn.png" />
+    <Content Include="Content\images\logo.png" />
+    <Content Include="Content\images\order.png" />
+    <Content Include="Content\images\product.png" />
+    <Content Include="Content\images\saleservice.png" />
+    <Content Include="Content\images\subitem.png" />
+    <Content Include="Content\Site.css" />
+    <Content Include="Content\style\login.css" />
+    <Content Include="Content\style\master.css" />
+    <Content Include="Content\style\master.min.css" />
+    <Content Include="dll\System.Web.Helpers.dll" />
+    <Content Include="Global.asax" />
+    <Content Include="HtmlAnalyserConfig.xml" />
+    <Content Include="Images\Banner\201903181018467681.jpg" />
+    <Content Include="Images\Banner\201903181018519692.jpg" />
+    <Content Include="Images\Banner\201903181018588963.jpg" />
+    <Content Include="Images\Banner\201903181018589154.jpg" />
+    <Content Include="Images\Banner\201903181025578771.jpg" />
+    <Content Include="Images\Banner\201903181025578972.jpg" />
+    <Content Include="Images\Banner\201903181025579033.jpg" />
+    <Content Include="Images\Banner\201903181025579064.jpg" />
+    <Content Include="Images\CommodityCategory\20190212120009915.jpg" />
+    <Content Include="Scripts\bootstrap.js" />
+    <Content Include="Scripts\bootstrap.min.js" />
+    <Content Include="Scripts\code\css\annotations\popup.css" />
+    <Content Include="Scripts\code\css\highcharts.css" />
+    <Content Include="Scripts\code\css\stocktools\gui.css" />
+    <Content Include="Scripts\code\css\themes\dark-unica.css" />
+    <Content Include="Scripts\code\css\themes\grid-light.css" />
+    <Content Include="Scripts\code\css\themes\sand-signika.css" />
+    <Content Include="Scripts\code\es-modules\annotations\annotations.src.js" />
+    <Content Include="Scripts\code\es-modules\annotations\controllable\ControllableCircle.js" />
+    <Content Include="Scripts\code\es-modules\annotations\controllable\ControllableImage.js" />
+    <Content Include="Scripts\code\es-modules\annotations\controllable\ControllableLabel.js" />
+    <Content Include="Scripts\code\es-modules\annotations\controllable\controllableMixin.js" />
+    <Content Include="Scripts\code\es-modules\annotations\controllable\ControllablePath.js" />
+    <Content Include="Scripts\code\es-modules\annotations\controllable\ControllableRect.js" />
+    <Content Include="Scripts\code\es-modules\annotations\controllable\markerMixin.js" />
+    <Content Include="Scripts\code\es-modules\annotations\ControlPoint.js" />
+    <Content Include="Scripts\code\es-modules\annotations\eventEmitterMixin.js" />
+    <Content Include="Scripts\code\es-modules\annotations\MockPoint.js" />
+    <Content Include="Scripts\code\es-modules\annotations\navigationBindings.js" />
+    <Content Include="Scripts\code\es-modules\annotations\popup.js" />
+    <Content Include="Scripts\code\es-modules\annotations\types\CrookedLine.js" />
+    <Content Include="Scripts\code\es-modules\annotations\types\ElliottWave.js" />
+    <Content Include="Scripts\code\es-modules\annotations\types\Fibonacci.js" />
+    <Content Include="Scripts\code\es-modules\annotations\types\InfinityLine.js" />
+    <Content Include="Scripts\code\es-modules\annotations\types\Measure.js" />
+    <Content Include="Scripts\code\es-modules\annotations\types\Pitchfork.js" />
+    <Content Include="Scripts\code\es-modules\annotations\types\Tunnel.js" />
+    <Content Include="Scripts\code\es-modules\annotations\types\VerticalLine.js" />
+    <Content Include="Scripts\code\es-modules\error-messages.js" />
+    <Content Include="Scripts\code\es-modules\error.js" />
+    <Content Include="Scripts\code\es-modules\indicators\acceleration-bands.src.js" />
+    <Content Include="Scripts\code\es-modules\indicators\accumulation-distribution.src.js" />
+    <Content Include="Scripts\code\es-modules\indicators\ao.src.js" />
+    <Content Include="Scripts\code\es-modules\indicators\apo.src.js" />
+    <Content Include="Scripts\code\es-modules\indicators\aroon-oscillator.src.js" />
+    <Content Include="Scripts\code\es-modules\indicators\aroon.src.js" />
+    <Content Include="Scripts\code\es-modules\indicators\atr.src.js" />
+    <Content Include="Scripts\code\es-modules\indicators\bollinger-bands.src.js" />
+    <Content Include="Scripts\code\es-modules\indicators\cci.src.js" />
+    <Content Include="Scripts\code\es-modules\indicators\chaikin.src.js" />
+    <Content Include="Scripts\code\es-modules\indicators\cmf.src.js" />
+    <Content Include="Scripts\code\es-modules\indicators\dema.src.js" />
+    <Content Include="Scripts\code\es-modules\indicators\dpo.src.js" />
+    <Content Include="Scripts\code\es-modules\indicators\ema.src.js" />
+    <Content Include="Scripts\code\es-modules\indicators\ichimoku-kinko-hyo.src.js" />
+    <Content Include="Scripts\code\es-modules\indicators\indicators.src.js" />
+    <Content Include="Scripts\code\es-modules\indicators\keltner-channels.src.js" />
+    <Content Include="Scripts\code\es-modules\indicators\macd.src.js" />
+    <Content Include="Scripts\code\es-modules\indicators\mfi.src.js" />
+    <Content Include="Scripts\code\es-modules\indicators\momentum.src.js" />
+    <Content Include="Scripts\code\es-modules\indicators\natr.src.js" />
+    <Content Include="Scripts\code\es-modules\indicators\pivot-points.src.js" />
+    <Content Include="Scripts\code\es-modules\indicators\ppo.src.js" />
+    <Content Include="Scripts\code\es-modules\indicators\price-channel.src.js" />
+    <Content Include="Scripts\code\es-modules\indicators\price-envelopes.src.js" />
+    <Content Include="Scripts\code\es-modules\indicators\psar.src.js" />
+    <Content Include="Scripts\code\es-modules\indicators\regressions.src.js" />
+    <Content Include="Scripts\code\es-modules\indicators\roc.src.js" />
+    <Content Include="Scripts\code\es-modules\indicators\rsi.src.js" />
+    <Content Include="Scripts\code\es-modules\indicators\stochastic.src.js" />
+    <Content Include="Scripts\code\es-modules\indicators\supertrend.src.js" />
+    <Content Include="Scripts\code\es-modules\indicators\tema.src.js" />
+    <Content Include="Scripts\code\es-modules\indicators\trix.src.js" />
+    <Content Include="Scripts\code\es-modules\indicators\volume-by-price.src.js" />
+    <Content Include="Scripts\code\es-modules\indicators\vwap.src.js" />
+    <Content Include="Scripts\code\es-modules\indicators\williams-r.src.js" />
+    <Content Include="Scripts\code\es-modules\indicators\wma.src.js" />
+    <Content Include="Scripts\code\es-modules\indicators\zigzag.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\highcharts-3d.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\highcharts-more.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\highstock.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\indicators\acceleration-bands.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\indicators\accumulation-distribution.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\indicators\ao.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\indicators\apo.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\indicators\aroon-oscillator.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\indicators\aroon.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\indicators\atr.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\indicators\bollinger-bands.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\indicators\cci.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\indicators\chaikin.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\indicators\cmf.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\indicators\dema.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\indicators\dpo.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\indicators\ema.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\indicators\ichimoku-kinko-hyo.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\indicators\indicators-all.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\indicators\indicators.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\indicators\keltner-channels.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\indicators\macd.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\indicators\mfi.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\indicators\momentum.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\indicators\natr.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\indicators\pivot-points.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\indicators\ppo.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\indicators\price-channel.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\indicators\price-envelopes.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\indicators\psar.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\indicators\regressions.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\indicators\roc.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\indicators\rsi.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\indicators\stochastic.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\indicators\supertrend.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\indicators\tema.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\indicators\trix.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\indicators\volume-by-price.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\indicators\vwap.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\indicators\williams-r.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\indicators\wma.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\indicators\zigzag.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\modules\accessibility.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\modules\annotations-advanced.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\modules\annotations.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\modules\arrow-symbols.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\modules\boost-canvas.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\modules\boost.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\modules\bullet.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\modules\current-date-indicator.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\modules\cylinder.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\modules\data.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\modules\datagrouping.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\modules\debugger.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\modules\dependency-wheel.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\modules\drag-panes.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\modules\draggable-points.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\modules\drilldown.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\modules\export-data.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\modules\exporting.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\modules\full-screen.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\modules\funnel.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\modules\grid-axis.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\modules\heatmap.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\modules\histogram-bellcurve.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\modules\item-series.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\modules\networkgraph.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\modules\no-data-to-display.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\modules\offline-exporting.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\modules\oldie-polyfills.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\modules\oldie.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\modules\overlapping-datalabels.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\modules\parallel-coordinates.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\modules\pareto.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\modules\pathfinder.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\modules\pattern-fill.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\modules\price-indicator.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\modules\sankey.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\modules\series-label.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\modules\solid-gauge.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\modules\sonification.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\modules\static-scale.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\modules\stock-tools.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\modules\stock.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\modules\streamgraph.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\modules\sunburst.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\modules\tilemap.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\modules\timeline.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\modules\treegrid.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\modules\treemap.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\modules\variable-pie.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\modules\variwide.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\modules\vector.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\modules\venn.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\modules\windbarb.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\modules\wordcloud.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\modules\xrange.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\themes\avocado.js" />
+    <Content Include="Scripts\code\es-modules\masters\themes\avocado.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\themes\dark-blue.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\themes\dark-green.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\themes\dark-unica.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\themes\gray.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\themes\grid-light.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\themes\grid.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\themes\sand-signika.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\themes\skies.src.js" />
+    <Content Include="Scripts\code\es-modules\masters\themes\sunset.js" />
+    <Content Include="Scripts\code\es-modules\masters\themes\sunset.src.js" />
+    <Content Include="Scripts\code\es-modules\mixins\ajax.js" />
+    <Content Include="Scripts\code\es-modules\mixins\centered-series.js" />
+    <Content Include="Scripts\code\es-modules\mixins\derived-series.js" />
+    <Content Include="Scripts\code\es-modules\mixins\download-url.js" />
+    <Content Include="Scripts\code\es-modules\mixins\draw-point.js" />
+    <Content Include="Scripts\code\es-modules\mixins\geometry-circles.js" />
+    <Content Include="Scripts\code\es-modules\mixins\geometry.js" />
+    <Content Include="Scripts\code\es-modules\mixins\indicator-required.js" />
+    <Content Include="Scripts\code\es-modules\mixins\multipe-lines.js" />
+    <Content Include="Scripts\code\es-modules\mixins\navigation.js" />
+    <Content Include="Scripts\code\es-modules\mixins\nodes.js" />
+    <Content Include="Scripts\code\es-modules\mixins\on-series.js" />
+    <Content Include="Scripts\code\es-modules\mixins\polygon.js" />
+    <Content Include="Scripts\code\es-modules\mixins\reduce-array.js" />
+    <Content Include="Scripts\code\es-modules\mixins\tree-series.js" />
+    <Content Include="Scripts\code\es-modules\modules\a11y-i18n.src.js" />
+    <Content Include="Scripts\code\es-modules\modules\annotations-legacy.src.js" />
+    <Content Include="Scripts\code\es-modules\modules\bellcurve.src.js" />
+    <Content Include="Scripts\code\es-modules\modules\boost-canvas.src.js" />
+    <Content Include="Scripts\code\es-modules\modules\boost.src.js" />
+    <Content Include="Scripts\code\es-modules\modules\bullet.src.js" />
+    <Content Include="Scripts\code\es-modules\modules\cylinder.src.js" />
+    <Content Include="Scripts\code\es-modules\modules\data.src.js" />
+    <Content Include="Scripts\code\es-modules\modules\debugger.src.js" />
+    <Content Include="Scripts\code\es-modules\modules\dependency-wheel.src.js" />
+    <Content Include="Scripts\code\es-modules\modules\drag-panes.src.js" />
+    <Content Include="Scripts\code\es-modules\modules\draggable-points.src.js" />
+    <Content Include="Scripts\code\es-modules\modules\drilldown.src.js" />
+    <Content Include="Scripts\code\es-modules\modules\export-data.src.js" />
+    <Content Include="Scripts\code\es-modules\modules\exporting.src.js" />
+    <Content Include="Scripts\code\es-modules\modules\full-screen.src.js" />
+    <Content Include="Scripts\code\es-modules\modules\funnel.src.js" />
+    <Content Include="Scripts\code\es-modules\modules\histogram.src.js" />
+    <Content Include="Scripts\code\es-modules\modules\item-series.src.js" />
+    <Content Include="Scripts\code\es-modules\modules\keyboard-navigation.src.js" />
+    <Content Include="Scripts\code\es-modules\modules\networkgraph\layouts.js" />
+    <Content Include="Scripts\code\es-modules\modules\networkgraph\networkgraph.src.js" />
+    <Content Include="Scripts\code\es-modules\modules\networkgraph\QuadTree.js" />
+    <Content Include="Scripts\code\es-modules\modules\no-data-to-display.src.js" />
+    <Content Include="Scripts\code\es-modules\modules\offline-exporting.src.js" />
+    <Content Include="Scripts\code\es-modules\modules\oldie-polyfills.src.js" />
+    <Content Include="Scripts\code\es-modules\modules\oldie.src.js" />
+    <Content Include="Scripts\code\es-modules\modules\overlapping-datalabels.src.js" />
+    <Content Include="Scripts\code\es-modules\modules\parallel-coordinates.src.js" />
+    <Content Include="Scripts\code\es-modules\modules\pareto.src.js" />
+    <Content Include="Scripts\code\es-modules\modules\pattern-fill.src.js" />
+    <Content Include="Scripts\code\es-modules\modules\price-indicator.src.js" />
+    <Content Include="Scripts\code\es-modules\modules\sankey.src.js" />
+    <Content Include="Scripts\code\es-modules\modules\screen-reader.src.js" />
+    <Content Include="Scripts\code\es-modules\modules\series-label.src.js" />
+    <Content Include="Scripts\code\es-modules\modules\solid-gauge.src.js" />
+    <Content Include="Scripts\code\es-modules\modules\sonification\chartSonify.js" />
+    <Content Include="Scripts\code\es-modules\modules\sonification\Earcon.js" />
+    <Content Include="Scripts\code\es-modules\modules\sonification\Instrument.js" />
+    <Content Include="Scripts\code\es-modules\modules\sonification\instrumentDefinitions.js" />
+    <Content Include="Scripts\code\es-modules\modules\sonification\musicalFrequencies.js" />
+    <Content Include="Scripts\code\es-modules\modules\sonification\pointSonify.js" />
+    <Content Include="Scripts\code\es-modules\modules\sonification\sonification.js" />
+    <Content Include="Scripts\code\es-modules\modules\sonification\Timeline.js" />
+    <Content Include="Scripts\code\es-modules\modules\sonification\utilities.js" />
+    <Content Include="Scripts\code\es-modules\modules\static-scale.src.js" />
+    <Content Include="Scripts\code\es-modules\modules\stock-tools-bindings.js" />
+    <Content Include="Scripts\code\es-modules\modules\stock-tools-gui.js" />
+    <Content Include="Scripts\code\es-modules\modules\streamgraph.src.js" />
+    <Content Include="Scripts\code\es-modules\modules\sunburst.src.js" />
+    <Content Include="Scripts\code\es-modules\modules\tilemap.src.js" />
+    <Content Include="Scripts\code\es-modules\modules\timeline.src.js" />
+    <Content Include="Scripts\code\es-modules\modules\treemap.src.js" />
+    <Content Include="Scripts\code\es-modules\modules\variable-pie.src.js" />
+    <Content Include="Scripts\code\es-modules\modules\variwide.src.js" />
+    <Content Include="Scripts\code\es-modules\modules\vector.src.js" />
+    <Content Include="Scripts\code\es-modules\modules\venn.src.js" />
+    <Content Include="Scripts\code\es-modules\modules\windbarb.src.js" />
+    <Content Include="Scripts\code\es-modules\modules\wordcloud.src.js" />
+    <Content Include="Scripts\code\es-modules\modules\xrange.src.js" />
+    <Content Include="Scripts\code\es-modules\parts-3d\Axis.js" />
+    <Content Include="Scripts\code\es-modules\parts-3d\Chart.js" />
+    <Content Include="Scripts\code\es-modules\parts-3d\Column.js" />
+    <Content Include="Scripts\code\es-modules\parts-3d\Math.js" />
+    <Content Include="Scripts\code\es-modules\parts-3d\Pie.js" />
+    <Content Include="Scripts\code\es-modules\parts-3d\Scatter.js" />
+    <Content Include="Scripts\code\es-modules\parts-3d\Series.js" />
+    <Content Include="Scripts\code\es-modules\parts-3d\SVGRenderer.js" />
+    <Content Include="Scripts\code\es-modules\parts-3d\VMLRenderer.js" />
+    <Content Include="Scripts\code\es-modules\parts-gantt\ArrowSymbols.js" />
+    <Content Include="Scripts\code\es-modules\parts-gantt\CurrentDateIndicator.js" />
+    <Content Include="Scripts\code\es-modules\parts-gantt\GanttChart.js" />
+    <Content Include="Scripts\code\es-modules\parts-gantt\GanttSeries.js" />
+    <Content Include="Scripts\code\es-modules\parts-gantt\GridAxis.js" />
+    <Content Include="Scripts\code\es-modules\parts-gantt\Pathfinder.js" />
+    <Content Include="Scripts\code\es-modules\parts-gantt\PathfinderAlgorithms.js" />
+    <Content Include="Scripts\code\es-modules\parts-gantt\Tree.js" />
+    <Content Include="Scripts\code\es-modules\parts-gantt\TreeGrid.js" />
+    <Content Include="Scripts\code\es-modules\parts-map\ColorAxis.js" />
+    <Content Include="Scripts\code\es-modules\parts-map\ColorSeriesMixin.js" />
+    <Content Include="Scripts\code\es-modules\parts-map\GeoJSON.js" />
+    <Content Include="Scripts\code\es-modules\parts-map\HeatmapSeries.js" />
+    <Content Include="Scripts\code\es-modules\parts-map\Map.js" />
+    <Content Include="Scripts\code\es-modules\parts-map\MapAxis.js" />
+    <Content Include="Scripts\code\es-modules\parts-map\MapBubbleSeries.js" />
+    <Content Include="Scripts\code\es-modules\parts-map\MapLineSeries.js" />
+    <Content Include="Scripts\code\es-modules\parts-map\MapNavigation.js" />
+    <Content Include="Scripts\code\es-modules\parts-map\MapPointer.js" />
+    <Content Include="Scripts\code\es-modules\parts-map\MapPointSeries.js" />
+    <Content Include="Scripts\code\es-modules\parts-map\MapSeries.js" />
+    <Content Include="Scripts\code\es-modules\parts-more\AreaRangeSeries.js" />
+    <Content Include="Scripts\code\es-modules\parts-more\AreaSplineRangeSeries.js" />
+    <Content Include="Scripts\code\es-modules\parts-more\BoxPlotSeries.js" />
+    <Content Include="Scripts\code\es-modules\parts-more\BubbleLegend.js" />
+    <Content Include="Scripts\code\es-modules\parts-more\BubbleSeries.js" />
+    <Content Include="Scripts\code\es-modules\parts-more\ColumnPyramidSeries.js" />
+    <Content Include="Scripts\code\es-modules\parts-more\ColumnRangeSeries.js" />
+    <Content Include="Scripts\code\es-modules\parts-more\ErrorBarSeries.js" />
+    <Content Include="Scripts\code\es-modules\parts-more\GaugeSeries.js" />
+    <Content Include="Scripts\code\es-modules\parts-more\PackedBubbleSeries.js" />
+    <Content Include="Scripts\code\es-modules\parts-more\Pane.js" />
+    <Content Include="Scripts\code\es-modules\parts-more\Polar.js" />
+    <Content Include="Scripts\code\es-modules\parts-more\PolygonSeries.js" />
+    <Content Include="Scripts\code\es-modules\parts-more\RadialAxis.js" />
+    <Content Include="Scripts\code\es-modules\parts-more\WaterfallSeries.js" />
+    <Content Include="Scripts\code\es-modules\parts.js" />
+    <Content Include="Scripts\code\es-modules\parts\AreaSeries.js" />
+    <Content Include="Scripts\code\es-modules\parts\AreaSplineSeries.js" />
+    <Content Include="Scripts\code\es-modules\parts\Axis.js" />
+    <Content Include="Scripts\code\es-modules\parts\BarSeries.js" />
+    <Content Include="Scripts\code\es-modules\parts\CandlestickSeries.js" />
+    <Content Include="Scripts\code\es-modules\parts\Chart.js" />
+    <Content Include="Scripts\code\es-modules\parts\Color.js" />
+    <Content Include="Scripts\code\es-modules\parts\ColumnSeries.js" />
+    <Content Include="Scripts\code\es-modules\parts\DataGrouping.js" />
+    <Content Include="Scripts\code\es-modules\parts\DataLabels.js" />
+    <Content Include="Scripts\code\es-modules\parts\DateTimeAxis.js" />
+    <Content Include="Scripts\code\es-modules\parts\Dynamics.js" />
+    <Content Include="Scripts\code\es-modules\parts\FlagsSeries.js" />
+    <Content Include="Scripts\code\es-modules\parts\Globals.js" />
+    <Content Include="Scripts\code\es-modules\parts\Html.js" />
+    <Content Include="Scripts\code\es-modules\parts\Interaction.js" />
+    <Content Include="Scripts\code\es-modules\parts\Legend.js" />
+    <Content Include="Scripts\code\es-modules\parts\LogarithmicAxis.js" />
+    <Content Include="Scripts\code\es-modules\parts\MSPointer.js" />
+    <Content Include="Scripts\code\es-modules\parts\Navigator.js" />
+    <Content Include="Scripts\code\es-modules\parts\OHLCSeries.js" />
+    <Content Include="Scripts\code\es-modules\parts\Options.js" />
+    <Content Include="Scripts\code\es-modules\parts\OrdinalAxis.js" />
+    <Content Include="Scripts\code\es-modules\parts\PieSeries.js" />
+    <Content Include="Scripts\code\es-modules\parts\PlotBandSeries.experimental.js" />
+    <Content Include="Scripts\code\es-modules\parts\PlotLineOrBand.js" />
+    <Content Include="Scripts\code\es-modules\parts\Point.js" />
+    <Content Include="Scripts\code\es-modules\parts\Pointer.js" />
+    <Content Include="Scripts\code\es-modules\parts\RangeSelector.js" />
+    <Content Include="Scripts\code\es-modules\parts\Responsive.js" />
+    <Content Include="Scripts\code\es-modules\parts\ScatterSeries.js" />
+    <Content Include="Scripts\code\es-modules\parts\ScrollablePlotArea.js" />
+    <Content Include="Scripts\code\es-modules\parts\Scrollbar.js" />
+    <Content Include="Scripts\code\es-modules\parts\Series.js" />
+    <Content Include="Scripts\code\es-modules\parts\SplineSeries.js" />
+    <Content Include="Scripts\code\es-modules\parts\Stacking.js" />
+    <Content Include="Scripts\code\es-modules\parts\StockChart.js" />
+    <Content Include="Scripts\code\es-modules\parts\SvgRenderer.js" />
+    <Content Include="Scripts\code\es-modules\parts\Tick.js" />
+    <Content Include="Scripts\code\es-modules\parts\Time.js" />
+    <Content Include="Scripts\code\es-modules\parts\Tooltip.js" />
+    <Content Include="Scripts\code\es-modules\parts\TouchPointer.js" />
+    <Content Include="Scripts\code\es-modules\parts\Utilities.js" />
+    <Content Include="Scripts\code\es-modules\themes\avocado.js" />
+    <Content Include="Scripts\code\es-modules\themes\dark-blue.js" />
+    <Content Include="Scripts\code\es-modules\themes\dark-green.js" />
+    <Content Include="Scripts\code\es-modules\themes\dark-unica.js" />
+    <Content Include="Scripts\code\es-modules\themes\gray.js" />
+    <Content Include="Scripts\code\es-modules\themes\grid-light.js" />
+    <Content Include="Scripts\code\es-modules\themes\grid.js" />
+    <Content Include="Scripts\code\es-modules\themes\sand-signika.js" />
+    <Content Include="Scripts\code\es-modules\themes\skies.js" />
+    <Content Include="Scripts\code\es-modules\themes\sunset.js" />
+    <Content Include="Scripts\code\highcharts-3d.js" />
+    <Content Include="Scripts\code\highcharts-3d.src.js" />
+    <Content Include="Scripts\code\highcharts-more.js" />
+    <Content Include="Scripts\code\highcharts-more.src.js" />
+    <Content Include="Scripts\code\highstock.js" />
+    <Content Include="Scripts\code\highstock.src.js" />
+    <Content Include="Scripts\code\indicators\acceleration-bands.js" />
+    <Content Include="Scripts\code\indicators\acceleration-bands.src.js" />
+    <Content Include="Scripts\code\indicators\accumulation-distribution.js" />
+    <Content Include="Scripts\code\indicators\accumulation-distribution.src.js" />
+    <Content Include="Scripts\code\indicators\ao.js" />
+    <Content Include="Scripts\code\indicators\ao.src.js" />
+    <Content Include="Scripts\code\indicators\apo.js" />
+    <Content Include="Scripts\code\indicators\apo.src.js" />
+    <Content Include="Scripts\code\indicators\aroon-oscillator.js" />
+    <Content Include="Scripts\code\indicators\aroon-oscillator.src.js" />
+    <Content Include="Scripts\code\indicators\aroon.js" />
+    <Content Include="Scripts\code\indicators\aroon.src.js" />
+    <Content Include="Scripts\code\indicators\atr.js" />
+    <Content Include="Scripts\code\indicators\atr.src.js" />
+    <Content Include="Scripts\code\indicators\bollinger-bands.js" />
+    <Content Include="Scripts\code\indicators\bollinger-bands.src.js" />
+    <Content Include="Scripts\code\indicators\cci.js" />
+    <Content Include="Scripts\code\indicators\cci.src.js" />
+    <Content Include="Scripts\code\indicators\chaikin.js" />
+    <Content Include="Scripts\code\indicators\chaikin.src.js" />
+    <Content Include="Scripts\code\indicators\cmf.js" />
+    <Content Include="Scripts\code\indicators\cmf.src.js" />
+    <Content Include="Scripts\code\indicators\dema.js" />
+    <Content Include="Scripts\code\indicators\dema.src.js" />
+    <Content Include="Scripts\code\indicators\dpo.js" />
+    <Content Include="Scripts\code\indicators\dpo.src.js" />
+    <Content Include="Scripts\code\indicators\ema.js" />
+    <Content Include="Scripts\code\indicators\ema.src.js" />
+    <Content Include="Scripts\code\indicators\ichimoku-kinko-hyo.js" />
+    <Content Include="Scripts\code\indicators\ichimoku-kinko-hyo.src.js" />
+    <Content Include="Scripts\code\indicators\indicators-all.js" />
+    <Content Include="Scripts\code\indicators\indicators-all.src.js" />
+    <Content Include="Scripts\code\indicators\indicators.js" />
+    <Content Include="Scripts\code\indicators\indicators.src.js" />
+    <Content Include="Scripts\code\indicators\keltner-channels.js" />
+    <Content Include="Scripts\code\indicators\keltner-channels.src.js" />
+    <Content Include="Scripts\code\indicators\macd.js" />
+    <Content Include="Scripts\code\indicators\macd.src.js" />
+    <Content Include="Scripts\code\indicators\mfi.js" />
+    <Content Include="Scripts\code\indicators\mfi.src.js" />
+    <Content Include="Scripts\code\indicators\momentum.js" />
+    <Content Include="Scripts\code\indicators\momentum.src.js" />
+    <Content Include="Scripts\code\indicators\natr.js" />
+    <Content Include="Scripts\code\indicators\natr.src.js" />
+    <Content Include="Scripts\code\indicators\pivot-points.js" />
+    <Content Include="Scripts\code\indicators\pivot-points.src.js" />
+    <Content Include="Scripts\code\indicators\ppo.js" />
+    <Content Include="Scripts\code\indicators\ppo.src.js" />
+    <Content Include="Scripts\code\indicators\price-channel.js" />
+    <Content Include="Scripts\code\indicators\price-channel.src.js" />
+    <Content Include="Scripts\code\indicators\price-envelopes.js" />
+    <Content Include="Scripts\code\indicators\price-envelopes.src.js" />
+    <Content Include="Scripts\code\indicators\psar.js" />
+    <Content Include="Scripts\code\indicators\psar.src.js" />
+    <Content Include="Scripts\code\indicators\regressions.js" />
+    <Content Include="Scripts\code\indicators\regressions.src.js" />
+    <Content Include="Scripts\code\indicators\roc.js" />
+    <Content Include="Scripts\code\indicators\roc.src.js" />
+    <Content Include="Scripts\code\indicators\rsi.js" />
+    <Content Include="Scripts\code\indicators\rsi.src.js" />
+    <Content Include="Scripts\code\indicators\stochastic.js" />
+    <Content Include="Scripts\code\indicators\stochastic.src.js" />
+    <Content Include="Scripts\code\indicators\supertrend.js" />
+    <Content Include="Scripts\code\indicators\supertrend.src.js" />
+    <Content Include="Scripts\code\indicators\tema.js" />
+    <Content Include="Scripts\code\indicators\tema.src.js" />
+    <Content Include="Scripts\code\indicators\trix.js" />
+    <Content Include="Scripts\code\indicators\trix.src.js" />
+    <Content Include="Scripts\code\indicators\volume-by-price.js" />
+    <Content Include="Scripts\code\indicators\volume-by-price.src.js" />
+    <Content Include="Scripts\code\indicators\vwap.js" />
+    <Content Include="Scripts\code\indicators\vwap.src.js" />
+    <Content Include="Scripts\code\indicators\williams-r.js" />
+    <Content Include="Scripts\code\indicators\williams-r.src.js" />
+    <Content Include="Scripts\code\indicators\wma.js" />
+    <Content Include="Scripts\code\indicators\wma.src.js" />
+    <Content Include="Scripts\code\indicators\zigzag.js" />
+    <Content Include="Scripts\code\indicators\zigzag.src.js" />
+    <Content Include="Scripts\code\lib\canvg.js" />
+    <Content Include="Scripts\code\lib\canvg.src.js" />
+    <Content Include="Scripts\code\lib\jspdf.js" />
+    <Content Include="Scripts\code\lib\jspdf.src.js" />
+    <Content Include="Scripts\code\lib\rgbcolor.js" />
+    <Content Include="Scripts\code\lib\rgbcolor.src.js" />
+    <Content Include="Scripts\code\lib\svg2pdf.js" />
+    <Content Include="Scripts\code\lib\svg2pdf.src.js" />
+    <Content Include="Scripts\code\modules\accessibility.js" />
+    <Content Include="Scripts\code\modules\accessibility.src.js" />
+    <Content Include="Scripts\code\modules\annotations-advanced.js" />
+    <Content Include="Scripts\code\modules\annotations-advanced.src.js" />
+    <Content Include="Scripts\code\modules\annotations.js" />
+    <Content Include="Scripts\code\modules\annotations.src.js" />
+    <Content Include="Scripts\code\modules\arrow-symbols.js" />
+    <Content Include="Scripts\code\modules\arrow-symbols.src.js" />
+    <Content Include="Scripts\code\modules\boost-canvas.js" />
+    <Content Include="Scripts\code\modules\boost-canvas.src.js" />
+    <Content Include="Scripts\code\modules\boost.js" />
+    <Content Include="Scripts\code\modules\boost.src.js" />
+    <Content Include="Scripts\code\modules\bullet.js" />
+    <Content Include="Scripts\code\modules\bullet.src.js" />
+    <Content Include="Scripts\code\modules\current-date-indicator.js" />
+    <Content Include="Scripts\code\modules\current-date-indicator.src.js" />
+    <Content Include="Scripts\code\modules\cylinder.js" />
+    <Content Include="Scripts\code\modules\cylinder.src.js" />
+    <Content Include="Scripts\code\modules\data.js" />
+    <Content Include="Scripts\code\modules\data.src.js" />
+    <Content Include="Scripts\code\modules\datagrouping.js" />
+    <Content Include="Scripts\code\modules\datagrouping.src.js" />
+    <Content Include="Scripts\code\modules\debugger.js" />
+    <Content Include="Scripts\code\modules\debugger.src.js" />
+    <Content Include="Scripts\code\modules\dependency-wheel.js" />
+    <Content Include="Scripts\code\modules\dependency-wheel.src.js" />
+    <Content Include="Scripts\code\modules\drag-panes.js" />
+    <Content Include="Scripts\code\modules\drag-panes.src.js" />
+    <Content Include="Scripts\code\modules\draggable-points.js" />
+    <Content Include="Scripts\code\modules\draggable-points.src.js" />
+    <Content Include="Scripts\code\modules\drilldown.js" />
+    <Content Include="Scripts\code\modules\drilldown.src.js" />
+    <Content Include="Scripts\code\modules\export-data.js" />
+    <Content Include="Scripts\code\modules\export-data.src.js" />
+    <Content Include="Scripts\code\modules\exporting.js" />
+    <Content Include="Scripts\code\modules\exporting.src.js" />
+    <Content Include="Scripts\code\modules\full-screen.js" />
+    <Content Include="Scripts\code\modules\full-screen.src.js" />
+    <Content Include="Scripts\code\modules\funnel.js" />
+    <Content Include="Scripts\code\modules\funnel.src.js" />
+    <Content Include="Scripts\code\modules\grid-axis.js" />
+    <Content Include="Scripts\code\modules\grid-axis.src.js" />
+    <Content Include="Scripts\code\modules\heatmap.js" />
+    <Content Include="Scripts\code\modules\heatmap.src.js" />
+    <Content Include="Scripts\code\modules\histogram-bellcurve.js" />
+    <Content Include="Scripts\code\modules\histogram-bellcurve.src.js" />
+    <Content Include="Scripts\code\modules\item-series.js" />
+    <Content Include="Scripts\code\modules\item-series.src.js" />
+    <Content Include="Scripts\code\modules\networkgraph.js" />
+    <Content Include="Scripts\code\modules\networkgraph.src.js" />
+    <Content Include="Scripts\code\modules\no-data-to-display.js" />
+    <Content Include="Scripts\code\modules\no-data-to-display.src.js" />
+    <Content Include="Scripts\code\modules\offline-exporting.js" />
+    <Content Include="Scripts\code\modules\offline-exporting.src.js" />
+    <Content Include="Scripts\code\modules\oldie-polyfills.js" />
+    <Content Include="Scripts\code\modules\oldie-polyfills.src.js" />
+    <Content Include="Scripts\code\modules\oldie.js" />
+    <Content Include="Scripts\code\modules\oldie.src.js" />
+    <Content Include="Scripts\code\modules\overlapping-datalabels.js" />
+    <Content Include="Scripts\code\modules\overlapping-datalabels.src.js" />
+    <Content Include="Scripts\code\modules\parallel-coordinates.js" />
+    <Content Include="Scripts\code\modules\parallel-coordinates.src.js" />
+    <Content Include="Scripts\code\modules\pareto.js" />
+    <Content Include="Scripts\code\modules\pareto.src.js" />
+    <Content Include="Scripts\code\modules\pathfinder.js" />
+    <Content Include="Scripts\code\modules\pathfinder.src.js" />
+    <Content Include="Scripts\code\modules\pattern-fill.js" />
+    <Content Include="Scripts\code\modules\pattern-fill.src.js" />
+    <Content Include="Scripts\code\modules\price-indicator.js" />
+    <Content Include="Scripts\code\modules\price-indicator.src.js" />
+    <Content Include="Scripts\code\modules\sankey.js" />
+    <Content Include="Scripts\code\modules\sankey.src.js" />
+    <Content Include="Scripts\code\modules\series-label.js" />
+    <Content Include="Scripts\code\modules\series-label.src.js" />
+    <Content Include="Scripts\code\modules\solid-gauge.js" />
+    <Content Include="Scripts\code\modules\solid-gauge.src.js" />
+    <Content Include="Scripts\code\modules\sonification.js" />
+    <Content Include="Scripts\code\modules\sonification.src.js" />
+    <Content Include="Scripts\code\modules\static-scale.js" />
+    <Content Include="Scripts\code\modules\static-scale.src.js" />
+    <Content Include="Scripts\code\modules\stock-tools.js" />
+    <Content Include="Scripts\code\modules\stock-tools.src.js" />
+    <Content Include="Scripts\code\modules\stock.js" />
+    <Content Include="Scripts\code\modules\stock.src.js" />
+    <Content Include="Scripts\code\modules\streamgraph.js" />
+    <Content Include="Scripts\code\modules\streamgraph.src.js" />
+    <Content Include="Scripts\code\modules\sunburst.js" />
+    <Content Include="Scripts\code\modules\sunburst.src.js" />
+    <Content Include="Scripts\code\modules\tilemap.js" />
+    <Content Include="Scripts\code\modules\tilemap.src.js" />
+    <Content Include="Scripts\code\modules\timeline.js" />
+    <Content Include="Scripts\code\modules\timeline.src.js" />
+    <Content Include="Scripts\code\modules\treegrid.js" />
+    <Content Include="Scripts\code\modules\treegrid.src.js" />
+    <Content Include="Scripts\code\modules\treemap.js" />
+    <Content Include="Scripts\code\modules\treemap.src.js" />
+    <Content Include="Scripts\code\modules\variable-pie.js" />
+    <Content Include="Scripts\code\modules\variable-pie.src.js" />
+    <Content Include="Scripts\code\modules\variwide.js" />
+    <Content Include="Scripts\code\modules\variwide.src.js" />
+    <Content Include="Scripts\code\modules\vector.js" />
+    <Content Include="Scripts\code\modules\vector.src.js" />
+    <Content Include="Scripts\code\modules\venn.js" />
+    <Content Include="Scripts\code\modules\venn.src.js" />
+    <Content Include="Scripts\code\modules\windbarb.js" />
+    <Content Include="Scripts\code\modules\windbarb.src.js" />
+    <Content Include="Scripts\code\modules\wordcloud.js" />
+    <Content Include="Scripts\code\modules\wordcloud.src.js" />
+    <Content Include="Scripts\code\modules\xrange.js" />
+    <Content Include="Scripts\code\modules\xrange.src.js" />
+    <Content Include="Scripts\code\themes\avocado.js" />
+    <Content Include="Scripts\code\themes\avocado.src.js" />
+    <Content Include="Scripts\code\themes\dark-blue.js" />
+    <Content Include="Scripts\code\themes\dark-blue.src.js" />
+    <Content Include="Scripts\code\themes\dark-green.js" />
+    <Content Include="Scripts\code\themes\dark-green.src.js" />
+    <Content Include="Scripts\code\themes\dark-unica.js" />
+    <Content Include="Scripts\code\themes\dark-unica.src.js" />
+    <Content Include="Scripts\code\themes\gray.js" />
+    <Content Include="Scripts\code\themes\gray.src.js" />
+    <Content Include="Scripts\code\themes\grid-light.js" />
+    <Content Include="Scripts\code\themes\grid-light.src.js" />
+    <Content Include="Scripts\code\themes\grid.js" />
+    <Content Include="Scripts\code\themes\grid.src.js" />
+    <Content Include="Scripts\code\themes\sand-signika.js" />
+    <Content Include="Scripts\code\themes\sand-signika.src.js" />
+    <Content Include="Scripts\code\themes\skies.js" />
+    <Content Include="Scripts\code\themes\skies.src.js" />
+    <Content Include="Scripts\code\themes\sunset.js" />
+    <Content Include="Scripts\code\themes\sunset.src.js" />
+    <Content Include="Scripts\code\themes\zhcn.js" />
+    <Content Include="Scripts\easyui-datagridview\datagrid-bufferview.html" />
+    <Content Include="Scripts\easyui-datagridview\datagrid-bufferview.js" />
+    <Content Include="Scripts\easyui-datagridview\datagrid-defaultview.js" />
+    <Content Include="Scripts\easyui-datagridview\datagrid-detailview - 复制.js" />
+    <Content Include="Scripts\easyui-datagridview\datagrid-detailview.html" />
+    <Content Include="Scripts\easyui-datagridview\datagrid-detailview.js" />
+    <Content Include="Scripts\easyui-datagridview\datagrid-detailview2.html" />
+    <Content Include="Scripts\easyui-datagridview\datagrid-groupview.html" />
+    <Content Include="Scripts\easyui-datagridview\datagrid-groupview.js" />
+    <Content Include="Scripts\easyui-datagridview\datagrid-scrollview.html" />
+    <Content Include="Scripts\easyui-datagridview\datagrid-scrollview.js" />
+    <Content Include="Scripts\easyui-datagridview\datagrid-scrollview2.html" />
+    <Content Include="Scripts\easyui-datagridview\datagrid_data.html" />
+    <Content Include="Scripts\EasyUI\icon.css" />
+    <Content Include="Scripts\EasyUI\iconb.css" />
+    <Content Include="Scripts\EasyUI\iconfont\demo.css" />
+    <Content Include="Scripts\EasyUI\iconfont\demo_fontclass.html" />
+    <Content Include="Scripts\EasyUI\iconfont\demo_symbol.html" />
+    <Content Include="Scripts\EasyUI\iconfont\demo_unicode.html" />
+    <Content Include="Scripts\EasyUI\iconfont\iconfont.css" />
+    <Content Include="Scripts\EasyUI\iconfont\iconfont.js" />
+    <Content Include="Scripts\EasyUI\iconfont\iconfont.svg" />
+    <Content Include="Scripts\EasyUI\icons\account.png" />
+    <Content Include="Scripts\EasyUI\icons\address.png" />
+    <Content Include="Scripts\EasyUI\icons\AdminAdmin.gif" />
+    <Content Include="Scripts\EasyUI\icons\AdminParentCustomer.gif" />
+    <Content Include="Scripts\EasyUI\icons\AdminParentLocalization.gif" />
+    <Content Include="Scripts\EasyUI\icons\AdminParentModules.gif" />
+    <Content Include="Scripts\EasyUI\icons\AdminParentStats.gif" />
+    <Content Include="Scripts\EasyUI\icons\AdminPriceRule.gif" />
+    <Content Include="Scripts\EasyUI\icons\apply.png" />
+    <Content Include="Scripts\EasyUI\icons\archives.png" />
+    <Content Include="Scripts\EasyUI\icons\arrow_refresh.png" />
+    <Content Include="Scripts\EasyUI\icons\arrow_rotate_anticlockwise.png" />
+    <Content Include="Scripts\EasyUI\icons\arrow_rotate_clockwise.png" />
+    <Content Include="Scripts\EasyUI\icons\arrow_switch.png" />
+    <Content Include="Scripts\EasyUI\icons\authcredit.png" />
+    <Content Include="Scripts\EasyUI\icons\back.png" />
+    <Content Include="Scripts\EasyUI\icons\bag.png" />
+    <Content Include="Scripts\EasyUI\icons\barcode.png" />
+    <Content Include="Scripts\EasyUI\icons\barcode2.png" />
+    <Content Include="Scripts\EasyUI\icons\bid.png" />
+    <Content Include="Scripts\EasyUI\icons\bidgo.png" />
+    <Content Include="Scripts\EasyUI\icons\bidtrans.png" />
+    <Content Include="Scripts\EasyUI\icons\blank.gif" />
+    <Content Include="Scripts\EasyUI\icons\bricks.png" />
+    <Content Include="Scripts\EasyUI\icons\caiwu.png" />
+    <Content Include="Scripts\EasyUI\icons\cancel.png" />
+    <Content Include="Scripts\EasyUI\icons\chart.png" />
+    <Content Include="Scripts\EasyUI\icons\chart_bar.png" />
+    <Content Include="Scripts\EasyUI\icons\chat.png" />
+    <Content Include="Scripts\EasyUI\icons\chat_big.png" />
+    <Content Include="Scripts\EasyUI\icons\clear.png" />
+    <Content Include="Scripts\EasyUI\icons\clock.png" />
+    <Content Include="Scripts\EasyUI\icons\clock_add.png" />
+    <Content Include="Scripts\EasyUI\icons\clock_edit.png" />
+    <Content Include="Scripts\EasyUI\icons\close2.png" />
+    <Content Include="Scripts\EasyUI\icons\cog.png" />
+    <Content Include="Scripts\EasyUI\icons\collapse.png" />
+    <Content Include="Scripts\EasyUI\icons\contrast.png" />
+    <Content Include="Scripts\EasyUI\icons\credit.png" />
+    <Content Include="Scripts\EasyUI\icons\creditwork.png" />
+    <Content Include="Scripts\EasyUI\icons\creditworkseg.png" />
+    <Content Include="Scripts\EasyUI\icons\creditworksegitem.png" />
+    <Content Include="Scripts\EasyUI\icons\customer.png" />
+    <Content Include="Scripts\EasyUI\icons\customerblacklist.png" />
+    <Content Include="Scripts\EasyUI\icons\customernormal.png" />
+    <Content Include="Scripts\EasyUI\icons\customervip.png" />
+    <Content Include="Scripts\EasyUI\icons\cut.png" />
+    <Content Include="Scripts\EasyUI\icons\down.png" />
+    <Content Include="Scripts\EasyUI\icons\edit_add.png" />
+    <Content Include="Scripts\EasyUI\icons\edit_remove.png" />
+    <Content Include="Scripts\EasyUI\icons\email.png" />
+    <Content Include="Scripts\EasyUI\icons\error.png" />
+    <Content Include="Scripts\EasyUI\icons\event.png" />
+    <Content Include="Scripts\EasyUI\icons\exit.png" />
+    <Content Include="Scripts\EasyUI\icons\expand.png" />
+    <Content Include="Scripts\EasyUI\icons\eye.png" />
+    <Content Include="Scripts\EasyUI\icons\favicon.ico" />
+    <Content Include="Scripts\EasyUI\icons\filesave.png" />
+    <Content Include="Scripts\EasyUI\icons\filter.png" />
+    <Content Include="Scripts\EasyUI\icons\folder_search.png" />
+    <Content Include="Scripts\EasyUI\icons\full.png" />
+    <Content Include="Scripts\EasyUI\icons\globe.ico" />
+    <Content Include="Scripts\EasyUI\icons\group.png" />
+    <Content Include="Scripts\EasyUI\icons\help.png" />
+    <Content Include="Scripts\EasyUI\icons\home.png" />
+    <Content Include="Scripts\EasyUI\icons\image.png" />
+    <Content Include="Scripts\EasyUI\icons\information.png" />
+    <Content Include="Scripts\EasyUI\icons\large_chart.png" />
+    <Content Include="Scripts\EasyUI\icons\large_clipart.png" />
+    <Content Include="Scripts\EasyUI\icons\large_picture.png" />
+    <Content Include="Scripts\EasyUI\icons\large_shapes.png" />
+    <Content Include="Scripts\EasyUI\icons\large_smartart.png" />
+    <Content Include="Scripts\EasyUI\icons\lock.png" />
+    <Content Include="Scripts\EasyUI\icons\lock_edit.png" />
+    <Content Include="Scripts\EasyUI\icons\lock_go.png" />
+    <Content Include="Scripts\EasyUI\icons\lock_open.png" />
+    <Content Include="Scripts\EasyUI\icons\lock_password.png" />
+    <Content Include="Scripts\EasyUI\icons\m2.png" />
+    <Content Include="Scripts\EasyUI\icons\man.png" />
+    <Content Include="Scripts\EasyUI\icons\match.png" />
+    <Content Include="Scripts\EasyUI\icons\memberrefer.png" />
+    <Content Include="Scripts\EasyUI\icons\memberuser.png" />
+    <Content Include="Scripts\EasyUI\icons\message.png" />
+    <Content Include="Scripts\EasyUI\icons\mini-append.png" />
+    <Content Include="Scripts\EasyUI\icons\mini-cancel.png" />
+    <Content Include="Scripts\EasyUI\icons\mini-delete.png" />
+    <Content Include="Scripts\EasyUI\icons\mini-ok.png" />
+    <Content Include="Scripts\EasyUI\icons\mini-pencil.png" />
+    <Content Include="Scripts\EasyUI\icons\mini-reload.png" />
+    <Content Include="Scripts\EasyUI\icons\mini_add.png" />
+    <Content Include="Scripts\EasyUI\icons\mini_cross.png" />
+    <Content Include="Scripts\EasyUI\icons\mini_delete.png" />
+    <Content Include="Scripts\EasyUI\icons\mini_edit.png" />
+    <Content Include="Scripts\EasyUI\icons\mini_minus.png" />
+    <Content Include="Scripts\EasyUI\icons\mini_refresh.png" />
+    <Content Include="Scripts\EasyUI\icons\mini_set.png" />
+    <Content Include="Scripts\EasyUI\icons\mini_tick.png" />
+    <Content Include="Scripts\EasyUI\icons\mobile.png" />
+    <Content Include="Scripts\EasyUI\icons\money.png" />
+    <Content Include="Scripts\EasyUI\icons\more.png" />
+    <Content Include="Scripts\EasyUI\icons\move.png" />
+    <Content Include="Scripts\EasyUI\icons\no.png" />
+    <Content Include="Scripts\EasyUI\icons\nopass.png" />
+    <Content Include="Scripts\EasyUI\icons\note_add.png" />
+    <Content Include="Scripts\EasyUI\icons\note_delete.png" />
+    <Content Include="Scripts\EasyUI\icons\ok.png" />
+    <Content Include="Scripts\EasyUI\icons\order.png" />
+    <Content Include="Scripts\EasyUI\icons\package.png" />
+    <Content Include="Scripts\EasyUI\icons\pass.png" />
+    <Content Include="Scripts\EasyUI\icons\pencil.png" />
+    <Content Include="Scripts\EasyUI\icons\phone.png" />
+    <Content Include="Scripts\EasyUI\icons\piece.png" />
+    <Content Include="Scripts\EasyUI\icons\platform.png" />
+    <Content Include="Scripts\EasyUI\icons\pp.png" />
+    <Content Include="Scripts\EasyUI\icons\print.png" />
+    <Content Include="Scripts\EasyUI\icons\product.png" />
+    <Content Include="Scripts\EasyUI\icons\productd.png" />
+    <Content Include="Scripts\EasyUI\icons\productform.png" />
+    <Content Include="Scripts\EasyUI\icons\qq.png" />
+    <Content Include="Scripts\EasyUI\icons\recover_deleted_items.png" />
+    <Content Include="Scripts\EasyUI\icons\redo.png" />
+    <Content Include="Scripts\EasyUI\icons\reload.png" />
+    <Content Include="Scripts\EasyUI\icons\required.png" />
+    <Content Include="Scripts\EasyUI\icons\safe.png" />
+    <Content Include="Scripts\EasyUI\icons\saomiao.png" />
+    <Content Include="Scripts\EasyUI\icons\scanning.png" />
+    <Content Include="Scripts\EasyUI\icons\scjl.png" />
+    <Content Include="Scripts\EasyUI\icons\scyd.png" />
+    <Content Include="Scripts\EasyUI\icons\search.png" />
+    <Content Include="Scripts\EasyUI\icons\set.png" />
+    <Content Include="Scripts\EasyUI\icons\sort_number.png" />
+    <Content Include="Scripts\EasyUI\icons\star.png" />
+    <Content Include="Scripts\EasyUI\icons\staradd.png" />
+    <Content Include="Scripts\EasyUI\icons\storehouse.png" />
+    <Content Include="Scripts\EasyUI\icons\sum.png" />
+    <Content Include="Scripts\EasyUI\icons\table_edit.png" />
+    <Content Include="Scripts\EasyUI\icons\tctttesz.png" />
+    <Content Include="Scripts\EasyUI\icons\tcttteszzew0.png" />
+    <Content Include="Scripts\EasyUI\icons\tel.png" />
+    <Content Include="Scripts\EasyUI\icons\tip.png" />
+    <Content Include="Scripts\EasyUI\icons\undo.png" />
+    <Content Include="Scripts\EasyUI\icons\up.png" />
+    <Content Include="Scripts\EasyUI\icons\update.png" />
+    <Content Include="Scripts\EasyUI\icons\user.png" />
+    <Content Include="Scripts\EasyUI\icons\user_config.png" />
+    <Content Include="Scripts\EasyUI\icons\user_edit.png" />
+    <Content Include="Scripts\EasyUI\icons\vip.png" />
+    <Content Include="Scripts\EasyUI\icons\weixin.png" />
+    <Content Include="Scripts\EasyUI\icons\wrench.png" />
+    <Content Include="Scripts\EasyUI\icons\wrench_orange.png" />
+    <Content Include="Scripts\EasyUI\icons\yes.png" />
+    <Content Include="Scripts\EasyUI\icons\zxbg.png" />
+    <Content Include="Scripts\EasyUI\icons\分配必收件.png" />
+    <Content Include="Scripts\EasyUI\icons\分配表单.png" />
+    <Content Include="Scripts\EasyUI\images\about.png" />
+    <Content Include="Scripts\EasyUI\images\accordion_arrows.png" />
+    <Content Include="Scripts\EasyUI\images\alert_icons.png" />
+    <Content Include="Scripts\EasyUI\images\append-images.png" />
+    <Content Include="Scripts\EasyUI\images\arrow-right.png" />
+    <Content Include="Scripts\EasyUI\images\blank.gif" />
+    <Content Include="Scripts\EasyUI\images\calendar_arrows.png" />
+    <Content Include="Scripts\EasyUI\images\combo_arrow.png" />
+    <Content Include="Scripts\EasyUI\images\datagrid-filter.png" />
+    <Content Include="Scripts\EasyUI\images\datagrid_icons.png" />
+    <Content Include="Scripts\EasyUI\images\datebox_arrow.png" />
+    <Content Include="Scripts\EasyUI\images\disable.png" />
+    <Content Include="Scripts\EasyUI\images\footer_projection.png" />
+    <Content Include="Scripts\EasyUI\images\icons_error.png" />
+    <Content Include="Scripts\EasyUI\images\icons_help.png" />
+    <Content Include="Scripts\EasyUI\images\icons_info.png" />
+    <Content Include="Scripts\EasyUI\images\icons_prompt.png" />
+    <Content Include="Scripts\EasyUI\images\icons_success.png" />
+    <Content Include="Scripts\EasyUI\images\icons_warning.png" />
+    <Content Include="Scripts\EasyUI\images\info-icons-at.png" />
+    <Content Include="Scripts\EasyUI\images\info-icons-tel.png" />
+    <Content Include="Scripts\EasyUI\images\layout_arrows.png" />
+    <Content Include="Scripts\EasyUI\images\linkbutton_bg.png" />
+    <Content Include="Scripts\EasyUI\images\list-loding.gif" />
+    <Content Include="Scripts\EasyUI\images\loading.gif" />
+    <Content Include="Scripts\EasyUI\images\logo.png" />
+    <Content Include="Scripts\EasyUI\images\logo_110.png" />
+    <Content Include="Scripts\EasyUI\images\menu_arrows.png" />
+    <Content Include="Scripts\EasyUI\images\menu_arrows_blue.png" />
+    <Content Include="Scripts\EasyUI\images\menu_arrows_white.png" />
+    <Content Include="Scripts\EasyUI\images\messager_icons.png" />
+    <Content Include="Scripts\EasyUI\images\navigate_more.png" />
+    <Content Include="Scripts\EasyUI\images\pagination_icons.png" />
+    <Content Include="Scripts\EasyUI\images\panel_tools - 副本.png" />
+    <Content Include="Scripts\EasyUI\images\panel_tools.png" />
+    <Content Include="Scripts\EasyUI\images\panel_tools_white.png" />
+    <Content Include="Scripts\EasyUI\images\passwordbox_close.png" />
+    <Content Include="Scripts\EasyUI\images\passwordbox_open.png" />
+    <Content Include="Scripts\EasyUI\images\portrait129x129.png" />
+    <Content Include="Scripts\EasyUI\images\portrait172x172-select.png" />
+    <Content Include="Scripts\EasyUI\images\portrait172x172.png" />
+    <Content Include="Scripts\EasyUI\images\portrait20x20.png" />
+    <Content Include="Scripts\EasyUI\images\portrait250x250.png" />
+    <Content Include="Scripts\EasyUI\images\portrait28x28.png" />
+    <Content Include="Scripts\EasyUI\images\portrait32x32.png" />
+    <Content Include="Scripts\EasyUI\images\portrait38x38.png" />
+    <Content Include="Scripts\EasyUI\images\portrait43x43.png" />
+    <Content Include="Scripts\EasyUI\images\portrait86x86.png" />
+    <Content Include="Scripts\EasyUI\images\progressbar-background.png" />
+    <Content Include="Scripts\EasyUI\images\QRcode-close.png" />
+    <Content Include="Scripts\EasyUI\images\QRcode-demo.png" />
+    <Content Include="Scripts\EasyUI\images\QRcode.png" />
+    <Content Include="Scripts\EasyUI\images\searchbox_button.png" />
+    <Content Include="Scripts\EasyUI\images\searchbox_navigate_button.png" />
+    <Content Include="Scripts\EasyUI\images\set.png" />
+    <Content Include="Scripts\EasyUI\images\slider_handle.png" />
+    <Content Include="Scripts\EasyUI\images\spinner_arrows.png" />
+    <Content Include="Scripts\EasyUI\images\tabs_icons.png" />
+    <Content Include="Scripts\EasyUI\images\tabs_icons_hover.png" />
+    <Content Include="Scripts\EasyUI\images\tabs_icons_white.png" />
+    <Content Include="Scripts\EasyUI\images\tagbox_icons.png" />
+    <Content Include="Scripts\EasyUI\images\tagbox_icons_white.png" />
+    <Content Include="Scripts\EasyUI\images\tree_icons.png" />
+    <Content Include="Scripts\EasyUI\images\tree_icons_2.png" />
+    <Content Include="Scripts\EasyUI\images\validatebox_warning.png" />
+    <Content Include="Scripts\EasyUI\insdep.easyui.min.css" />
+    <Content Include="Scripts\EasyUI\insdep.extend.min.js" />
+    <Content Include="Scripts\EasyUI\insdep.theme_default.css" />
+    <Content Include="Scripts\EasyUI\jquery.easyui.min.js" />
+    <Content Include="Scripts\EasyUI\jquery.min.js" />
+    <Content Include="Scripts\EasyUI\locale\easyui-lang-af.js" />
+    <Content Include="Scripts\EasyUI\locale\easyui-lang-am.js" />
+    <Content Include="Scripts\EasyUI\locale\easyui-lang-ar.js" />
+    <Content Include="Scripts\EasyUI\locale\easyui-lang-bg.js" />
+    <Content Include="Scripts\EasyUI\locale\easyui-lang-ca.js" />
+    <Content Include="Scripts\EasyUI\locale\easyui-lang-cs.js" />
+    <Content Include="Scripts\EasyUI\locale\easyui-lang-cz.js" />
+    <Content Include="Scripts\EasyUI\locale\easyui-lang-da.js" />
+    <Content Include="Scripts\EasyUI\locale\easyui-lang-de.js" />
+    <Content Include="Scripts\EasyUI\locale\easyui-lang-el.js" />
+    <Content Include="Scripts\EasyUI\locale\easyui-lang-en.js" />
+    <Content Include="Scripts\EasyUI\locale\easyui-lang-es.js" />
+    <Content Include="Scripts\EasyUI\locale\easyui-lang-fr.js" />
+    <Content Include="Scripts\EasyUI\locale\easyui-lang-it.js" />
+    <Content Include="Scripts\EasyUI\locale\easyui-lang-jp.js" />
+    <Content Include="Scripts\EasyUI\locale\easyui-lang-ko.js" />
+    <Content Include="Scripts\EasyUI\locale\easyui-lang-nl.js" />
+    <Content Include="Scripts\EasyUI\locale\easyui-lang-pl.js" />
+    <Content Include="Scripts\EasyUI\locale\easyui-lang-pt_BR.js" />
+    <Content Include="Scripts\EasyUI\locale\easyui-lang-ru.js" />
+    <Content Include="Scripts\EasyUI\locale\easyui-lang-sv_SE.js" />
+    <Content Include="Scripts\EasyUI\locale\easyui-lang-tr.js" />
+    <Content Include="Scripts\EasyUI\locale\easyui-lang-zh_CN.js" />
+    <Content Include="Scripts\EasyUI\locale\easyui-lang-zh_TW.js" />
+    <Content Include="Content\style\login.less" />
+    <Content Include="Content\style\master.css.map" />
+    <Content Include="Content\style\master.less" />
+    <Content Include="Views\config.json" />
+    <None Include="Properties\PublishProfiles\1.pubxml" />
+    <None Include="Properties\PublishProfiles\本地.pubxml" />
+    <Content Include="Scripts\code\css\annotations\popup.scss" />
+    <Content Include="Scripts\code\css\highcharts.scss" />
+    <Content Include="Scripts\code\css\stocktools\gui.scss" />
+    <Content Include="Scripts\code\css\themes\dark-unica.scss" />
+    <Content Include="Scripts\code\css\themes\grid-light.scss" />
+    <Content Include="Scripts\code\css\themes\sand-signika.scss" />
+    <None Include="Properties\PublishProfiles\生产环境.pubxml" />
+    <None Include="Scripts\jquery-1.10.2.intellisense.js" />
+    <Content Include="Scripts\foxibox\images\foxibox-arrows.gif" />
+    <Content Include="Scripts\foxibox\images\foxibox-loading.gif" />
+    <Content Include="Scripts\foxibox\jquery-foxibox-0.12.min.js" />
+    <Content Include="Scripts\foxibox\jquery-foxibox-0.2.min.js" />
+    <Content Include="Scripts\foxibox\style\jquery-foxibox-0.12.css" />
+    <Content Include="Scripts\foxibox\style\jquery-foxibox-0.2.css" />
+    <Content Include="Scripts\jquery-1.10.2.js" />
+    <Content Include="Scripts\jquery-1.10.2.min.js" />
+    <Content Include="Scripts\jquery.cookie.js" />
+    <Content Include="Scripts\jquery.easyui.min.js" />
+    <Content Include="Scripts\jquery.form.min.js" />
+    <Content Include="Scripts\jquery.plugins.js" />
+    <Content Include="Scripts\juery.migrate.js" />
+    <Content Include="Scripts\map.js" />
+    <Content Include="Scripts\modernizr-2.6.2.js" />
+    <Content Include="Scripts\plugins.js" />
+    <Content Include="Scripts\rules.js" />
+    <Content Include="Scripts\wangEditor\fonts\w-e-icon.woff" />
+    <Content Include="Scripts\wangEditor\wangEditor.min.js.map" />
+    <None Include="Scripts\_references.js" />
+    <Content Include="Scripts\wangEditor\wangEditor.css" />
+    <Content Include="Scripts\wangEditor\wangEditor.js" />
+    <Content Include="Scripts\wangEditor\wangEditor.min.css" />
+    <Content Include="Scripts\wangEditor\wangEditor.min.js" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Views\_ViewStart.cshtml" />
+    <Content Include="Views\Banner\Index.cshtml" />
+    <Content Include="Views\Shared\_Layout.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Controllers\API\AccountController.cs" />
+    <Compile Include="Controllers\API\CommodityController.cs" />
+    <Compile Include="Controllers\API\MessageController.cs" />
+    <Compile Include="Controllers\API\SupplierController.cs" />
+    <Compile Include="Controllers\API\TicketController.cs" />
+    <Compile Include="Controllers\BasicController.cs" />
+    <Compile Include="Controllers\CommodityCategoryController.cs" />
+    <Compile Include="Controllers\CommodityController.cs" />
+    <Compile Include="Controllers\CommodityOrderController.cs" />
+    <Compile Include="Controllers\MemberAccountController.cs" />
+    <Compile Include="Controllers\AgentApplyController.cs" />
+    <Compile Include="Controllers\AgentController.cs" />
+    <Compile Include="Controllers\API\BannerController.cs" />
+    <Compile Include="Controllers\API\BBSController.cs" />
+    <Compile Include="Controllers\API\MemberController.cs" />
+    <Compile Include="Controllers\API\NavIconController.cs" />
+    <Compile Include="Controllers\API\WordController.cs" />
+    <Compile Include="Controllers\BannerController.cs" />
+    <Compile Include="Controllers\BBSArticleController.cs" />
+    <Compile Include="Controllers\BBSCategoryController.cs" />
+    <Compile Include="Controllers\IdentityController.cs" />
+    <Compile Include="Controllers\MemberController.cs" />
+    <Compile Include="Controllers\EmployeeController.cs" />
+    <Compile Include="Controllers\EnterController.cs" />
+    <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\MenuController.cs" />
+    <Compile Include="Controllers\MessageController.cs" />
+    <Compile Include="Controllers\NavIconController.cs" />
+    <Compile Include="Controllers\PaymentNoticeController.cs" />
+    <Compile Include="Controllers\PlatformStatementController.cs" />
+    <Compile Include="Controllers\SupplierController.cs" />
+    <Compile Include="Controllers\TicketCategoryController.cs" />
+    <Compile Include="Controllers\TicketController.cs" />
+    <Compile Include="Controllers\TicketOrderController.cs" />
+    <Compile Include="Controllers\TimerController.cs" />
+    <Compile Include="Controllers\WithdrawController.cs" />
+    <Compile Include="Controllers\WordController.cs" />
+    <Compile Include="Controllers\WordTagController.cs" />
+    <Compile Include="Global.asax.cs">
+      <DependentUpon>Global.asax</DependentUpon>
+    </Compile>
+    <Compile Include="Infrastructure\AES_Decrypt.cs" />
+    <Compile Include="Infrastructure\CacheManager.cs" />
+    <Compile Include="Infrastructure\HtmlSafer\HtmlAnalyserConfiger.cs" />
+    <Compile Include="Infrastructure\HtmlSafer\HtmlSaferAnalyser.cs" />
+    <Compile Include="Infrastructure\HtmlSafer\TagInfo.cs" />
+    <Compile Include="Infrastructure\PayHandler.cs" />
+    <Compile Include="Infrastructure\PublisherLock.cs" />
+    <Compile Include="Infrastructure\LoginLock.cs" />
+    <Compile Include="Infrastructure\Setting.cs" />
+    <Compile Include="Infrastructure\TokenAuthorizeAttribute.cs" />
+    <Compile Include="Infrastructure\ImageWorker.cs" />
+    <Compile Include="Infrastructure\TicketWoker.cs" />
+    <Compile Include="Infrastructure\WeChat.cs" />
+    <Compile Include="Models\MobileCode.cs" />
+    <Compile Include="Models\UserData.cs" />
+    <Compile Include="Models\ViewPermissionGroup.cs" />
+    <Compile Include="Models\WeChat\AddBBSArticleRequest.cs" />
+    <Compile Include="Models\WeChat\AddBBSCommentRequest.cs" />
+    <Compile Include="Models\WeChat\AddBBSCommentResponse.cs" />
+    <Compile Include="Models\WeChat\AddAgentVerifyRequest.cs" />
+    <Compile Include="Models\WeChat\AddCommodityOrderRequest.cs" />
+    <Compile Include="Models\WeChat\AddCommodityRequest.cs" />
+    <Compile Include="Models\WeChat\BindSupplierRequest.cs" />
+    <Compile Include="Models\WeChat\AddIdentityVerifyRequest.cs" />
+    <Compile Include="Models\WeChat\AddWordCommentRequest.cs" />
+    <Compile Include="Models\WeChat\AddWordCommentResponse.cs" />
+    <Compile Include="Models\WeChat\AddWordRequest.cs" />
+    <Compile Include="Models\WeChat\AddWordResponse.cs" />
+    <Compile Include="Models\WeChat\AppLoginRequest.cs" />
+    <Compile Include="Models\WeChat\AppLoginResponse.cs" />
+    <Compile Include="Models\WeChat\CheckOutOrderRequest.cs" />
+    <Compile Include="Models\WeChat\DetailResponse.cs" />
+    <Compile Include="Models\WeChat\EditUserInfoRequest.cs" />
+    <Compile Include="Models\WeChat\FileUploadRequest.cs" />
+    <Compile Include="Models\WeChat\PageRequest.cs" />
+    <Compile Include="Models\WeChat\PageResponse.cs" />
+    <Compile Include="Models\WeChat\SetOrderStatusRequest.cs" />
+    <Compile Include="Models\WeChat\SimpleStatusRequest.cs" />
+    <Compile Include="Models\WeChat\SimpleStatusResponse.cs" />
+    <Compile Include="Models\WeChat\SimpleTokenRequest.cs" />
+    <Compile Include="Models\WeChat\TicketOrderRequest.cs" />
+    <Compile Include="Models\WeChat\TicketOrderResponse.cs" />
+    <Compile Include="Models\WeChat\WithdrawRequest.cs" />
+    <Compile Include="Models\WeChat\WXContact.cs" />
+    <Compile Include="Models\WeChat\WXPaySign.cs" />
+    <Compile Include="Models\WeChat\WXSessionResponse.cs" />
+    <Compile Include="Models\WeChat\WXTokenResponse.cs" />
+    <Compile Include="Models\WeChat\WXUserInfo.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\web.config" />
+    <Content Include="packages.config" />
+    <Content Include="Scripts\EasyUI\iconfont\iconfont.eot" />
+    <Content Include="Scripts\EasyUI\iconfont\iconfont.ttf" />
+    <Content Include="Scripts\EasyUI\iconfont\iconfont.woff" />
+    <Content Include="Scripts\EasyUI\icons\nzpB1AB.tmp" />
+    <Content Include="Scripts\EasyUI\icons\nzpB1AC.tmp" />
+    <Content Include="Scripts\EasyUI\icons\nzpB1AD.tmp" />
+    <Content Include="Scripts\EasyUI\icons\nzpB1CD.tmp" />
+    <Content Include="Scripts\EasyUI\icons\vssver2.scc" />
+    <Content Include="Scripts\jquery-1.10.2.min.map" />
+    <Content Include="Views\NavIcon\Index.cshtml" />
+    <Content Include="Views\WordTag\Index.cshtml" />
+    <Content Include="Views\Enter\Index.cshtml" />
+    <Content Include="Views\Home\Index.cshtml" />
+    <Content Include="Views\Menu\StartMenu.cshtml" />
+    <Content Include="Views\Menu\SubMenu.cshtml" />
+    <Content Include="Views\BBSCategory\Index.cshtml" />
+    <Content Include="Views\Employee\Index.cshtml" />
+    <Content Include="Views\TicketCategory\Index.cshtml" />
+    <Content Include="Views\Supplier\Index.cshtml" />
+    <Content Include="Views\Member\Index.cshtml" />
+    <Content Include="Views\Identity\Index.cshtml" />
+    <Content Include="Views\AgentApply\Index.cshtml" />
+    <Content Include="Views\Agent\Index.cshtml" />
+    <Content Include="Views\TicketOrder\Index.cshtml" />
+    <Content Include="Views\MemberAccount\Index.cshtml" />
+    <Content Include="Views\Word\Index.cshtml" />
+    <Content Include="Views\Ticket\Index.cshtml" />
+    <Content Include="Views\PlatformStatement\Index.cshtml" />
+    <Content Include="Views\Message\Index.cshtml" />
+    <Content Include="Views\Withdraw\Index.cshtml" />
+    <Content Include="Views\BBSArticle\Index.cshtml" />
+    <Content Include="Views\Basic\Index.cshtml" />
+    <Content Include="Views\CommodityCategory\Index.cshtml" />
+    <Content Include="Views\Commodity\Index.cshtml" />
+    <Content Include="Views\commodityOrder\Index.cshtml" />
+    <None Include="Views\sha.cshtml" />
+    <Content Include="Views\Unit\Index.cshtml" />
+    <None Include="Web.Debug.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+    <None Include="Web.Release.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Images\Upload\" />
+    <Folder Include="Views\A\" />
+    <Folder Include="Views\Icon\" />
+    <Folder Include="Views\PaymentNotice\" />
+    <Folder Include="Views\Payment\" />
+    <Folder Include="Views\timer\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\XDD.Core\XDD.Core.csproj">
+      <Project>{8fd65930-d5af-4db0-bd2f-3fe9bf479be2}</Project>
+      <Name>XDD.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\XDD.Payment\XDD.Payment.csproj">
+      <Project>{bc5e3d14-9b8e-473e-8ed1-b2f027eb4a5a}</Project>
+      <Name>XDD.Payment</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\XDD.SMS\XDD.SMS.csproj">
+      <Project>{266e9ddd-d5c7-479c-ba10-0b219c099dd2}</Project>
+      <Name>XDD.SMS</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>True</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>22681</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>http://localhost:6664</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>False</UseCustomServer>
+          <CustomServerUrl>
+          </CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

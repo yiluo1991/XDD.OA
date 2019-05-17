@@ -1,0 +1,73 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+using XDD.Core.DataAccess;
+using XDD.Core.Model;
+using XDD.Web.Models;
+
+namespace XDD.Web.Controllers
+{
+    public class MenuController : Controller
+    {
+
+      
+        /// <summary>
+        ///     开始菜单子页
+        /// </summary>
+        /// <returns></returns>
+        [ChildActionOnly]
+        public PartialViewResult StartMenu()
+        {
+            List<ViewPermissionGroup> PermissionGroups;
+
+            //由于后台Controllers部分没有加上 [Permission]  
+            if (System.Web.HttpContext.Current.Session["PermissionGroups"] == null)
+            {
+                System.Web.HttpContext.Current.Session["PermissionGroups"] = GetViewPermissionGroup( );
+               
+            }
+            PermissionGroups = (System.Web.HttpContext.Current.Session["PermissionGroups"] as List<ViewPermissionGroup>).Where(p => p.Tag != "hidden").OrderBy(p => p.SN).ToList();
+            return PartialView(PermissionGroups);
+        }
+
+        private static List<ViewPermissionGroup> GetViewPermissionGroup()
+        {
+            XDDDbContext ctx = new XDDDbContext();
+            List<PermissionGroup> childrenPermissionGroups = ctx.PermissionGroups.OrderBy(s=>s.SN).ToList();
+            List<PermissionGroup> newChildrenPermissionGroups = childrenPermissionGroups;
+            do
+            {
+                newChildrenPermissionGroups = newChildrenPermissionGroups.Where(m => m.Parent != null).Select(m => m.Parent).ToList();
+                childrenPermissionGroups.AddRange(newChildrenPermissionGroups);
+            }
+
+            while (newChildrenPermissionGroups.Where(m => m.Parent != null).Select(m => m.Parent).ToList().Count > 0);
+            return childrenPermissionGroups.Distinct().Select(m => new ViewPermissionGroup { Id = m.Id, ParentId = m.ParentId, Url = m.Url, SN = m.SN, Headshot = m.Headshot, DisplayName = m.DisplayName }).ToList();//；拥有的权限组
+        }
+
+        /// <summary>
+        ///     左侧子菜单子页
+        /// </summary>
+        /// <returns></returns>
+        [ChildActionOnly]
+        public PartialViewResult SubMenu()
+        {
+            UrlHelper urlHelper = new UrlHelper(this.Request.RequestContext);
+            var controllerName = urlHelper.RequestContext.RouteData.Values["controller"].ToString();
+            var actionName = urlHelper.RequestContext.RouteData.Values["action"].ToString();
+            List<ViewPermissionGroup> showPermissionGoups = new List<ViewPermissionGroup>();
+            if (System.Web.HttpContext.Current.Session["PermissionGroups"] != null)
+            {
+                var permissonGroups = (System.Web.HttpContext.Current.Session["PermissionGroups"] as List<ViewPermissionGroup>).Where(p => p.Tag != "hidden").OrderBy(p => p.SN).ToList();
+                var parent = permissonGroups.SingleOrDefault(p => p.Url.ToLower() == ("/" + controllerName + "/" + actionName).ToLower());
+                var pid = parent.ParentId;
+                ViewBag.subTitle = permissonGroups.SingleOrDefault(p => p.Id == pid).DisplayName;
+                showPermissionGoups = permissonGroups.Where(p => p.ParentId == pid).ToList();
+            }
+
+            return PartialView(showPermissionGoups);
+        }
+    }
+}

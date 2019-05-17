@@ -1,0 +1,86 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+using XDD.Core.DataAccess;
+using XDD.Core.Model;
+
+
+
+namespace XDD.Web.Controllers
+{
+    public class AgentApplyController : Controller
+    {
+        /// <summary>
+        /// 代理申请审核
+        /// </summary>
+        /// <returns></returns>
+          [Authorize(Roles = "管理员")]
+        public ActionResult Index()
+        {
+            return View();
+        }
+          public JsonResult GetUser(string keyword, int page = 1, int rows = 10)
+          {
+              XDDDbContext ctx = new XDDDbContext();
+              IQueryable<AgentApply> query;
+              if (string.IsNullOrEmpty(keyword))
+              {
+                  query = ctx.AgentApplys;
+              }
+              else
+              {
+
+                  query = ctx.AgentApplys.Where(s => s.RealName.Contains(keyword) || s.Member.NickName.Contains(keyword) ||
+                      s.Employee.RealName.Contains(keyword) || s.IdCard.Contains(keyword));
+              }
+              return Json(
+                  new
+                  {
+                      //计算总条数
+                      total = query.Count(),
+                      //skip不取前几条
+                      //take取出多少条数据
+                      rows = query.OrderByDescending(s => s.CreateTime).Skip((page - 1) * rows).Take(rows).ToList().Select(s => new
+                      {
+                          s.Id,
+                          s.RealName,
+                          s.Sex,
+                          s.Paths,
+                          s.Status,
+                          s.IdCard,
+                          MemberName = s.Member.NickName,
+                          CaptainName= s.CaptainId == null ? null : s.Member.NickName,
+                         // s.Status,
+                          s.CreateTime,
+
+                      })
+                  }, JsonRequestBehavior.AllowGet);
+          }
+          public JsonResult Edit(int id, VerifyStatus stastus, string feedback)
+          {
+
+
+              XDDDbContext ctx = new XDDDbContext();
+              var target = ctx.AgentApplys.First(s => s.Id == id);
+              if (target != null)
+              {
+                  target.VerifyTime = DateTime.Now;//审核时间
+                  target.EmployeeId = Convert.ToInt32(User.Identity.Name);//审核人
+                  target.Status = stastus;//是否通过
+                  target.Feedback = feedback;//审批的反馈信息
+                  if (!target.Member.Status.HasFlag(MemberStatus.Agant)) target.Member.Status |= MemberStatus.Agant;
+                  ctx.SaveChanges();
+                  return Json(new { ResultCode = 1, Message = "" });
+              }
+              else
+              {
+                  return Json(new { ResultCode = 0, Message = "操作失败" });
+              }
+
+
+          }
+
+    }
+}

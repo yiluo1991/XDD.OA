@@ -1,0 +1,101 @@
+﻿@{
+    ViewBag.Title = "Index";
+}
+
+
+<div class="easyui-layout" data-options="fit:true">
+    <div id="table">
+        <div id="maintabletoolbar">
+            <table cellpadding="0" cellspacing="0">
+                <tr>
+                    <td>
+                        <div class="datagrid-btn-separator"></div>
+                    </td>
+                    <td>
+                        <input id="searchbox" class="easyui-searchbox" style="width:200px" prompt="请输入搜索的内容" data-options="searcher:function(value){$('#table').datagrid('load',{keyword:value})}" />
+                    </td>
+                    <td>
+                        <div class="datagrid-btn-separator"></div>
+                    </td>
+                    <td>
+                        <a class="easyui-linkbutton" iconcls="icon-reload" plain="true" onclick="$('#table').datagrid('reload')">刷新</a>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <script>
+        $(function () {
+            $('#table').datagrid({
+                toolbar: '#maintabletoolbar',
+                fit: true,
+                border: false,
+                fitColumns: true,
+                url: '/TicketOrder/Get',
+                rownumbers: true,
+                pageList: [1, 2, 5, 10, 20, 30, 40, 50],
+                pagination: true,
+                rownumbers: true,
+                singleSelect: true,
+                columns: [[
+                      {    field: 'Id', title: 'Id', width: 60, fixed: true, halign: 'center'
+                      }, {
+                          field: 'OrderNum', title: '提交订单号', width: 80, fixed: true, halign: 'center'
+                      }, {
+                          field: 'OrderPrice', title: '提交价格', width: 80, halign: 'center'
+                      }, {
+                          field: 'Price', title: '实际价格', width: 80, halign: 'center'
+                      },  {
+                          field: 'CreateTime', title: '支付时间', width: 120, align: 'center', formatter: function (value) { return $.formatJsonDate(value) }
+                      }, {
+                          field: 'Status', title: '状态', width: 80, align: 'center'
+                      }, {
+                          field: 'TicetPackage', title: '票券套餐', width: 80, align: 'center'
+                      }, {
+                          field: 'Supplier', title: '供应商', width: 80, align: 'center'
+                      }, {
+                          field: 'Member', title: '会员 ', width: 60, align: 'center'
+                      }, {
+                          field: 'Agent', title: '代理', width: 50, align: 'center'
+                      },{
+                          field: 'L1BalanceCharges', title: '一级代理实际佣金', width: 100, align: 'center'
+                      }, {
+                          field: 'L2BalanceCharges', title: '二级代理实际佣金', width: 100, align: 'center'
+                      }]]
+            })
+        })
+</script>
+    <style>
+        #editdialog p {
+            padding: 5px 0;
+        }
+    </style>
+    <div id="editdialog" style="padding:5px;text-align:center;overflow:hidden;">
+        <form id="editform" enctype="multipart/form-data" method="post">
+
+            <p>
+                <input id="editid" name="Id" value="0" hidden />
+                <input validateoncreate="false" prompt="请输入用户名" class="easyui-textbox" label="用户名" labelwidth="80" labelalign="center" name="LoginName" style="width:99%;" required />
+            </p>
+            <p>
+                <input validateoncreate="false" prompt="请输入密码" showeye="false" class="easyui-passwordbox" label="密码" labelwidth="80" labelalign="center" name="Password" style="width:99%;" />
+            </p>
+            <p>
+                <input validateoncreate="false" prompt="请输入邮箱" class="easyui-textbox" label="邮箱" labelwidth="80" labelalign="center" name="Email" style="width:99%;" required />
+            </p>
+            <p>
+                <input validateoncreate="false" prompt="请输入真实姓名" class="easyui-textbox" label="真实姓名" labelwidth="80" labelalign="center" name="RealName" style="width:99%;" required />
+            </p>
+            <p>
+                <input validateoncreate="false" class="easyui-combobox" editable="false" label="角色名" labelwidth="80" labelalign="center" name="RoleName" style="width:99%;" required data-options="data:[{text:'管理员',value:'管理员'},{text:'财务',value:'财务'},{text:'客服',value:'客服'}],value:'管理员'" panelheight="80" />
+            </p>
+            <p>
+                <input validateoncreate="false" class="easyui-combobox" editable="false" label="是否启用" labelwidth="80" labelalign="center" name="Enable" style="width:99%;" required data-options="data:[{text:'启用',value:true},{text:'禁用',value:false}],value:true" panelheight="80" />
+            </p>
+        </form>
+    </div>
+</div>
+
+
+
+

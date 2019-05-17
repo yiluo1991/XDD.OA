@@ -1,0 +1,159 @@
+﻿@{
+    ViewBag.Title = "Index";
+}
+
+
+<div class="easyui-layout" data-options="fit:true">
+    <div id="table">
+        <div id="maintabletoolbar">
+            <table cellpadding="0" cellspacing="0">
+                <tr>
+                    <td>
+                        <a class="easyui-linkbutton" iconcls="icon-add" plain="true" onclick=" $('#editform').form('reset').form('resetValidation'); $('#editdialog').dialog('open').dialog('setTitle', '添加用户');">添加</a>
+                    </td>
+                    <td>
+                        <div class="datagrid-btn-separator"></div>
+                    </td>
+                    <td>
+                        <input id="searchbox" class="easyui-searchbox" style="width:200px" prompt="请输入搜索的内容" data-options="searcher:function(value){$('#table').datagrid('load',{keyword:value})}" />
+                    </td>
+                    <td>
+                        <div class="datagrid-btn-separator"></div>
+                    </td>
+                    <td>
+                        <a class="easyui-linkbutton" iconcls="icon-reload" plain="true" onclick="$('#table').datagrid('reload')">刷新</a>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <script>
+        $(function () {
+            $('#table').datagrid({
+                toolbar: '#maintabletoolbar',
+                fit: true,
+                border: false,
+                fitColumns: true,
+                url: '/Employee/Get',
+                rownumbers: true,
+                singleSelect: true,
+                columns: [[
+                      {
+                          field: 'Id', title: 'Id', width: 120, fixed: true, halign: 'center'
+                      }, {
+                          field: 'LoginName', title: '用户名', width: 120, fixed: true, halign: 'center'
+                      }, {
+                          field: 'Email', title: '邮箱', width: 60, halign: 'center'
+                      }, {
+                          field: 'RealName', title: '真实姓名', width: 60, halign: 'center'
+                      }, {
+                          field: 'RoleName', title: '角色名', width: 60, align: 'center'
+                      }, {
+                          field: 'Enable', title: '是否启用', width: 60, fixed: true, align: 'center', formatter: function (value) {
+                              if (value) {
+                                  return "<span style='color:green;font-weight:bold;'>启用</span>"
+                              }
+                              else {
+                                  return "<span style='color:red;font-weight:bold;'>禁用</span>"
+                              }
+                          }
+                      }, {
+                          field: 'CreateTime', title: '创建时间', width: 60, align: 'center', formatter: function (value) { return $.formatJsonDate(value) }
+                      }, {
+                          field: 'CreatorId', title: '创建者Id', width: 60, align: 'center'
+                      }, {
+                          field: 'edit', title: '操作', width: 100, halign: 'center', width: 86, fixed: true, formatter: function (value, row, index) {
+                              return '<a class="editbtn" onclick="edit(' + index + ')">修改</a>'
+                          }
+                      }
+                ]],
+
+
+                onLoadSuccess: function () {
+                    $('.editbtn').linkbutton({ iconCls: 'icon-edit', plain: true });
+                    //$(this).datagrid('fixRowHeight');
+                }
+            })
+        })
+        $(function () {
+            $('#editdialog').dialog({
+                width: 400,
+                height: 370,
+                modal: true,
+                closed: true,
+                buttons: [{
+                    iconCls: 'icon-ok',
+                    text: '保存',
+                    handler: function () {
+                        var url;
+                        if ($('#editid').val() == 0) {
+                            url = "/Employee/Add"
+                        } else {
+                            url = "/Employee/Edit"
+                        }
+                        if ($('#editform').form('validate')) {
+                            $.ajaxStart();
+                            $('#editform').ajaxSubmit({
+                                url: url,
+                                dataType: 'json',
+                                success: function (data) {
+                                    $.ajaxEnd();
+                                    $('#editdialog').dialog('close');
+                                    if (data.ResultCode != 1) {
+                                        $.messager.alert('提示', data.message, "warning");
+                                    }
+                                    $('#table').datagrid('reload');
+
+                                }
+                            })
+                        }
+                    },
+                    plain: true
+                }, {
+                    iconCls: 'icon-cancel',
+                    text: '取消',
+                    handler: function () {
+                        $('#editdialog').dialog('close')
+                    },
+                    plain: true
+                }]
+            })
+        })
+        function edit(index) {
+            var row = $('#table').datagrid('getRows')[index];
+            $('#editform').form('reset').form('resetValidation').form('load', row);
+            $('#editdialog').dialog('open').dialog('setTitle', '修改用户');
+        }
+    </script>
+    <style>
+        #editdialog p {
+            padding: 5px 0;
+        }
+    </style>
+    <div id="editdialog" style="padding:5px;text-align:center;overflow:hidden;">
+        <form id="editform" enctype="multipart/form-data" method="post">
+
+            <p>
+                <input id="editid" name="Id" value="0" hidden />
+                <input validateoncreate="false" prompt="请输入用户名" class="easyui-textbox" label="用户名" labelwidth="80" labelalign="center" name="LoginName" style="width:99%;" required />
+            </p>
+            <p>
+                <input validateoncreate="false" prompt="请输入密码" showeye="false" class="easyui-passwordbox" label="密码" labelwidth="80" labelalign="center" name="Password" style="width:99%;" />
+            </p>
+            <p>
+                <input validateoncreate="false" prompt="请输入邮箱" class="easyui-textbox" label="邮箱" labelwidth="80" labelalign="center" name="Email" style="width:99%;" required />
+            </p>
+            <p>
+                <input validateoncreate="false" prompt="请输入真实姓名" class="easyui-textbox" label="真实姓名" labelwidth="80" labelalign="center" name="RealName" style="width:99%;" required />
+            </p>
+            <p>
+                <input validateoncreate="false" class="easyui-combobox" editable="false" label="角色名" labelwidth="80" labelalign="center" name="RoleName" style="width:99%;" required data-options="data:[{text:'管理员',value:'管理员'},{text:'财务',value:'财务'},{text:'客服',value:'客服'}],value:'管理员'" panelheight="80" />
+            </p>
+            <p>
+                <input validateoncreate="false" class="easyui-combobox" editable="false" label="是否启用" labelwidth="80" labelalign="center" name="Enable" style="width:99%;" required data-options="data:[{text:'启用',value:true},{text:'禁用',value:false}],value:true" panelheight="80" />
+            </p>
+        </form>
+    </div>
+</div>
+
+

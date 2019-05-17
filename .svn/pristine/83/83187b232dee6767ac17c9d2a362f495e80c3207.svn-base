@@ -1,0 +1,109 @@
+﻿@{
+    ViewBag.Title = "Index";
+}
+
+
+<div class="easyui-layout" data-options="fit:true">
+    <div id="table">
+        <div id="maintabletoolbar">
+            <table cellpadding="0" cellspacing="0">
+                <tr>
+                    <td>
+                        <div class="datagrid-btn-separator"></div>
+                    </td>
+                    <td>
+                        <input id="searchbox" class="easyui-searchbox" style="width:200px" prompt="请输入搜索的内容" data-options="searcher:function(value){$('#table').datagrid('load',{keyword:value})}" />
+                    </td>
+                    <td>
+                        <div class="datagrid-btn-separator"></div>
+                    </td>
+                    <td>
+                        <a class="easyui-linkbutton" iconcls="icon-reload" plain="true" onclick="$('#table').datagrid('reload')">刷新</a>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <script>
+        $(function () {
+            $('#table').datagrid({
+                toolbar: '#maintabletoolbar',
+                fit: true,
+                border: false,
+                fitColumns: true,
+                url: '/TicketOrder/Get',
+                
+                //分页
+                pagination: true,
+                rownumbers: true,
+                pageList: [1, 2, 5, 10, 20, 30, 40, 50],
+                closable: true,
+                collapsible: true,
+
+
+                rownumbers: true,
+                singleSelect: true,
+                columns: [[
+                    {
+                        field: 'OrderNum', title: '提交订单号', width: 100, align: 'center', width: 100, fixed: true, formatter: function (value) {
+                            return '<span class="orderNum" title="' + value + '" href="javascript:void(0)">' + value + '</span>'
+                        }
+                    },{
+                        field: 'OrderPrice', title: '提交价格', width: 60, align: 'center'
+                      
+                      }, {
+                          field: 'Price', title: '实际价格', width: 60, align: 'center'
+                    },  {
+                       
+                        field: 'CreateTime', title: '支付时间', width: 130, align: 'center', formatter: function (value) { return $.formatJsonDate(value) }
+                     }, {
+                         title: '状态', field: 'Status', width: '65', align: 'center',
+                         formatter: function (value, row, index) {
+                             switch (value) {
+                                 case 0:
+                                     return'<span style="display:background:gray;color:red;"  >未付款</span>'
+                                 case 1:
+                                     return '<span style="display:background:gray;color:green;"  >已付款</span>'
+                                 case 2:
+                                     return '<span style="display:background:gray;color:red;"  >付款超时</span>'
+                                 case 3:
+                                     return '<span style="display:background:gray;color:orange;"  >已出票</span>'
+                                 case 4:
+                                     return '<span style="display:background:gray;color:green;"  >已核销</span>'
+                                 default:
+                                     return '<span style="display:background:gray;color:red;"  >退票</span>'
+
+                             }
+                         }
+                     }, {
+                        
+                          field: 'TicetPackage', title: '票券套餐', width: 60, align: 'center'
+                     }, {
+                       
+                          field: 'SupplierId', title: '供应商', width: 50, align: 'center'
+                      }, {
+                          
+                          field: 'MemberId', width: 100,  title: '会员', align: 'center', formatter: function (value, row) {  return row.MemberName + ' | ' + row.RealName;
+            }
+                      },
+                      {
+                         
+                          field: 'AgentId', width: 50,  title: '代理', align: 'center', formatter: function (value, row) {
+                              return  row.RealName;
+            }
+                      }
+                      , {
+                          field: 'L1BalanceCharges', title: '一级佣金', width: 60, align: 'center'
+                      }, {
+                          field: 'L2BalanceCharges', title: '二级佣金', width: 50, align: 'center'
+                     
+                            }]],
+              
+            })
+        })
+</script>
+</div>
+
+
+
+

@@ -1,0 +1,100 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+using XDD.Core.DataAccess;
+using XDD.Core.Model;
+
+namespace XDD.Web.Controllers
+{
+    public class TicketController : Controller
+    {
+
+        XDDDbContext Context = new XDDDbContext();
+
+        [Authorize(Roles = "管理员")]
+        public ActionResult Index()
+        {
+            return View();
+        }
+
+
+
+        public JsonResult GetTickets(string keyword, int page = 1, int rows = 15)
+        {
+            IQueryable<Ticket> query = Context.Tickets;
+            if (!string.IsNullOrEmpty(keyword))
+            {
+                query.Where(s => s.Address.Contains(keyword) || s.Content.Contains(keyword) || s.Name.Contains(keyword) || s.ShopName.Contains(keyword) || s.TicketCategory.Name.Contains(keyword) || s.Employee.LoginName.Contains(keyword) || s.Employee.RealName.Contains(keyword));
+            }
+            return Json(new
+            {
+                total = query.Count(),
+                rows = query.OrderBy(s => s.TicketCategory.SN).ThenBy(s => s.SN).Skip((page - 1) * rows).Take(rows).Select(s => new { s.Address, s.Content, s.CreateTime, s.Employee.LoginName, s.Employee.RealName, s.Enable, s.Id, s.Lat, s.Lng, s.Name, s.OnSale, s.Pic, s.Price, s.ShopName, s.SN, TicketCategoryName = s.TicketCategory.Name, s.TicketCategoryId, PackageCount = s.TicketPackages.Count() }).ToList()
+            });
+        }
+
+        public JsonResult AddTicket(Ticket ticket)
+        {
+            ticket.CreateTime = DateTime.Now;
+            ticket.EmployeeId = Convert.ToInt32(User.Identity.Name);
+            ticket.Lat = 0;
+            ticket.Lng = 0;
+            Context.Tickets.Add(ticket);
+            Context.SaveChanges();
+            return Json(new
+            {
+                ResultCode = 1,
+                Message = "添加成功"
+            });
+        }
+        public JsonResult EditTicket(Ticket ticket)
+        {
+            var target = Context.Tickets.FirstOrDefault(s => s.Id == ticket.Id);
+            if (target != null)
+            {
+                target.Address = ticket.Address;
+                target.Content = ticket.Content;
+                target.EmployeeId = Convert.ToInt32(User.Identity.Name);
+                target.Enable = ticket.Enable;
+                target.Lat = ticket.Lat;
+                target.Lng = ticket.Lng;
+                target.Name = ticket.Name;
+                target.OnSale = ticket.OnSale;
+                target.Pic = ticket.Pic;
+                target.Price = ticket.Price;
+                target.ShopName = ticket.ShopName;
+                target.SN = ticket.SN;
+                target.TicketCategoryId = ticket.TicketCategoryId;
+                Context.SaveChanges();
+                return Json(new { ResultCode = 1, Message = "修改成功" });
+            }
+            else
+            {
+                return Json(new { ResultCode = 0, Message = "没有找到门票信息" });
+            }
+        }
+
+        public JsonResult ChangeTicketStatus(int id, int type, bool status) {
+            var target = Context.Tickets.FirstOrDefault(s => s.Id ==id);
+            if (target != null)
+            {
+                if (type == 1)
+                {
+                    target.OnSale = status;
+                }
+                else
+                {
+                    target.Enable = status;
+                }
+                Context.SaveChanges();
+                return Json(new { ResultCode = 1, Message = "修改成功" });
+            }
+            else
+            {
+                return Json(new { ResultCode = 0, Message = "没有找到门票信息" });
+            }
+        }
+    }
+}

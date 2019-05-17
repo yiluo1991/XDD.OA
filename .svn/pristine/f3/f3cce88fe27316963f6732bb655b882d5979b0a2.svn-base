@@ -1,0 +1,111 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+using XDD.Core.DataAccess;
+using XDD.Core.Model;
+
+namespace XDD.Web.Controllers
+{
+    public class BBSArticleController : Controller
+    {
+        XDDDbContext Context = new XDDDbContext();
+        // GET: BBSArticle
+        public ActionResult Index()
+        {
+            return View();
+        }
+        public JsonResult Remove(Int32 Id)
+        {
+            XDDDbContext ctx = new XDDDbContext();
+            var target = ctx.BBSArticles.FirstOrDefault(s => s.Id == Id);
+            if (target == null)
+            {
+                return Json(new { ResultCode = 0, message = "没有找到图片" });
+            }
+            else
+            {
+                ctx.BBSArticles.Remove(target);
+                ctx.SaveChanges();
+                return Json(new { ResultCode = 1, message = "删除成功" });
+            }
+        }
+
+        public JsonResult AllowGet(string keyword, int categoryId = 0, int page = 1, int rows = 15)//搜索
+
+        {
+            IQueryable<BBSArticle> query = Context.BBSArticles;
+            if (categoryId != 0)
+            {
+                query = query.Where(s => s.CategoryId == categoryId);
+            }
+            if (!string.IsNullOrEmpty(keyword))
+            {
+                int keywordId;
+                bool isNumber = int.TryParse(keyword, out keywordId);
+                if (isNumber)
+                {
+                    query = query.Where(s => s.Title.Contains(keyword) || s.Member.RealName.Contains(keyword) || s.BBSCategory.Name.Contains(keyword) || s.Member.NickName.Contains(keyword) || s.Subject.Contains(keyword) || s.Address.Contains(keyword) || s.Member.NickName == keyword || s.SN.ToString() == keyword || s.Member.Id == keywordId || s.Id == keywordId);
+                }
+                else
+                {
+                    query = query.Where(s => s.Title.Contains(keyword) || s.Member.RealName.Contains(keyword) || s.BBSCategory.Name.Contains(keyword) ||s.Member.NickName.Contains(keyword) || s.Subject.Contains(keyword) || s.Address.Contains(keyword) || s.Member.NickName == keyword || s.SN.ToString() == keyword || s.Member.Id == keywordId || s.Id == keywordId);
+                }
+            }
+            return Json(new
+            {
+                total = query.Count(),
+               
+                rows = query.OrderBy(s => s.SN).ThenByDescending(s => s.CreateTime).Skip((page - 1) * rows).Take(rows).Select(s => new
+                {
+                    s.AllowComment,
+                    s.CategoryId,
+                    s.CommentCount,
+                    s.Counter,
+                    s.CreateTime,
+                    s.Id,
+                    s.IsBackgroundArticle,
+                    //MemberId = s.Member.NickName,
+                    s.ReadCount,
+                    s.ShowComment,
+                    s.SN,
+                    s.Subject,
+                    s.Title,
+                    s.MemberId,
+                    NickName = s.Member.NickName,
+                    s.Paths,
+                    s.Address,
+                     CategoryName = s.BBSCategory.Name,
+                    s.DateTime,
+                    s.Payment,
+                    s.PeopleEnd,
+                    s.PeopleStart
+                  
+                }).ToList()
+            });
+        }
+
+        //public JsonResult Add(BBSArticle BBSArticle) {
+        //    XDDDbContext ctx = new XDDDbContext();
+
+        //}
+
+        //public JsonResult Edit()
+        //{
+        //    XDDDbContext ctx = new XDDDbContext();
+        //    var target = ctx.BBSArticles.FirstOrDefault(s => s.Id == );
+        //    if (target == null)
+        //    {
+        //        return Json(new { ResultCode = 0, Message = "没有找到要修改的项" });
+        //    }
+        //    else
+        //    {
+
+        //        ctx.SaveChanges();
+        //        return Json(new { ResultCode = 1, Message = "修改成功" });
+        //    }
+        //}
+
+    }
+}

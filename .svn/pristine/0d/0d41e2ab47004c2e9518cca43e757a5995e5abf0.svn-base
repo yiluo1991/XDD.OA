@@ -1,0 +1,154 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Web.Http;
+using XDD.Web.Infrastructure;
+using XDD.Web.Models.WeChat;
+using System.Web.Script.Serialization;
+using XDD.Core.DataAccess;
+using System.Web.Security;
+using XDD.Core.Model;
+namespace XDD.Web.Controllers.API
+{
+    /// <summary>
+    /// 会员接口
+    /// </summary>
+    [RoutePrefix("api/Member")]
+    public class MemberController : ApiController
+    {
+        /// <summary>
+        ///     预登陆
+        /// </summary>
+        /// <param name="code"></param>
+        /// <returns></returns>
+        [Route("PreLogin"), HttpGet]
+    
+        public int PreLogin(string code)
+        {
+
+            WebClient client = new WebClient();
+            string res = client.DownloadString("https://api.weixin.qq.com/sns/jscode2session?appid=" + WeChat.AppId + "&secret=" + WeChat.AppSecret + "&js_code=" + code + "&grant_type=authorization_code");
+            JavaScriptSerializer jss = new JavaScriptSerializer();
+            WXSessionResponse r = jss.Deserialize<WXSessionResponse>(res);
+            if (r.openid != null)
+            {
+                XDDDbContext ctx = new XDDDbContext();
+                var target = ctx.Members.FirstOrDefault(s => s.AppOpenId == r.openid || s.UnionId == r.unionid);
+                if (target == null)
+                {
+                    //首次预登录
+                    target = new Core.Model.Member() { AppOpenId = r.openid, UnionId = r.unionid, Session_key = r.session_key };
+                    ctx.Members.Add(target);
+                }
+                else
+                {
+                    //已登录，更新session_key
+                    target.UnionId = r.unionid;
+                    target.Session_key = r.session_key;
+                }
+                ctx.SaveChanges();
+                return target.Id;
+            }
+            return 0;
+        }
+  
+
+        /// <summary>
+        /// 登录
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
+         [Route("Login"), HttpPost]
+        public AppLoginResponse Login(AppLoginRequest req)
+        {
+            XDDDbContext ctx = new XDDDbContext();
+            var target = ctx.Members.FirstOrDefault(s => s.Id == req.id);
+            try
+            {
+                string userinfostr = AES_Decrypt.AES_decrypt(req.encryptedData, target.Session_key, req.iv);
+                JavaScriptSerializer jss = new JavaScriptSerializer();
+                WXUserInfo r = jss.Deserialize<WXUserInfo>(userinfostr);
+                if (target.AppOpenId == r.openId) {
+                    if (target.AvatarUrl == null) target.AvatarUrl = r.avatarUrl;
+                    if (target.City == null) target.City = r.city;
+                    if (target.Country == null) target.Country = r.country;
+                    if (target.Province == null) target.Province = r.province;
+                    if (target.Sex == Sex.Unknow) target.Sex = (Sex)r.gender;
+                    if (target.NickName == null) target.NickName = r.nickName;
+                    ctx.SaveChanges();
+                    FormsAuthenticationTicket ticket = new FormsAuthenticationTicket(target.Id.ToString(), true, 60 * 24);
+                    string ticketencrypt= FormsAuthentication.Encrypt(ticket);
+                    return new AppLoginResponse { ResultCode = 1, Message = ticketencrypt };
+                }
+                else
+                {
+                    return new AppLoginResponse() { Message = "身份验证失败", ResultCode =0 };
+                }
+            }
+            catch (Exception)
+            {
+               return new AppLoginResponse(){ Message="登录失败",ResultCode=-1};
+            }
+            
+        }
+        /// <summary>
+        /// 检查token是否有效
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
+         [Route("CheckToken"), HttpPost]
+         public bool CheckToken(SimpleTokenRequest req) {
+            var ticket= TicketWoker.GetTicket(req.Token);
+            if (ticket == null)
+            {
+                return false;
+            }
+            else {
+                return !ticket.Expired;
+            }
+         }
+
+        /// <summary>
+        ///     检查是否实名
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
+        [Route("CheckIdentity"),HttpPost]
+         public bool CheckIdentity(SimpleTokenRequest req) {
+             var ticket = TicketWoker.GetTicket(req.Token);
+             if (ticket != null)
+             {
+                 int id=Convert.ToInt32(ticket.Name);
+                 XDDDbContext ctx = new XDDDbContext();
+               var target=  ctx.Members.FirstOrDefault(s => s.Id==id&& s.Status.HasFlag(MemberStatus.Identity) && !s.Status.HasFlag(MemberStatus.Freeze));
+               if (target != null) {
+                   return true;
+               }
+             }
+             return false;
+         }
+
+       
+        /// <summary>
+        /// 获取用户信息
+        /// </summary>
+        /// <param name="req"></param>
+        /// <param name="a"></param>
+        /// <returns></returns>
+        
+         //[Route("GetUserInfo"), HttpGet]
+         //public bool GetUserInfo(SimpleTokenRequest req) {
+         //    var ticket = TicketWoker.GetTicket(req.Token);
+         //    if (ticket==null)
+         //    {
+
+         //    }
+         //    else
+         //    {
+
+         //    }
+         //}
+    }
+}

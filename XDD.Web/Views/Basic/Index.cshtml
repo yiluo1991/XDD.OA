@@ -1,0 +1,94 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+}
+
+<div class="easyui-panel" fit="true" title="功能设置" style="padding:10px;background:#fafafa;" border="false" >
+    <style>
+        fieldset{
+            padding:10px;
+           border:1px  solid #ddd;
+           margin-top:10px;
+           background:#fff;
+        }
+         
+         fieldset p{
+             margin:10px 0;
+         }
+    </style>
+    <form id="setform" method="post" enctype="multipart/form-data">
+        <fieldset>
+            <legend>版本控制</legend>
+            系统需要设置小程序的安全版本号，小程序中，当版本号小于或等于此处设置的安全版本号，将开启全部功能。
+            <p>
+                <input class="easyui-textbox" required name="VersionLimie" label="安全版本号" validType="version" style="width:99%;" labelwidth="150" labelalign="center" />
+            </p>
+        </fieldset>
+        <fieldset>
+            <legend>后台登录限制</legend>
+            在指定的时间内连续登录失败超过指定次数将触发登录限制，需等待指定的时间方可再次尝试登录。
+            <p>
+                <input class="easyui-numberbox" required name="LoginLimitTimes" min="1" max="999" label="连续失败次数" style="width:49.5%;" labelwidth="150" labelalign="center" />
+                <input class="easyui-numberbox" required name="LoginLimitTime" min="10" max="36000" label="等待时间（秒）"  style="width:49.5%;" labelwidth="150" labelalign="center" />
+            </p>
+        </fieldset>
+        <fieldset>
+            <legend>小程序发帖限制</legend>
+            设置小程序用户发帖、评论回复时间间隔，0为不限制。
+            <p>
+                <input class="easyui-numberbox" required name="MemberPublisherTime" min="0" max="3600" label="时间间隔（秒）" style="width:99%;" labelwidth="150" labelalign="center" />
+            </p>
+        </fieldset>
+        <fieldset>
+            <legend>首页大板块导航设置</legend>
+            <p>
+                <input class="easyui-filebox" id="file1" accept="image/*" required name="Block1Pic" label="导航快1图片" prompt="建议分辨率300×150" style="width:49.5%;" labelwidth="150" labelalign="center" />
+                <input class="easyui-textbox"  required name="Block1Url" maxlength="128" label="导航块1地址" style="width:49.5%;" labelwidth="150" labelalign="center" />
+            </p>
+            <p>
+                <input class="easyui-filebox" id="file2" accept="image/*" required name="Block2Pic" label="导航快2图片" prompt="建议分辨率300×150" style="width:49.5%;" labelwidth="150" labelalign="center" />
+                <input class="easyui-textbox" required name="Block2Url" maxlength="128" label="导航块2地址" style="width:49.5%;" labelwidth="150" labelalign="center" />
+            </p>
+            <p>
+                <input class="easyui-filebox" id="file3" accept="image/*" required name="Block3Pic" label="导航快3图片" prompt="建议分辨率300×150" style="width:49.5%;" labelwidth="150" labelalign="center" />
+                <input class="easyui-textbox" required name="Block3Url" maxlength="128" label="导航块3地址" style="width:49.5%;" labelwidth="150" labelalign="center" />
+            </p>
+            <p>
+                <input class="easyui-filebox" id="file4" accept="image/*" required name="Block4Pic" label="导航快4图片" prompt="建议分辨率300×150" style="width:49.5%;" labelwidth="150" labelalign="center" />
+                <input class="easyui-textbox" required name="Block4Url" maxlength="128" label="导航块4地址" style="width:49.5%;" labelwidth="150" labelalign="center" />
+            </p>
+        </fieldset>
+        <div style="margin-top:20px;text-align:center;"><a class="easyui-linkbutton" iconCls="icon-save" onclick="saveSet()">保存</a></div>
+    </form>
+</div>
+<script>
+    function loadPage() {
+        $.post('/basic/Get', function (data) {
+            $('#file1').filebox('setText', data.Block1Src)
+            $('#file2').filebox('setText', data.Block2Src)
+            $('#file3').filebox('setText', data.Block3Src)
+            $('#file4').filebox('setText', data.Block4Src)
+            $('#setform').form('load', data)
+        })
+    }
+    $(function () {
+
+        loadPage()
+    })
+    function saveSet() {
+        if ($('#setform').form('validate')) {
+            $('#setform').ajaxSubmit({
+                url: '/basic/save',
+                success: function (data) {
+                    if (data.ResultCode == 1) {
+                        $.messager.alert('提示','保存成功','info')
+                    }else{
+                        $.messager.alert('提示',data.Message,'info')
+                    }
+                    loadPage();
+                }
+            })
+        }
+        
+    }
+</script>

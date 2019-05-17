@@ -1,0 +1,214 @@
+﻿
+
+<script src="~/Scripts/easyui-datagridview/datagrid-detailview.js"></script>
+<div id="table">
+    <div id="maintabletoolbar">
+        <table cellpadding="0" cellspacing="0">
+            <tr>
+                <td>
+                    <a class="easyui-linkbutton" iconcls="icon-tip" plain="true" onclick="freeze()">锁定、解锁订单</a>
+                </td>
+                <td>
+                    <div class="datagrid-btn-separator"></div>
+                </td>
+                <td>
+                    <a class="easyui-linkbutton" iconcls="icon-ok" plain="true" onclick="success()">手动完成订单</a>
+                </td>
+                <td>
+                    <div class="datagrid-btn-separator"></div>
+                </td>
+                <td>
+                    <a class="easyui-linkbutton" iconcls="icon-no" plain="true" onclick="cancel()">手动关闭订单</a>
+                </td>
+                <td>
+                    <div class="datagrid-btn-separator"></div>
+                </td>
+                <td>
+                    <input id="searchbox" menu="#mm" class="easyui-searchbox" style="width:300px" prompt="请输入搜索的内容" data-options="searcher:function(value,name){$('#table').datagrid('load',{keyword:value,status:name})}" />
+                    <div id="mm" style="width:150px">
+                        <div data-options="name:''">全部</div>
+                        <div data-options="name:'0'">未付款</div>
+                        <div data-options="name:'1'">已付款</div>
+                        <div data-options="name:'2'">付款失败</div>
+                        <div data-options="name:'3'">已发货</div>
+                        <div data-options="name:'4'">已收货</div>
+                        <div data-options="name:'5'">申请退货</div>
+                        <div data-options="name:'6'">允许退货</div>
+                        <div data-options="name:'7'">拒绝退货</div>
+                        <div data-options="name:'8'">退货发货</div>
+                        <div data-options="name:'9'">退货收货</div>
+                        <div data-options="name:'10'">交易完成</div>
+                        <div data-options="name:'11'">交易取消</div>
+                    </div>
+                </td>
+                <td>
+                    <div class="datagrid-btn-separator"></div>
+                </td>
+                <td>
+                    <a class="easyui-linkbutton" iconcls="icon-reload" plain="true" onclick="$('#table').datagrid('reload')">刷新</a>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+
+<script>
+    function freeze() {
+        var row = $('#table').datagrid('getSelected');
+        if (row) {
+            if (row.CommodityOrderStatus != 0 && row.CommodityOrderStatus != 2 && row.CommodityOrderStatus != 4 && row.CommodityOrderStatus != 9 && row.CommodityOrderStatus != 10 && row.CommodityOrderStatus != 11) {
+                $.post('/CommodityOrder/Freezen', { id: row.Id }, function (data) {
+                    if (data.ResultCode == 1) {
+
+                    } else {
+                        $.messager.alert('提示', data.message, 'info')
+                    }
+                    $('#table').datagrid('reload');
+                })
+            } else {
+                $.messager.alert('提示', '该订单的状态不允许执行该操作', 'info')
+            }
+        } else {
+            $.messager.alert('提示','请选择要操作的记录','info')
+        }
+    }
+
+    function change(mode) {
+        var row = $('#table').datagrid('getSelected');
+        if (row) {
+            if (row.CommodityOrderStatus != 0 && row.CommodityOrderStatus != 2 && row.CommodityOrderStatus != 4 && row.CommodityOrderStatus != 9 && row.CommodityOrderStatus != 10 && row.CommodityOrderStatus != 11) {
+                $.post(mode ? '/CommodityOrder/TotalSuccess' : '/CommodityOrder/TotalCancel', { id: row.Id }, function (data) {
+                    if (data.ResultCode == 1) {
+
+                    } else {
+                        $.messager.alert('提示', data.message, 'info')
+                    }
+                    $('#table').datagrid('reload');
+                })
+            } else {
+                $.messager.alert('提示', '该订单的状态不允许执行该操作', 'info')
+            }
+        } else {
+            $.messager.alert('提示', '请选择要操作的记录', 'info')
+        }
+    }
+    function success() {
+        change(1)
+    }
+
+    function cancel() {
+        change(0)
+    }
+
+    var level = ['其他', '五新以下', '五新', '六新', '七新', '八新', '八五新', '九新', '九五新', '九八新', '全新'];
+
+    var statu = ['未付款', '已付款', '付款失败', '已发货', '已收货', '申请退货', '允许退货', '拒绝退货', '退货发货', '退货收货', '交易完成', '交易取消'];
+
+    $(function () {
+        $('#table').datagrid({
+            toolbar: '#maintabletoolbar',
+            fit: true,
+            fitColumns: true,
+            singleSelect: true,
+            url: '/CommodityOrder/GetOrders',
+            columns: [[
+                {
+                    field: 'OrderNum', width: 190, title: '订单号', align: 'center', fixed: true, formatter: function (value) {
+                        return '<span style="font-size:12px">'+value+'</span>'
+                    }
+                },
+                 {
+                     field: 'Cover', width: 70, title: '封面', align: 'center', fixed: true, formatter: function (value) {
+                         return '<div  style="height:40px;width:60px;background:url(' + value + ')  center center/cover;">'
+                     }
+                 }, {
+                     field: 'CommodityName', width: 200, title: '标题', align: 'center'
+                 }, {
+                     field: 'OrderPrice', width: 100, title: '价格', align: 'right', halign: 'center', formatter: function (value) {
+                         return '￥'+value.toFixed(2)
+                     }
+                 }, {
+                     field: 'NewLevel', width: 60, fixed: true, title: '新旧', align: 'center', formatter: function (value) {
+                         return level[value]
+                     }
+                 }, {
+                     field: 'SaleMemberName', width: 85, title: '卖家Id | 昵称', fixed: true, align: 'center', formatter: function (value, row) {
+                         return row.SaleMemberId + " | " + value
+                     }
+                 }, {
+                     field: 'BuyMemberName', width: 85, title: '买家Id | 昵称', fixed: true, align: 'center', formatter: function (value, row) {
+                         return row.BuyMemberId + " | " + value
+                     }
+                 }, {
+                     field: 'RealName', width: 60, fixed: true, title: '收货人', align: 'center', formatter: function (value) {
+                         return value
+                     }
+                 }, {
+                     field: 'CommodityOrderStatus', width: 70, fixed: true, title: '状态', align: 'center', formatter: function (value) {
+                     
+                         return statu[value]
+                     }
+                 },  {
+                     field: 'Freeze', width: 70, fixed: true, title: '锁定交易', align: 'center', formatter: function (value) {
+
+                         return value ? "<span style='color:red'>锁定中</span>" : "正常"
+                     }
+                 }, {
+                     field: 'CreateTime', width: 130, fixed: true, title: '时间', align: 'center', formatter: function (value) {
+                         return $.formatJsonDate(value)
+                     }
+                 }
+
+
+            ]],
+            view: detailview,
+            pagination: true,
+            onLoadSuccess: function () {
+                $('.t').tooltip()
+            }
+            , detailFormatter: function (index, row) {
+                var tb = "<table class=\"tb\" style=\"width:100%;\">";
+                tb += ("<tr><td class=\"bg\" colspan=\"2\" align=\"center\">订单信息</td></tr>");
+                tb += (("<tr><td class=\"bg\">收货地址</td><td >" + row.Province + "-" + row.City + "-" + row.Area + "-" + row.Address + "  " + row.RealName + " " + row.Mobile + "</td></tr>"));
+                if (row.ExpressName) {
+                    tb += (("<tr><td class=\"bg\">发货单号</td><td >" + row.ExpressName + row.ExpressNo + "</td></tr>"));
+                }
+                if (row.BackQequest) {
+                    tb += (("<tr><td class=\"bg\">买家退货申请内容</td><td >" + row.BackQequest + "</td></tr>"));
+                }
+                if (row.BackFeedback) {
+                    tb += (("<tr><td class=\"bg\">卖家退货反馈内容</td><td >" + row.BackFeedback + "</td></tr>"));
+                }
+                if (row.BackFeedback) {
+                    tb += (("<tr><td class=\"bg\">退货地址</td><td >" + row.BackProvince + "-" + row.BackCity + "-" + row.BackArea + "-" + row.BackAddress + "  " + row.BackRealName + " " + row.BackMobile + "</td></tr>"));
+                }
+                if (row.BackExpressName) {
+                    tb += (("<tr><td class=\"bg\">退货单号</td><td >" + row.BackExpressName + row.BackExpressNo + "</td></tr>"));
+                }
+                if (row.Remark) {
+                    tb += "<tr><td class=\"bg\">订单记录</td><td >";
+                    row.Remark.split('@@|@@').forEach(function (item) {
+                        tb += item + "<br>";
+                    });
+                    tb += "</td></tr>";
+                }
+                tb += '</table>';
+                return tb;
+            }
+        })
+    })
+</script>
+<style>
+    .tb {
+        border-spacing:0;
+    }
+    .tb tr td{
+          padding:10px!important;
+          border-spacing:0;
+    }
+    .tb tr td:first-child{
+        background:#f8f8f8;
+        width:100px;
+    }
+</style>

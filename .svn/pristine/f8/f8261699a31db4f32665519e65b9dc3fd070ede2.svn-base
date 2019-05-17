@@ -1,0 +1,83 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+using XDD.Core.DataAccess;
+using XDD.Core.Model;
+
+namespace XDD.Web.Controllers
+{
+    public class WithdrawController : Controller
+    {
+        // GET: Withdraw
+        XDDDbContext ctx = new XDDDbContext();
+        public ActionResult Index()
+        {
+            return View();
+        }
+        /// <summary>
+        /// 获取提现列表
+        /// </summary>
+        /// <param name="keyword"></param>
+        /// <param name="status"></param>
+        /// <param name="start"></param>
+        /// <param name="end"></param>
+        /// <param name="paymentTypeIdentifier"></param>
+        /// <returns></returns>
+        public JsonResult WithDrawals(string keyword, WithdrawStatus? status, DateTime? start, DateTime? end, string paymentTypeIdentifier)
+        {
+
+            int pageIndex = Convert.ToInt32(Request.Params["page"] ?? "1");
+            int pageSize = Convert.ToInt32(Request.Params["rows"] ?? "15");
+            decimal? totalAmount, theTotalAmount, totalFee;
+            return Json(new
+            {
+                total = GetWithDrawalsCount(keyword, status, start,
+                    end, out totalAmount, paymentTypeIdentifier),
+                rows = GetWithDrawalsByPage(keyword, pageIndex, pageSize, status, start, end, paymentTypeIdentifier),
+                totalAmount,
+            }, JsonRequestBehavior.AllowGet);
+        }
+
+
+        #region 分页获取提现列表
+
+        private int GetWithDrawalsCount(string keyword, WithdrawStatus? status, DateTime? start, DateTime? end, out decimal? totalAmount, string paymentTypeIdentifier)
+        {
+            Int32 accountId;
+            bool isInt32 = Int32.TryParse(keyword, out accountId);
+            if (end != null) end = end.Value.Date.AddDays(1);
+            var query = ctx.Withdraws.Where(p => (string.IsNullOrEmpty(paymentTypeIdentifier) ? true : (paymentTypeIdentifier == "belowline" )) && (start == null ? true : p.CreateTime >= start.Value) && (end == null ? true : p.CreateTime < end.Value) && (status == null ? true : p.Status == status) && ((keyword != null && keyword != "") ? (p.Member.RealName.Contains(keyword) || p.Member.NickName.Contains(keyword) || p.BankCard.Contains(keyword) || (isInt32 ? p.Member.Id == accountId : false) || p.OrderSN.Contains(keyword) || p.Remark.Contains(keyword)) : true));
+            totalAmount = query.Sum(s => (decimal?)s.Money);
+            return query.Count();
+        }
+        private object GetWithDrawalsByPage(string keyword, int pageIndex, int pageSize, WithdrawStatus? status, DateTime? start, DateTime? end, string paymentTypeIdentifier)
+        {
+            Int32 accountId;
+            bool isInt32 = Int32.TryParse(keyword, out accountId);
+            if (end != null) end = end.Value.Date.AddDays(1);
+            return ctx.Withdraws.Where(p => (string.IsNullOrEmpty(paymentTypeIdentifier) ? true : (paymentTypeIdentifier == "belowline" )) && (start == null ? true : p.CreateTime >= start.Value) && (end == null ? true : p.CreateTime < end.Value) && (status == null ? true : p.Status == status) && ((keyword != null && keyword != "") ? (p.Member.RealName.Contains(keyword) || p.Member.NickName.Contains(keyword) || p.BankCard.Contains(keyword)  || (isInt32 ? p.Member.Id == accountId : false) || p.OrderSN.Contains(keyword) || p.Remark.Contains(keyword)) : true)).OrderByDescending(p => p.CreateTime).Skip((pageIndex - 1) * pageSize).Take(pageSize).Select(p => new
+            {
+                p.Money,//提现金额  
+                AccountId = p.MemberId,//用户ID
+                p.BankName,//提现银行   
+                p.BankOfDeposit,//提现银行地址  
+                p.BankCard,//提现卡
+                p.OrderSN,//提现订单号
+                p.Status,//提现状态
+                p.Remark,//提现备注
+                p.CreateTime,
+                p.CheckTime,
+                p.PayTime,
+                p.EmployeeId,//审核人
+                p.Id,
+                MemberName= p.Member.RealName,
+                MemberLoginName = p.Member.NickName,
+            });
+        }
+
+        #endregion
+
+    }
+}

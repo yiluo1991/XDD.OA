@@ -1,0 +1,58 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using XDD.Web.Models;
+namespace XDD.Web.Infrastructure
+{
+    public static class CacheManager
+    {
+        /// <summary>
+        ///     设置手机验证码缓存
+        /// </summary>
+        /// <param name="MemberId"></param>
+        /// <param name="mobilecode"></param>
+        /// <returns></returns>
+        public static bool SetMobileCode(int MemberId, MobileCode mobilecode)
+        {
+            if (HttpContext.Current.Cache["m" + MemberId] == null || (HttpContext.Current.Cache["m" + MemberId] != null && (mobilecode.SendTime - (HttpContext.Current.Cache["m" + MemberId] as MobileCode).SendTime).TotalSeconds >= 120))
+            {
+                HttpContext.Current.Cache.Insert("m" + MemberId, mobilecode, null, DateTime.Now.AddMinutes(5), TimeSpan.Zero);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+
+        }
+
+        /// <summary>
+        ///     从缓存验证手机验证码
+        /// </summary>
+        /// <param name="MemberId"></param>
+        /// <param name="mobile"></param>
+        /// <param name="code"></param>
+        /// <returns></returns>
+        public static bool CheckMobileCode(int MemberId, string mobile, string code)
+        {
+            if (HttpContext.Current.Cache["m" + MemberId] == null) {
+                return false;
+            }
+            else
+            {
+                MobileCode mobilecode=HttpContext.Current.Cache["m" + MemberId] as MobileCode;
+                return mobilecode.Code.ToLower() == code.ToLower() && mobile == mobilecode.Mobile;
+            }
+        }
+
+        public static void ClearMobileCode(int MemberId)
+        {
+            if (HttpContext.Current.Cache["m" + MemberId] != null)
+            {
+                HttpContext.Current.Cache.Remove("m" + MemberId);
+            }
+           
+        }
+    }
+}

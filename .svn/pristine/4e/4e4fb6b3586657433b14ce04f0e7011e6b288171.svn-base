@@ -1,0 +1,386 @@
+﻿<link href="~/Scripts/wangEditor/wangEditor.css" rel="stylesheet" />
+<script src="~/Scripts/wangEditor/wangEditor.js"></script>
+
+
+<div id="table">
+    <div id="maintabletoolbar">
+        <table cellpadding="0" cellspacing="0">
+            <tr>
+                <td>
+                    <a id="add" class="easyui-linkbutton" iconcls="icon-add" plain="true" onclick=" $('#changeform').form('reset').form('resetValidation'); $('#changedialog').dialog('open').dialog('setTitle', '添加文章' )">添加</a>
+                </td>
+                <td>
+                    <div class="datagrid-btn-separator"></div>
+                </td>
+                <td>
+                    <a class="easyui-linkbutton" iconcls="icon-remove" plain="true" onclick="rm()">删除</a>
+                </td>
+                <td>
+                    <div class="datagrid-btn-separator"></div>
+                </td>
+                <td>
+                    <input id="searchbox" class="easyui-searchbox" style="width:200px" prompt="请输入搜索的内容" data-options="searcher:function(value){$('#table').datagrid('load',{keyword:value})}" />
+                </td>
+                <td>
+                    <div class="datagrid-btn-separator"></div>
+                </td>
+                <td>
+                    <a class="easyui-linkbutton" iconcls="icon-reload" plain="true" onclick="$('#table').datagrid('reload')">刷新</a>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+<script>
+    $(function () {
+        $('#table').datagrid({
+            toolbar: '#maintabletoolbar',
+            fit: true,
+            border: false,
+            fitColumns: true,
+            //分页
+            pagination: true,
+            rownumbers: true,
+            pageList: [1, 2, 5, 10, 20, 30, 40, 50],
+            closable: true,
+            collapsible: true,
+            url: '/BBSArticle/AllowGet',
+            singleSelect: true,
+            columns: [[
+                  {
+                      field: 'CategoryName', title: '分类名', width: 50, fixed: true, align: 'center'
+                  }, {
+                      field: 'Subject', title: '主题', width: 40, align: 'center'
+                  }, {
+                      field: 'SN', title: '排序号', width: 50, fixed: true, align: 'center'
+                  }, {
+                      field: 'Title', title: '标题', width: 50, fixed: true, align: 'center'
+                  }, {
+                      field: 'ReadCount', title: '阅读数', width: 60, align: 'center'
+                  }, {
+                      field: 'CommentCount', title: '评论数', width: 60, align: 'center'
+                  }, {
+                      field: 'CreateTime', title: '创建时间', width: 60, align: 'center', formatter: function (value) { return $.formatJsonDate(value) }
+                  }, {
+                      field: 'MemberId', title: '创建人', width: 60, align: 'center'
+                  }, {
+                      field: 'Counter', title: '楼层计算器', width: 80, align: 'center'
+                  },
+                  {
+                      field: 'IsBackgroundArticle', title: '是否后台文章', width: 80, fixed: true, align: 'center', formatter: function (val, row, index) {
+                          switch (row.IsBackgroundArticle) {
+                              case false: return '<input  data-id="' + row.Id + '" name="sbutton" onText="是" offText="否"  > '
+                              case true: return '<input  data-id="' + row.Id + '" name="sbutton" onText="是" offText="否" checked="true" >'
+                              default: return '';
+                          }
+                      }
+                  },
+                  {
+                      field: 'AllowComment', title: '可评论', width: 60, fixed: true, align: 'center', formatter: function (value, row) {
+                          switch (row.AllowComment) {
+                              case false: return '<input  data-id="' + row.Id + '" class="btnpinglun" onText="是" offText="否"  > '
+                              case true: return '<input  data-id="' + row.Id + '" class="btnpinglun" onText="是" offText="否" checked="true" >'
+                              default: return '';
+                          }
+                      }
+                  },
+                  {
+                      field: 'ShowComment', title: '显示评论', width: 60, fixed: true, align: 'center', formatter: function (value, row) {
+                          switch (row.ShowComment) {
+                              case false: return '<input  data-id="' + row.Id + '" class="btnxianshi" onText="是" offText="否"  > '
+                              case true: return '<input  data-id="' + row.Id + '" class="btnxianshi" onText="是" offText="否" checked="true" >'
+                              default: return '';
+                          }
+                      }
+                  }, {
+                      field: 'HomeShow', title: '显示主页', width: 60, fixed: true, align: 'center', formatter: function (value, row) {
+                          switch (row.HomeShow) {
+                              case false: return '<input  data-id="' + row.Id + '" class="btnzhuye" onText="是" offText="否"  > '
+                              case true: return '<input  data-id="' + row.Id + '" class="btnzhuye" onText="是" offText="否" checked="true" >'
+                              default: return '';
+                          }
+                      }
+                  },
+                  {
+                      field: 'edit', title: '操作', width: 160, align: 'center', fixed: true,
+                      formatter: function (value, row, index) {
+                          switch (row.IsBackgroundArticle) {
+                              case false: return '<a class=" searchbtn"  onclick="look(' + index + ')">查看</a>';
+                              case true: return '<a class="searchbtn" onclick="look(' + index + ')">查看</a> <a class="editbtn"  onclick="change(' + index + ')">修改</a>';
+                              default: return '';
+
+                          }
+                      }
+
+                  }
+            ]],
+            onLoadSuccess: function () {
+                $('.editbtn').linkbutton({ iconCls: 'icon-edit', plain: true });
+                $('.searchbtn').linkbutton({ iconCls: 'icon-search', plain: true });
+                $(this).datagrid('fixRowHeight');
+                $('input[name*="sbutton"]').switchbutton({
+                    onChange: function (checked) {
+                        if (checked == true) {
+                            $.post("/BBSArticle/editwork", { id: $(this).data('id'), select: true }, function (data) {
+                                $('#table').datagrid('reload');
+                            });
+                            return;
+                        }
+                        if (checked == false) {
+                            $.post("/BBSArticle/editwork", { id: $(this).data('id'), select: false }, function (data) {
+                                $('#table').datagrid('reload');
+                            });
+                            return;
+                        }
+                    }
+                });
+                $('.btnpinglun').switchbutton({
+                    onChange: function (checked) {
+                        if (checked == true) {
+                            $.post("/BBSArticle/editkepinglun", { id: $(this).data('id'), select: true }, function (data) {
+                                $('#table').datagrid('reload');
+                            });
+                            return;
+                        }
+                        if (checked == false) {
+                            $.post("/BBSArticle/editkepinglun", { id: $(this).data('id'), select: false }, function (data) {
+                                $('#table').datagrid('reload');
+                            });
+                            return;
+                        }
+                    }
+                });
+                $('.btnxianshi').switchbutton({
+                    onChange: function (checked) {
+                        if (checked == true) {
+                            $.post("/BBSArticle/editshowpinglun", { id: $(this).data('id'), select: true }, function (data) {
+                                $('#table').datagrid('reload');
+                            });
+                            return;
+                        }
+                        if (checked == false) {
+                            $.post("/BBSArticle/editshowpinglun", { id: $(this).data('id'), select: false }, function (data) {
+                                $('#table').datagrid('reload');
+                            });
+                            return;
+                        }
+                    }
+                })
+                $('.btnzhuye').switchbutton({
+                    onChange: function (checked) {
+                        if (checked == true) {
+                            $.post("/BBSArticle/editzhuye", { id: $(this).data('id'), select: true }, function (data) {
+                                $('#table').datagrid('reload');
+                            });
+                            return;
+                        }
+                        if (checked == false) {
+                            $.post("/BBSArticle/editzhuye", { id: $(this).data('id'), select: false }, function (data) {
+                                $('#table').datagrid('reload');
+                            });
+                            return;
+                        }
+                    }
+                })
+
+            }
+        })
+    })
+    $(function () {
+        $('#changedialog').dialog({
+            width: 800,
+            height: 630,
+            modal: true,
+            closed: true,
+            pageList: [1, 2, 5, 10, 20, 30, 40, 50],
+            pagination: true,
+            buttons: [{
+                iconCls: 'icon-ok',
+                text: '保存',
+                id: "okBtn",
+                handler: function () {
+                    var url;
+                    if ($('#changeid').val() == 0) {
+                        url = "/BBSArticle/Add"
+                    } else {
+                        url = "/BBSArticle/Change"
+                    }
+                    //if ($('#changeform').form('validate')) {
+                        $.ajaxStart();
+                        $('#changeform').ajaxSubmit({
+                            url: url,
+                            data: { Content: editor.txt.html() },
+                            dataType: 'json',
+                            success: function (data) {
+                                $.ajaxEnd();
+                                $('#changeformdialog').dialog('close');
+                                if (data.ResultCode != 1) {
+                                    $.messager.alert('提示', data.message, "warning");
+                                }
+                                $('#table').datagrid('reload');
+                                $('#changedialog').dialog('close')
+                            }
+                        })
+                    //}
+                },
+                plain: true
+            }, {
+                iconCls: 'icon-cancel',
+                text: '取消',
+                handler: function () {
+                    $('#changedialog').dialog('close')
+                },
+                plain: true
+            }]
+        })
+    })
+
+</script>
+<script>
+    function rm(index) {
+        var row = $('#table').datagrid('getSelected');
+        if (row) {
+            $.ajaxStart()
+            $.post('/BBSArticle/remove', { id: row.Id }, function (data) {
+                $.ajaxEnd();
+                $('#table').datagrid('load');
+            })
+        }
+    }
+    function change(index) {
+        var row = $('#table').datagrid('getRows')[index];
+        if (row) {
+            $('#changedialog').dialog('open').dialog('setTitle', '修改文章内容');
+            $('#changeform').form('reset').form('resetValidation').form('load', row);
+            editor.txt.html(row.Content);
+            if (row.Paths) {
+                editor.txt.append('<img src="' + row.Paths + '">')
+            }
+            editor.$textElem.attr('contenteditable', true);
+            $("#changeform :input").removeAttr("readonly");
+            $("#changeform .easyui-combobox").combobox('enable');
+            $("#changeform .easyui-datetimebox").combobox('enable');
+            $('#okBtn').show();
+        }
+    }
+    function look(index) {
+        var row = $('#table').datagrid('getRows')[index];
+        if (row) {
+            $('#changedialog').dialog('open').dialog('setTitle', '查看文章内容');
+            $('#changeform').form('reset').form('resetValidation').form('load', row);
+            editor.txt.html(row.Content);
+            if (row.Paths) {
+                var img = row.Paths.split('|');
+                for (var i = 0; i < img.length; i++) {
+                    editor.txt.append('<img src="' + img[i] + '" style="height:200px;width:200px">')
+                }
+            }
+            editor.$textElem.attr('contenteditable', false)
+            $("#changeform :input").attr("readonly", "readonly");
+            $("#changeform .easyui-combobox").combobox('disable');
+            $("#changeform .easyui-datetimebox").combobox('disable');
+            $('#okBtn').hide();
+        }
+    }
+    $('#add').click(function () {
+        // 清空内容。
+        // 不能传入空字符串，而必须传入如下参数
+        editor.txt.html('<p><br></p>');
+        editor.$textElem.attr('contenteditable', true);
+        $("#changeform :input").removeAttr("readonly");
+        $("#changeform .easyui-combobox").combobox('enable');
+        $("#changeform .easyui-datetimebox").combobox('enable');
+        $('#okBtn').show();
+
+    });
+</script>
+
+<style>
+    #editdialog p, #changedialog p {
+        padding: 5px 0;
+    }
+</style>
+<div id="changedialog" style="padding:5px;text-align:center;overflow:hidden;">
+    <form id="changeform" enctype="multipart/form-data" method="post">
+        <div style="width:50%;float:left;overflow:hidden;position:relative;">
+            <style>
+                .w-e-toolbar {
+                    flex-wrap: wrap;
+                }
+
+                .toolbar {
+                    border: 1px solid #ccc;
+                    border-bottom: 0;
+                    background: #fafafa;
+                }
+
+                .text {
+                    border: 1px solid #ccc;
+                    height: 480px;
+                }
+            </style>
+            <div id="div1" class="toolbar">   </div>
+            <div id="div2" class="text" style="text-align:left;"></div>
+        </div>
+        <div style="width:50%;float:left;box-sizing:border-box;padding:0px 5px;">
+            <p>
+                <input name="Id" id="changeid" value="0" hidden />
+                <input validateoncreate="false" prompt="请输入分类名" class="easyui-combobox" label="分类名" labelwidth="80" labelalign="center" name="CategoryId" editable="false" style="width:99%;" data-options="prompt:'请选择分类',url:'/BBSArticle/GetCategoryComboData',valueField:'v',textField:'t'" required />
+            </p>
+            <p>
+                <input validateoncreate="false" prompt="请输入标题" class="easyui-textbox" label="标题" labelwidth="80" labelalign="center" name="Title" style="width:99%;" required />
+            </p>
+            <p>
+                <input validateoncreate="false" prompt="请输入主题" class="easyui-textbox" label="主题" labelwidth="80" labelalign="center" name="Subject" style="width:99%;" required />
+            </p>
+            <p>
+                <input validateoncreate="false" prompt="请输入约定时间" class="easyui-datetimebox" label="时间" labelwidth="80" labelalign="center" name="DateTime" style="width:99%;" required />
+            </p>
+            <p>
+                <input validateoncreate="false" prompt="请输入约定地点" class="easyui-textbox" label="地点" labelwidth="80" labelalign="center" name="Address" style="width:99%;" required />
+            </p>
+            <p>
+                <input validateoncreate="false" prompt="请输入起始人数" class="easyui-textbox" label="起始人数" labelwidth="80" labelalign="center" name="PeopleStart" style="width:99%;" required />
+            </p>
+            <p>
+                <input validateoncreate="false" prompt="请输入截止人数" class="easyui-textbox" label="截止人数" labelwidth="80" labelalign="center" name="PeopleEnd" style="width:99%;" required />
+            </p>
+            <p>
+                <input validateoncreate="false" prompt="请输入人均支出" class="easyui-textbox" label="人均支出" labelwidth="80" labelalign="center" name="Payment" style="width:99%;" required />
+            </p>
+            <p>
+                <input validateoncreate="false" prompt="请输入阅读数" class="easyui-numberbox" label="阅读数" labelwidth="80" labelalign="center" name="ReadCount" style="width:99%;" required />
+            </p>
+            <p>
+                <input validateoncreate="false" prompt="请输入排序号" class="easyui-numberbox" label="排序号" labelwidth="80" labelalign="center" name="SN" style="width:99%;" required value="100" />
+            </p>
+
+        </div>
+    </form>
+</div>
+
+<script>
+    var E = window.wangEditor;
+    var editor = new E('#div1', '#div2');
+    editor.customConfig.uploadImgShowBase64 = true;
+    editor.customConfig.pasteFilterStyle = false;
+    editor.customConfig.uploadImgServer = '/BBSArticle/UploadImg';
+    editor.customConfig.uploadImgMaxLength = 1;
+    editor.customConfig.menus = [
+     'undo',  // 撤销
+    'redo',  // 重复,
+    'head',  // 标题
+    'bold',  // 粗体
+    'fontSize',  // 字号
+    'fontName',  // 字体
+    'italic',  // 斜体
+    'underline',  // 下划线
+    'strikeThrough',  // 删除线
+    'foreColor',  // 文字颜色
+    'backColor',  // 背景颜色
+    'justify',  // 对齐方式
+    'image',  // 插入图片
+    'video'  // 插入视频
+    ]
+    editor.create();
+</script>

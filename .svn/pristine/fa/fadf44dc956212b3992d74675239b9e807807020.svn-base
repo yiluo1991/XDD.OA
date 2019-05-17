@@ -1,0 +1,127 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace XDD.Core.Model
+{
+    public class TicketOrder
+    {
+        public int Id { get; set; }
+
+        /// <summary>
+        /// 支付接口提交的订单号
+        /// </summary>
+        public string OrderNum { get; set; }
+
+        /// <summary>
+        /// 支付接口提交的价格
+        /// </summary>
+        public decimal OrderPrice { get; set; }
+
+        public decimal Price { get; set; }
+
+        public string Detail { get; set; }
+
+        public string Description { get; set; }
+
+        public DateTime CreateTime { get; set; }
+
+        public OrderStatus Status { get; set; }
+
+        /// <summary>
+        ///     票券套餐Id
+        /// </summary>
+        public int TicketPackageId { get; set; }
+
+        /// <summary>
+        ///  供货商Id
+        /// </summary>
+        public int SupplierId { get; set; }
+
+        public int MemberId { get; set; }
+
+        /// <summary>
+        ///     一级代理佣金
+        /// </summary>
+        public decimal L1AgentCharges { get; set; }
+
+        /// <summary>
+        ///     二级代理佣金
+        /// </summary>
+        public decimal L2AgentCharges { get; set; }
+
+        /// <summary>
+        ///     一级代理佣金百分比
+        /// </summary>
+        public decimal L1AgentChargesPercent { get; set; }
+
+        /// <summary>
+        ///     二级代理佣金百分比
+        /// </summary>
+        public decimal L2AgentChargesPercent { get; set; }
+
+        /// <summary>
+        ///      一级代理实际佣金
+        /// </summary>
+        public decimal L1BalanceCharges { get; set; }
+
+        /// <summary>
+        ///      二级代理实际佣金
+        /// </summary>
+        public decimal L2BalanceCharges { get; set; }
+
+        /// <summary>
+        ///     提货价
+        /// </summary>
+        public decimal DeliveryPrice { get; set; }
+
+        /// <summary>
+        ///     推荐的代理用户Id
+        /// </summary>
+        public int? AgentId { get; set; }
+
+        [Timestamp]
+        public byte[] RowVersion { get; set; }
+
+        public virtual TicketPackage TicetPackage { get; set; }
+
+        public virtual Supplier Supplier { get; set; }
+
+        public virtual Member Member { get; set; }
+
+        public virtual Member Agent { get; set; }
+       
+     
+    }
+    public enum OrderStatus
+    {
+        /// <summary>
+        ///     未付款
+        /// </summary>
+        None ,
+        /// <summary>
+        ///     已付款
+        /// </summary>
+        Paied ,
+        /// <summary>
+        ///     已付款
+        /// </summary>
+        Fail,
+        /// <summary>
+        ///     已出票
+        /// </summary>
+        Success,
+        /// <summary>
+        ///     已核销
+        /// </summary>
+        CheckOut,
+        /// <summary>
+        ///     退票
+        /// </summary>
+        TurnBack
+
+    }
+}

@@ -1,0 +1,252 @@
+﻿@{
+    ViewBag.Title = "Index";
+}
+
+<script src="~/Scripts/juery.migrate.js"></script>
+<link href="~/Scripts/foxibox/style/jquery-foxibox-0.2.css" rel="stylesheet" />
+<script src="~/Scripts/foxibox/jquery-foxibox-0.2.min.js"></script>
+
+<div id="table">
+    <div id="toolbar">
+        <table cellpadding="0" cellspacing="0">
+            <tr>
+                <td>
+                    <input id="searchbox" class="easyui-searchbox" style="width:200px;" prompt="请输入搜索关键词" />
+                </td>
+                <td>
+                    <div class="datagrid-btn-separator"></div>
+                </td>
+                <td>
+                    <a class="easyui-linkbutton" iconcls="icon-reload" onclick="$('#table').datagrid('reload')">刷新</a>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+@*审查结果和意见*@
+<div id="dialog" style="padding:5px;overflow:hidden">
+    <style>
+        div.row {
+            padding: 5px 0;
+        }
+    </style>
+    <form id="myform" method="post">
+        <div class="row">
+            <input id="Feedback" class="easyui-textbox" data-options="multiline:true" prompt="填写审查结果和意见" style="width:100%;height:100px">
+        </div>
+        <div class="row">
+            <select id="enable" name="Status" prompt="请选择" label="审核结果" labelwidth="80" style="width:100%;" required validateoncreate="false"></select>
+        </div>
+    </form>
+</div>
+<script>
+    $(function () {
+        $('#searchbox').searchbox({
+            searcher: function (value, name) {
+                $('#table').datagrid('load', {
+                    keyword: value
+                });
+            }
+        })
+
+        $('#table').datagrid({
+           // title: '学生认证管理',
+            fit: true,
+            pagination: true,//如果为true，则在DataGrid控件底部显示分页工具栏。
+            rownumbers: true,//如果为true，则显示一个行号列。
+            queryParams: { keyword: '' },
+            pageList: [1, 2, 5, 10, 20, 30, 40, 50],
+            fitColumns: true,//fit选项如果设置为true，折叠容器的大小将填充父容器。fitColumns设置为true,自动扩展或收缩列的大小以适应网格宽度和防止水平滚动条
+            singleSelect: true,//只能触发单行按钮
+            toolbar: '#toolbar',
+            columns: [[
+
+                    {
+                   field: 'Member', width: 140, title: '申请人', align: 'center', formatter: function (value, row) {
+                       return value.NickName + ' | ' +( value.RealName?value.RealName:"");
+                   }
+                    },
+                    {
+                        align: 'center',
+                        field: 'RealName',
+                        title: '填写的姓名',
+                        width: 80
+                    },
+
+                {
+                    align: 'center',
+                    field: 'Sex',
+                    title: '填写的性别',
+                    width: 50,
+                    formatter: function (value, row, index) {
+                        switch (value) {
+                            case 0:
+                                return '女';
+                            case 1:
+                                return '男';
+                            case 2:
+                                return '未知';
+                            default:
+                                return '未知';
+                        }
+                    }
+                },
+                {
+                    field: 'ImagePaths', title: '认证图片', align: 'center', width: 130, fixed: true, formatter: function (value, row, index) {
+                        var images = value.split('|');
+                        var linkArr = [];
+                        for (var i = 0; i < images.length; i++) {
+                            if (images[i] != "") {
+
+                                linkArr.push('<a style="display:none;"  class="easyui-linkbutton gall gall' + index + '" '  + ' rel="[gall' + index + ']" href="' + images[i] + '" target="_blank">图片' + (i + 1) + '</ a>');
+
+                            }
+                        }
+
+                        if (linkArr.length > 0) {
+                            return linkArr.join('') + '<a class="verifyimage" onclick="$(\'.gall' + index + '\').first().click()">共' + linkArr.length + '张 点击查看</ a>'
+                        } else {
+
+                        }
+                    }
+                },
+                 {
+                     align: 'center',
+                     field: 'SchoolSN',
+                     title: '学号',
+                     width: 80
+                 },
+                  {
+                      align: 'center',
+                      field: 'Institute',
+                      title: '学院/学校',
+                      width: 80
+                  },
+                   {
+                       align: 'center',
+                       field: 'Department',
+                       title: '专业',
+                       width: 80
+                   }, {
+                    align: 'center',
+                    field: 'EmployeeName',
+                    title: '审核人',
+                    width: 80
+                   },
+                   {
+                       align: 'center',
+                       field: 'Feedback',
+                       title: '审核反馈信息',
+                       width: 50, formatter: function (value) {
+                           if (value) {
+
+                               return '<div class="icon-chat tp" title="' + value.replace(/"/g, "") + '" style="height:18px;">&nbsp;</div>'
+                           }
+
+                       }
+                   },
+
+                {
+                    align: 'center',
+                    field: 'Status',
+                    title: '审核状态',
+                    width: 50,
+                    formatter: function (value, row, index) {
+                        switch (value) {
+                            case 0:
+                                return '待审核';
+                            case 1:
+                                return '<p style="background:green;color:white;">允许</p>';
+                            case 2:
+                                return '<p style="background:red;color:white;">拒绝</p>';
+                            default:
+                                return '未知';
+                        }
+                    }
+                },
+                 {
+                     align: 'center',
+                     field: 'CreateTime',
+                     title: '申请时间',
+                     width: 130, formatter: function (value) { return $.formatJsonDate(value) }
+                 },
+                {
+                    title: '操作',
+                    fixed: true,
+                    width: 80,
+                    align: 'center',
+                    field: 'edit',
+                    formatter: function (value, row, index) {
+                        if (row.Status == 0) {
+                            return '<a class="editbtn" onclick="edit(' + index + ')">审查</a>'
+                        }
+                    }
+                }]],
+            url: '/Identity/GetUser',
+            //表格加载完毕时触发这个事件
+            onLoadSuccess: function () {
+                $('.verifyimage').linkbutton({ plain: true, iconCls: 'icon-image' })
+                $('.gall').foxibox({ border: 10, scale: true });
+                $('.editbtn').linkbutton({
+                    iconCls: 'icon-edit',
+                    plain: true// 隐藏按键的样式
+                })
+            }
+        })
+        $('#dialog').dialog({
+            width: 350,
+            height: 250,
+            closed: true,//隐藏窗体
+            modal: true,//定义是否将窗体显示为模式化窗口。
+            title: '审查',
+            buttons: [{
+                text: '确定', iconCls: 'icon-save', plain: true, handler: function () {
+                    var rows = $('#table').datagrid('getSelected');
+                    console.log(rows)
+                    if ($('#myform').form('validate')) {
+                        $('#myform').ajaxSubmit( {
+                            data: {
+                                id: rows.Id,
+                                stastus: $("#enable").combobox('getValue'),
+                                feedback: $('#Feedback').val()
+                            },
+                            url: '/Identity/Edit',
+                            success: function (data) {
+
+                                //更新表格数据
+                                $('#table').datagrid('reload');
+                                //关闭窗口
+                                $('#dialog').dialog('close');
+
+                            }
+                        })
+                    }
+                }
+            }]
+        })
+    })
+    $('.gall').foxibox({ border: 10, scale: true });
+    $('#enable').combobox({
+        data: [{
+            value: '0',
+            text: '待审核'
+        },
+          {
+            value: '1',
+            text: '允许'
+        }, {
+            value: '2',
+            text: '拒绝'
+        }],
+        panelHeight: 80,
+        editable: false,
+        required: true,
+    })
+
+
+    function edit(index) {
+        var row = $("#table").datagrid('getRows')[index];
+        $('#dialog').dialog('open');
+        $('#myform').form('load', row);
+    }
+</script>

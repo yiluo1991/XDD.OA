@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<HtmlAnylyser >
+  <AllowTags>
+    <div attrs="style"/>
+    <ul/>
+    <li/>
+    <table attrs="cellpadding|cellspacing|border|width"/>
+    <tr/>
+    <th/>
+    <td/>
+    <span attrs="style"/>
+    <object attrs="classid|codebase|width|height"/>
+    <param attrs="name|value"/>
+    <embed attrs="src|width|height|quality|pluginspage|type|wmode"/>
+    <a attrs="href|target|title"/>
+    <h1/>
+    <h2/>
+    <h3/>
+    <h4/>
+    <h5/>
+    <h6/>
+    <strong/>
+    <b/>
+    <i/>
+    <em/>
+    <u/>
+    <hr/>
+    <br/>
+    <img attrs="src|width|height|alt"/>
+    <p attrs="style"/>
+    <ol/>
+    <dl/>
+    <dt/>
+    <dd/>
+    <hr/>
+  </AllowTags>
+
+
+
+
+</HtmlAnylyser>

@@ -1,0 +1,6 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+}
+
+实名认证

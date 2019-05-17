@@ -1,0 +1,282 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Drawing.Imaging;
+using System.IO;
+using System.Linq;
+using System.Web;
+using System.Web.Configuration;
+using System.Web.Mvc;
+using XDD.Core.DataAccess;
+using XDD.Core.Model;
+using XDD.Web.Infrastructure;
+
+namespace XDD.Web.Controllers
+{
+    [Authorize(Roles = "管理员")]
+    public class TicketController : Controller
+    {
+
+        XDDDbContext Context = new XDDDbContext();
+
+        public ActionResult Index()
+        {
+            return View();
+        }
+
+
+
+        public JsonResult GetTickets(string keyword, int page = 1, int rows = 15)
+        {
+            IQueryable<Ticket> query = Context.Tickets;
+          
+            if (!string.IsNullOrEmpty(keyword))
+            {
+                query.Where(s =>  s.Address.Contains(keyword) || s.Content.Contains(keyword) || s.Name.Contains(keyword) || s.ShopName.Contains(keyword) || s.TicketCategory.Name.Contains(keyword) || s.Employee.LoginName.Contains(keyword) || s.Employee.RealName.Contains(keyword));
+            }
+            return Json(new
+            {
+                total = query.Count(),
+                rows = query.OrderBy(s => s.TicketCategory.SN).ThenBy(s => s.SN).ThenByDescending(s => s.CreateTime).Skip((page - 1) * rows).Take(rows).Select(s => new
+                {
+                    s.Address,
+                    s.Content,
+                    s.CreateTime,
+                    s.Employee.LoginName,
+                    s.Employee.RealName,
+                    s.Enable,
+                    s.Id,
+                    s.Lat,
+                    s.Lng,
+                    s.Name,
+                    s.OnSale,
+                    s.SaleNum,
+                    s.EarlyDay,
+                    s.OrginPrice,
+                    s.Pic,
+                    s.MoreUrl,
+                    s.Price,
+                    s.ShopName,
+                    s.SN,
+                    TicketCategoryName = s.TicketCategory.Name,
+                    s.TicketCategoryId,
+                    PackageCount = s.TicketPackages.Count()
+                }).ToList()
+            });
+        }
+        [ValidateInput(false)]
+        public JsonResult AddTicket(Ticket ticket)
+        {
+            if (Request.Files.Count > 0)
+            {
+                var file = Request.Files[0];
+                string uploadPath = Server.MapPath("~/Images/Ticket/");
+                if (!Directory.Exists(uploadPath))
+                {
+                    Directory.CreateDirectory(uploadPath);
+                }
+                string name = DateTime.Now.ToString("b-yyyyMMddHHmmssfff");
+                if (ImageWorker.IsValidImage(file))
+                {
+
+                    ImageFormat imageFormat;
+                    switch (Path.GetExtension(file.FileName).ToLower())
+                    {
+                        case ".jpeg":
+                            imageFormat = ImageFormat.Jpeg;
+                            break;
+                        case ".png":
+                            imageFormat = ImageFormat.Png;
+                            break;
+                        case ".gif":
+                            imageFormat = ImageFormat.Gif;
+                            break;
+                        case ".jpg":
+                            imageFormat = ImageFormat.Jpeg;
+                            break;
+                        default:
+                            return Json(new { ResultCode = 0, message = "只接受jpg/png/gif图片" });
+                    }
+
+                    //保存
+                    ImageWorker.MakeThumbnail(file, string.Format("{0}{1}{2}", uploadPath, name, Path.GetExtension(file.FileName).ToLower()), 900, 9999, "W", imageFormat);
+                    ImageWorker.MakeThumbnail(file, string.Format("{0}{1}{2}", uploadPath, name.Replace("b-", "s-"), Path.GetExtension(file.FileName).ToLower()), 360, 9999, "W", imageFormat);
+                    string domain = WebConfigurationManager.AppSettings["domain"];
+                    ticket.Pic = domain + "/Images/Ticket/" + name + Path.GetExtension(file.FileName).ToLower();
+                    ticket.CreateTime = DateTime.Now;
+                    ticket.EmployeeId = Convert.ToInt32(User.Identity.Name);
+
+                    Context.Tickets.Add(ticket);
+                    Context.SaveChanges();
+                    return Json(new
+                    {
+                        ResultCode = 1,
+                        Message = "添加成功"
+                    });
+                }
+                else
+                {
+                    return Json(new { ResultCode = 0, message = "参数有误" });
+                }
+
+            }
+            else
+            {
+                return Json(new { ResultCode = 0, message = "只接受jpg/png/gif图片" });
+            }
+        }
+        [ValidateInput(false)]
+        public JsonResult EditTicket(Ticket ticket)
+        {
+            var target = Context.Tickets.FirstOrDefault(s => s.Id == ticket.Id);
+            if (target != null)
+            {
+                target.Address = ticket.Address;
+                target.Content = HtmlSaferAnalyser.ToSafeHtml(ticket.Content, false);
+                target.EmployeeId = Convert.ToInt32(User.Identity.Name);
+                target.Enable = ticket.Enable;
+                target.Lat = ticket.Lat;
+                target.Lng = ticket.Lng;
+                target.Name = ticket.Name;
+                target.SaleNum = ticket.SaleNum;
+                target.OnSale = ticket.OnSale;
+                target.Price = ticket.Price;
+                target.ShopName = ticket.ShopName;
+                target.OrginPrice = ticket.OrginPrice;
+                target.MoreUrl = ticket.MoreUrl;
+                target.EarlyDay = ticket.EarlyDay;
+                target.SN = ticket.SN;
+                target.TicketCategoryId = ticket.TicketCategoryId;
+                if (Request.Files.Count > 0)
+                {
+                    var file = Request.Files[0];
+                    string uploadPath = Server.MapPath("~/Images/Ticket/");
+                    if (!Directory.Exists(uploadPath))
+                    {
+                        Directory.CreateDirectory(uploadPath);
+                    }
+                    string name = DateTime.Now.ToString("b-yyyyMMddHHmmssfff");
+                    if (ImageWorker.IsValidImage(file))
+                    {
+                        ImageFormat imageFormat;
+                        switch (Path.GetExtension(file.FileName).ToLower())
+                        {
+                            case ".jpeg":
+                                imageFormat = ImageFormat.Jpeg;
+                                break;
+                            case ".png":
+                                imageFormat = ImageFormat.Png;
+                                break;
+                            case ".gif":
+                                imageFormat = ImageFormat.Gif;
+                                break;
+                            case ".jpg":
+                                imageFormat = ImageFormat.Jpeg;
+                                break;
+                            default:
+                                return Json(new { ResultCode = 0, message = "只接受jpg/png/gif图片" });
+                        }
+                        //保存
+                        ImageWorker.MakeThumbnail(file, string.Format("{0}{1}{2}", uploadPath, name, Path.GetExtension(file.FileName).ToLower()), 900, 9999, "W", imageFormat);
+                        ImageWorker.MakeThumbnail(file, string.Format("{0}{1}{2}", uploadPath, name.Replace("b-", "s-"), Path.GetExtension(file.FileName).ToLower()), 360, 9999, "W", imageFormat);
+                        string domain = WebConfigurationManager.AppSettings["domain"];
+                        target.Pic = domain + "/Images/Ticket/" + name + Path.GetExtension(file.FileName).ToLower();
+                    }
+                    else
+                    {
+                        return Json(new { ResultCode = 0, message = "图片格式有误" });
+                    }
+                }
+                Context.SaveChanges();
+                return Json(new { ResultCode = 1, Message = "修改成功" });
+
+            }
+            else
+            {
+                return Json(new { ResultCode = 0, Message = "没有找到门票信息" });
+            }
+
+        }
+
+        public JsonResult ChangeTicketStatus(int id, int type, bool status)
+        {
+            var target = Context.Tickets.FirstOrDefault(s => s.Id == id);
+            if (target != null)
+            {
+                if (type == 1)
+                {
+                    target.OnSale = status;
+                }
+                else
+                {
+                    target.Enable = status;
+                }
+                Context.SaveChanges();
+                return Json(new { ResultCode = 1, Message = "修改成功" });
+            }
+            else
+            {
+                return Json(new { ResultCode = 0, Message = "没有找到门票信息" });
+            }
+        }
+
+        public JsonResult GetCategoryComboData()
+        {
+            return Json(Context.TicketCategories.Where(s => s.Enable).OrderBy(s => s.SN).Select(s => new
+            {
+                v = s.Id,
+                t = s.Name
+            }).ToList());
+        }
+
+        public JsonResult UploadImg() {
+            List<String> list = new List<string>();
+            for (int i=0;i<Request.Files.Count;i++)
+            {
+                var file=Request.Files[i];
+                var p="/Images/Upload/"+DateTime.Now.ToString("yyyyMMdd")+"/";
+                string uploadPath = Server.MapPath(p);
+                if (!Directory.Exists(uploadPath))
+                {
+                    Directory.CreateDirectory(uploadPath);
+                }
+                string name = DateTime.Now.ToString("HHmmssfff"+Guid.NewGuid().ToString().Split('-')[0]);
+                if (ImageWorker.IsValidImage(file))
+                {
+
+                    ImageFormat imageFormat;
+                    switch (Path.GetExtension(file.FileName).ToLower())
+                    {
+                        case ".jpeg":
+                            imageFormat = ImageFormat.Jpeg;
+                            break;
+                        case ".png":
+                            imageFormat = ImageFormat.Png;
+                            break;
+                        case ".gif":
+                            imageFormat = ImageFormat.Gif;
+                            break;
+                        case ".jpg":
+                            imageFormat = ImageFormat.Jpeg;
+                            break;
+                        default:
+                          
+                            continue;
+                    }
+
+                    //保存
+                    ImageWorker.MakeThumbnail(file, string.Format("{0}{1}{2}", uploadPath, name, Path.GetExtension(file.FileName).ToLower()), 900, 9999, "W", imageFormat);
+                    string domain = WebConfigurationManager.AppSettings["domain"];
+                    list.Add(domain + p + name + Path.GetExtension(file.FileName).ToLower());
+                }
+
+            }
+            return Json(new
+            {
+                errno = 0,
+                data = list
+            });
+    
+        }
+
+    }
+}

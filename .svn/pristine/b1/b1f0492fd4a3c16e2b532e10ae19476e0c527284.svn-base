@@ -1,0 +1,20 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace XDD.SMS
+{
+    public static class SMSManager
+    {
+        private static String auth="APPCODE 0c46f76dc8e8447f9d14ac12e0bbef60";
+        public static string SendVerifyCode(string mobile ,string code){
+            WebClient client = new WebClient();
+            client.Headers.Add("Authorization", "APPCODE 0c46f76dc8e8447f9d14ac12e0bbef60");
+            var s = Encoding.UTF8.GetString(client.DownloadData("https://feginesms.market.alicloudapi.com/codeNotice?param=" + code + "&phone="+mobile+"&sign=1&skin=18"));
+            return "短信已发送";
+        }
+    }
+}

@@ -1,0 +1,93 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+using XDD.Core.DataAccess;
+using XDD.Payment;
+using System.Transactions;
+using XDD.Core.Model;
+using System.Text;
+namespace XDD.Web.Controllers
+{
+    public class PaymentNoticeController : Controller
+    {
+        // GET: PaymentNotice
+        public ContentResult Index()
+        {
+            PayOrderResult result = Payment.PaymentProvider.ReviceNotice();
+            if (result.Success)
+            {
+                XDDDbContext ctx = new XDDDbContext();
+                var now = DateTime.Now;
+                var order = ctx.TicketOrders.FirstOrDefault(s => s.OrderNum == result.OrderSN && s.Member.AppOpenId == result.OpenId && (s.Status == OrderStatus.None || s.Status == OrderStatus.Fail) && s.TicetPackage.Supplier.MemberId != null&&s.OrderPrice==result.Money);
+                if (order != null)
+                {
+                    #region 处理客户账户
+                    var ms1 = new AccountStatement { BeforeBalance = order.Member.Account, CreateTime = now, RefferId = order.Id, Type = "微信支付充值", Money = result.Money, MemberId = order.MemberId };
+                    order.Member.Account += result.Money;
+                    var ms2 = new AccountStatement { BeforeBalance = order.Member.Account, CreateTime = now.AddMilliseconds(4), RefferId = order.Id, Type = "门票付款", Money = -result.Money, MemberId = order.MemberId };
+                    order.Member.Account -= result.Money;
+                    ctx.AccountStatements.Add(ms1);
+                    ctx.AccountStatements.Add(ms2);
+                    #endregion
+
+                    if (order.L1BalanceCharges > 0 || order.L2BalanceCharges > 0)
+                    {
+                        #region 处理代理佣金
+                        if (order.AgentId != null && !order.Agent.Status.HasFlag(MemberStatus.Freeze) && order.Agent.Status.HasFlag(MemberStatus.Agant))
+                        {
+                            if (order.Agent.CaptainId == null)
+                            {
+                                if (order.L1BalanceCharges > 0)
+                                {
+                                    var s1 = new AccountStatement { BeforeBalance = order.Agent.Account, CreateTime = now.AddMilliseconds(10), MemberId = order.Agent.Id, Money = order.L1BalanceCharges, RefferId = order.Id, Type = "一级代理佣金" };
+                                    ctx.AccountStatements.Add(s1);
+                                    order.Agent.Account += order.L1BalanceCharges;
+                                }
+
+                            }
+                            else
+                            {
+                                if (order.L2BalanceCharges > 0)
+                                {
+                                    var s1 = new AccountStatement { BeforeBalance = order.Agent.Account, CreateTime = now.AddMilliseconds(10), MemberId = order.Agent.Id, Money = order.L2BalanceCharges, RefferId = order.Id, Type = "二级代理佣金" };
+                                    ctx.AccountStatements.Add(s1);
+                                    order.Agent.Account += order.L2BalanceCharges;
+                                }
+                                if (order.L1BalanceCharges > 0 && !order.Agent.Captain.Status.HasFlag(MemberStatus.Freeze) && order.Agent.Captain.Status.HasFlag(MemberStatus.Agant))
+                                {
+                                    var s2 = new AccountStatement { BeforeBalance = order.Agent.Captain.Account, CreateTime = now.AddMilliseconds(10), MemberId = order.Agent.Captain.Id, Money = order.L1AgentCharges, RefferId = order.Id, Type = "队员代理佣金" };
+                                    ctx.AccountStatements.Add(s2);
+                                    order.Agent.Captain.Account += order.L1AgentCharges;
+                                }
+                            }
+                        }
+                        #endregion
+                    }
+
+                    #region 供应商付款
+                    var ss1 = new AccountStatement { BeforeBalance = order.TicetPackage.Supplier.Member.Account, CreateTime = now.AddMilliseconds(15), RefferId = order.Id, Type = "门票收入", Money = order.DeliveryPrice, MemberId = order.TicetPackage.Supplier.Member.Id };
+                    order.TicetPackage.Supplier.Member.Account += order.DeliveryPrice;
+                    ctx.AccountStatements.Add(ss1);
+                    #endregion
+                    //处理门票状态
+                    order.Status = OrderStatus.Success;
+                    string str = "1234567890";
+                    string y = "";
+                    Random ran = new Random();
+                    for (int x = 0; x < 6; x++)
+                    {
+                        int r = ran.Next(0, str.Length);
+                        string a = str.Substring(r, 1);
+                        y = y + a;
+                    }
+                    order.VCode = y;
+                    ctx.SaveChanges();
+                }
+            }
+            return Content("<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml>");
+
+        }
+    }
+}

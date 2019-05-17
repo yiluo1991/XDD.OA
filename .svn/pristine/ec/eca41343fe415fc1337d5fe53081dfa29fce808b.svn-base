@@ -1,0 +1,72 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+using XDD.Core.DataAccess;
+using XDD.Core.Model;
+
+namespace XDD.Web.Controllers
+{
+    public class BBSArticleController : Controller
+    {
+        XDDDbContext Context = new XDDDbContext();
+        // GET: BBSArticle
+        public ActionResult Index()
+        {
+            return View();
+        }
+
+        public JsonResult GetArticles(string keyword, int categoryId=0, int page = 1, int rows = 15)
+        {
+            IQueryable<BBSArticle> query = Context.BBSArticles;
+            if (categoryId != 0)
+            {
+               query= query.Where(s => s.CategoryId == categoryId);
+            }
+            if (!string.IsNullOrEmpty(keyword))
+            {
+                int keywordId;
+                bool isNumber = int.TryParse(keyword, out keywordId);
+                if (isNumber)
+                {
+                    query = query.Where(s => s.Content.Contains(keyword) || s.Member.RealName.Contains(keyword) || s.BBSCategory.Name.Contains(keyword) || s.Address.Contains(keyword) || s.Title.Contains(keyword) || s.Subject.Contains(keyword) || s.Member.NickName == keyword || s.Member.Id == keywordId || s.Id == keywordId);
+                }
+                else
+                {
+                    query = query.Where(s => s.Content.Contains(keyword) || s.Member.RealName.Contains(keyword) || s.BBSCategory.Name.Contains(keyword) || s.Address.Contains(keyword) || s.Title.Contains(keyword) || s.Subject.Contains(keyword) || s.Member.NickName == keyword);
+                }
+            }
+            return Json(new
+            {
+                total = query.Count(),
+                rows = query.OrderBy(s => s.SN).ThenByDescending(s => s.CreateTime).Skip((page - 1) * rows).Take(rows).Select(s => new
+                {
+                    s.Address,
+                    s.AllowComment,
+                    s.CategoryId,
+                    CategoryName = s.BBSCategory.Name,
+                    s.CommentCount,
+                    s.Counter,
+                    s.CreateTime,
+                    s.DateTime,
+                    s.Id,
+                    s.IsBackgroundArticle,
+                    s.MemberId,
+                    NickName = s.Member.NickName,
+                    s.Paths,
+                    s.Payment,
+                    s.PeopleEnd,
+                    s.PeopleStart,
+                    s.ReadCount,
+                    s.ShowComment,
+                    s.SN,
+                    s.Subject,
+                    s.Title
+                }).ToList()
+            });
+        }
+
+        
+    }
+}

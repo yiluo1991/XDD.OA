@@ -1,0 +1,364 @@
+﻿@{
+    ViewBag.Title = "Index";
+}
+<link href="~/Scripts/wangEditor/wangEditor.css" rel="stylesheet" />
+<script src="~/Scripts/wangEditor/wangEditor.js"></script>
+
+
+
+<div class="easyui-layout" data-options="fit:true">
+    <div id="table">
+        <div id="maintabletoolbar">
+            <table cellpadding="0" cellspacing="0">
+                <tr>
+                    <td>
+                        <a class="easyui-linkbutton" iconcls="icon-add" plain="true" onclick="showAdd()">添加</a>
+                    </td>
+                    <td>
+                        <div class="datagrid-btn-separator"></div>
+                    </td>
+                    <td>
+                        <a class="easyui-linkbutton" iconcls="icon-edit" plain="true" onclick="showEdit()">修改</a>
+                    </td>
+                    <td>
+                        <div class="datagrid-btn-separator"></div>
+                    </td>
+                    <td>
+                        <a class="easyui-linkbutton" iconcls="icon-偏差看" plain="true" onclick="showEdit()">管理门票</a>
+                    </td>
+                    <td>
+                        <div class="datagrid-btn-separator"></div>
+                    </td>
+                    <td>
+                        <input id="searchbox" class="easyui-searchbox" style="width:200px" prompt="请输入搜索的内容" data-options="searcher:function(value){$('#table').datagrid('load',{keyword:value})}" />
+                    </td>
+                    <td>
+                        <div class="datagrid-btn-separator"></div>
+                    </td>
+                    <td>
+                        <a class="easyui-linkbutton" iconcls="icon-reload" plain="true" onclick="$('#table').datagrid('reload')">刷新</a>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <script>
+        function showAdd() {
+            clearPoint(true)
+            $('#editform').form('reset').form('resetValidation'); $('#editdialog').dialog('open').dialog('setTitle', '添加门票');
+            editor.txt.html('')
+            setTimeout(function () {
+                $('#map').baiduMap('center', { lng: 118.156801, lat: 24.485408, level: 11 })
+            }, 200)
+
+        }
+        function showEdit() {
+      
+            var row = $('#table').datagrid('getSelected');
+            if (row) {
+                clearPoint(true)
+                $('#editform').form('reset').form('resetValidation').form('load', row);
+                $('#pic').filebox('setText', row.Pic);
+                $('#editdialog').dialog('open').dialog('setTitle', '修改门票信息');
+                editor.txt.html(row.Content)
+                if (row.Lng) {
+                  
+                    setTimeout(function () {
+                        $('#map').baiduMap('center', { lng: row.Lng, lat: row.Lat, level: 18 })
+                        point = { lng:$('#lng').val(), lat: $('#lat').val() };
+                        marker = $('#map').baiduMap('addMarker', point);
+                    }, 200)
+                } else {
+                    setTimeout(function () {
+                        $('#map').baiduMap('center', { lng: 118.156801, lat: 24.485408, level: 11 })
+                    }, 200)
+                }
+                 var timer=setInterval(function () {
+                     $('.tangram-suggestion-main').css('display', 'none')
+                 
+                },1)
+                 setTimeout(function () {
+                     clearInterval(timer);
+                 },1000)
+            }
+        }
+        $(function () {
+            $('#table').datagrid({
+                toolbar: '#maintabletoolbar',
+                fit: true,
+                pagination: true,
+                border: false,
+                fitColumns: true,
+                url: '/Ticket/GetTickets',
+                rownumbers: true,
+                singleSelect: true,
+                columns: [[
+                      {
+                          field: 'Name', title: '门票名', width: 110, fixed: true, align: 'center'
+                      }, {
+                          field: 's', title: '封面图片', width: 110, fixed: true, halign: 'center', formatter: function (value, row) {
+                              return '<div style="text-align:center;"><image src="' + row.Pic.replace('/b-','/s-') + '"  style="width:100px;height:40px;" /></div>'
+                          }
+                      }, {
+                          field: 'TicketCategoryName', title: '分类名', width: 80, fixed: true, align: 'center'
+                      }, {
+                          field: 'PackageCount', title: '套餐数', width: 50, fixed: true, align: 'center'
+                      }, {
+                          field: 'Price', title: '封面票价', width: 80, fixed: true, halign: 'center', align: 'right', formatter: function (value) {
+                              return '￥' + (value.toFixed(2))
+                          }
+                      }, {
+                          field: 'ShopName', title: '消费商户', width: 100, align: 'center'
+                      }, {
+                          field: 'Address', title: '地址', width: 100, align: 'center'
+                      }, {
+                          field: 'SN', title: '排序号', width: 60, fixed: true, align: 'center'
+                      }, {
+                          field: 'OnSale', title: '在售', width: 60, fixed: true, align: 'center', formatter: function (value) {
+
+                              if (value) {
+                                  return "<span style='color:green;font-weight:bold;'>在售</span>"
+                              }
+                              else {
+                                  return "<span style='color:red;font-weight:bold;'>下架</span>"
+                              }
+                          }
+                      }, {
+                          field: 'Enable', title: '启用', width: 50, fixed: true, align: 'center', formatter: function (value) {
+                              if (value) {
+                                  return '<div class="icon-pass" style="height:18px;">&nbsp;</div>'
+                              } else {
+                                  return '<div class="icon-nopass" style="height:18px;">&nbsp;</div>'
+                              }
+                          }
+                      }, {
+                          field: 'Employee', title: '最后更新人', width: 80, fixed: true, halign: 'center', formatter: function (value, row) {
+                              if (row.RealName) return row.RealName;
+                              else return row.LoginName
+                          }
+                      }, {
+                          field: 'CreateTime', title: '创建时间', width: 130, fixed: true, halign: 'center', formatter: function (value, row) {
+                              return $.formatJsonDate(value)
+                          }
+                      }
+                ]],
+
+
+                onLoadSuccess: function () {
+                    $('.editbtn').linkbutton({ iconCls: 'icon-edit', plain: true });
+                    $(this).datagrid('fixRowHeight');
+                }
+            })
+        })
+        $(function () {
+            $('#editdialog').dialog({
+                width: 800,
+                height: 630,
+                modal: true,
+                closed: true,
+                buttons: [{
+                    iconCls: 'icon-ok',
+                    text: '保存',
+                    handler: function () {
+                        var url;
+                        if ($('#editid').val() == 0) {
+                            url = "/Ticket/AddTicket"
+                        } else {
+                            url = "/Ticket/EditTicket"
+                        }
+                        if ($('#editform').form('validate')) {
+                            $.ajaxStart();
+                            $('#editform').ajaxSubmit({
+                                url: url,
+                                dataType: 'json',
+                                data: { Content: editor.txt.html() },
+                                success: function (data) {
+                                    $.ajaxEnd();
+                                    $('#editdialog').dialog('close');
+                                    if (data.ResultCode != 1) {
+                                        $.messager.alert('提示', data.message, "warning");
+                                    }
+                                    $('#table').datagrid('reload');
+
+                                }
+                            })
+                        }
+                    },
+                    plain: true
+                }, {
+                    iconCls: 'icon-cancel',
+                    text: '取消',
+                    handler: function () {
+                        $('#editdialog').dialog('close')
+                    },
+                    plain: true
+                }]
+            })
+        })
+   
+
+
+    </script>
+    <style>
+        #editdialog p {
+            padding: 0 0 3px 0;
+        }
+    </style>
+    <div id="editdialog" style="padding:5px;text-align:center;overflow:hidden;">
+        <form id="editform" enctype="multipart/form-data" method="post">
+
+            <div style="width:50%;float:left;overflow:hidden;position:relative;">
+                <style>
+                    .w-e-toolbar {
+                        flex-wrap: wrap;
+                    }
+
+                    .toolbar {
+                        border: 1px solid #ccc;
+                        border-bottom: 0;
+                        background: #fafafa;
+                    }
+
+                    .text {
+                        border: 1px solid #ccc;
+                        height: 480px;
+                    }
+                </style>
+
+                <div id="div1" class="toolbar">
+                </div>
+                <div id="div2" class="text" style="text-align:left;"></div>
+            </div>
+            <div style="width:50%;float:left;box-sizing:border-box;padding:0px 5px;">
+                <p>
+                    <input id="editid" name="Id" value="0" hidden />
+                    <input validateoncreate="false" prompt="请输入名称" class="easyui-textbox" label="门票名" labelwidth="80" labelalign="center" name="Name" style="width:99%;" required />
+                </p>
+             
+                <p>
+                    <input validateoncreate="false" class="easyui-combobox" editable="false" label="所属分类" labelwidth="80" labelalign="center" name="TicketCategoryId" style="width:49%;" required data-options="prompt:'请选择分类',url:'/ticket/GetCategoryComboData',valueField:'v',textField:'t'" panelheight="80" />
+                    <input validateoncreate="false" class="easyui-numberbox" label="销售数" labelwidth="80" labelalign="center" name="SaleNum" style="width:49%;" required data-options="prompt:'请输入已销售数',min:0,max:9999999" panelheight="80" />
+                </p>
+                <p>
+                    <input validateoncreate="false" class="easyui-numberbox" label="封面原价" labelwidth="80" labelalign="center" name="OrginPrice" style="width:49%;" required data-options="prompt:'请输入封面原价',min:0,max:9999999,precision:2,prefix:'￥'" panelheight="80" />
+                    <input validateoncreate="false" class="easyui-numberbox" label="封面票价" labelwidth="80" labelalign="center" name="Price" style="width:49%;" required data-options="prompt:'请输入封面票价',min:0,max:9999999,precision:2,prefix:'￥'" panelheight="80" />
+                   
+                </p>
+                <p>
+                    <input validateoncreate="false" class="easyui-numberbox" label="提前量" labelwidth="80" labelalign="center" name="EarlyDay" style="width:49%;" required data-options="prompt:'请输入需提前几天预定',min:0,max:999" panelheight="80" />
+                    <input validateoncreate="false" prompt="请输入排序号" class="easyui-numberbox" label="排序号" labelwidth="80" labelalign="center" name="SN" style="width:49%;" required value="100" />
+                </p>
+                <p>
+                    <input validateoncreate="false" id="pic" class="easyui-filebox" label="封面图片" labelwidth="80" buttontext="选择图片" accept="image/*" labelalign="center" name="Pic" style="width:99%;" required prompt="推荐图片比例：10:4" />
+                </p>
+
+              
+                <p>
+                    <input validateoncreate="false" class="easyui-combobox" editable="false" label="是否在售" labelwidth="80" labelalign="center" name="OnSale" style="width:99%;" required data-options="data:[{text:'在售',value:true},{text:'下架',value:false}],value:true" panelheight="80" />
+                </p>
+                <p>
+                    <input validateoncreate="false" class="easyui-combobox" editable="false" label="是否启用" labelwidth="80" labelalign="center" name="Enable" style="width:99%;" required data-options="data:[{text:'启用',value:true},{text:'禁用',value:false}],value:true" panelheight="80" />
+                </p>
+                <p>
+                    <input validateoncreate="false" prompt="请输入商户名" class="easyui-textbox" label="消费商户" labelwidth="80" labelalign="center" name="ShopName" style="width:99%;" required />
+                </p>
+                <p>
+                    <input id="address" validateoncreate="false" prompt="请输入商户地址" class="easyui-textbox" label="地址" labelwidth="80" labelalign="center" name="Address" style="width:99%;" required data-options="icons: [{
+		iconCls:'icon-address',
+		handler: function(e){
+			   $('#map').baiduMap('getSuggessPoint', {
+                    address: $('#address').textbox('getValue'), success: suggessSuccess
+                })
+		}
+	},{
+		iconCls:'icon-clear',
+		handler: function(e){
+			clearPoint()
+		}
+	}]
+" />
+                </p>
+
+                <div id="map" style="width:99%;height:216px;border:1px solid #ccc;box-sizing:border-box;margin:0 auto;"></div>
+
+
+            </div>
+            <input  name="Lng" id="lng" value="0"  hidden />
+            <input name="Lat" id="lat" value="0" hidden />
+        </form>
+    </div>
+</div>
+
+<script src="/Scripts/map.js"></script>
+<script>
+    var E = window.wangEditor
+    var editor = new E('#div1', '#div2');
+    editor.customConfig.uploadImgShowBase64 = true;
+    editor.customConfig.pasteFilterStyle = true;
+    editor.customConfig.uploadImgServer = '/upload';
+
+    editor.customConfig.menus = [
+     'undo',  // 撤销
+    'redo',  // 重复,
+    'head',  // 标题
+    'bold',  // 粗体
+    'fontSize',  // 字号
+    'fontName',  // 字体
+    'italic',  // 斜体
+    'underline',  // 下划线
+    'strikeThrough',  // 删除线
+    'foreColor',  // 文字颜色
+    'backColor',  // 背景颜色
+    'justify',  // 对齐方式
+    'image',  // 插入图片
+    'video'  // 插入视频
+    ]
+    editor.create();
+
+    $(function () {
+        $('#map').baiduMap({
+            lng: 118.156801,//默认经度
+            lat: 24.485408, //默认纬度
+            controllers: false,   //显示控制器
+            wheelZoom: true,  //启用滚轮缩放
+            level: 12,    //比例尺等级
+            suggestId: '#address+span .textbox-text.validatebox-text',
+            cursor: 'default',  //默认鼠标样式
+            onSuggestSelect: function (address) {
+                $('#address').textbox('setValue', address);
+                $('#map').baiduMap('getSuggessPoint', {
+                    address: address, success: suggessSuccess
+                })
+            },
+            onClick: function (e) {
+                //点击地图事件，e.point记录着经纬度
+                if ($('#lat').val() != '0') { clearPoint(); }
+                $('#lat').val(e.point.lat);
+                $('#lng').val(e.point.lng);
+                point = { lat: $('#lat').val(), lng: $('#lng').val() };
+                marker = $('#map').baiduMap('addMarker', point);
+            }
+        });
+    })
+    function suggessSuccess(e) {
+        if ($('#lat').val() != '0') { clearPoint(); }
+        $('#lat').val(e.lat);
+        $('#lng').val(e.lng);
+        point = { lng: e.lng, lat: e.lat ,level:18};
+        marker = $('#map').baiduMap('addMarker', point).baiduMap('center',point);
+    }
+    function clearPoint(f) {
+        if (f) {
+            $('#map').baiduMap('clearMarker')
+        } else if ($('#lat').val() != '0') {
+            $('#map').baiduMap('removeMarker', { lat: $('#lat').val(), lng: $('#lng').val()});
+            $('#lat').val(0);
+            $('#lng').val(0);
+        } 
+    }
+   
+    
+</script>
+<style>
+    .tangram-suggestion-main{z-index:999999;}
+</style>

@@ -1,0 +1,276 @@
+﻿<div id="table">
+    <div id="maintabletoolbar">
+        <table cellpadding="0" cellspacing="0">
+            <tr>
+                <td>
+                    <a class="easyui-linkbutton" iconcls="icon-add" plain="true" onclick=" $('#editform').form('reset').form('resetValidation'); $('#editdialog').dialog('open').dialog('setTitle', '添加热门话题');">添加</a>
+                </td>
+                <td>
+                    <div class="datagrid-btn-separator"></div>
+                </td>
+                <td>
+                    <a class="easyui-linkbutton" iconcls="icon-remove" plain="true" onclick="rm()">删除</a>
+                </td>
+                <td>
+                    <div class="datagrid-btn-separator"></div>
+                </td>
+                <td>
+                    <input id="searchbox" class="easyui-searchbox" style="width:200px" prompt="请输入搜索的内容" data-options="searcher:function(value){$('#table').datagrid('load',{keyword:value})}" />
+                </td>
+                <td>
+                    <div class="datagrid-btn-separator"></div>
+                </td>
+                <td>
+                    <a class="easyui-linkbutton" iconcls="icon-reload" plain="true" onclick="$('#table').datagrid('reload')">刷新</a>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<script>
+
+    var checkableItems = {
+        0x1: "约会时间",
+        0x2: "地点",
+        0x4: "人数限制",
+        0x8: "人均消费",
+        0x10: "活动主题"
+    }
+    $(function () {
+        $('#table').datagrid({
+            toolbar: '#maintabletoolbar',
+            fit: true,
+            border: false,
+            fitColumns: true,
+            url: '/bbscategory/Get',
+            rownumbers: true,
+            singleSelect: true,
+            columns: [[
+                      {
+                          field: 'Name', title: '频道', width: 100, align: 'center'
+                      }, {
+                          field: 'Option', title: '选填', width: 160, align: 'center', formatter: function (value) {
+                              var arr = [];
+                              for (var i in checkableItems) {
+                                  if (value & i) {
+                                      arr.push(checkableItems[i]);
+                                  }
+                              }
+                              return arr.join('，');
+                          }
+                      }, {
+                          field: 'Required', title: '必填', width: 160, align: 'center', formatter: function (value) {
+                              var arr = [];
+                              for (var i in checkableItems) {
+                                  if (value & i) {
+                                      arr.push(checkableItems[i]);
+                                  }
+                              }
+                              return arr.join('，');
+                          }
+                      }, {
+                          field: 'SN', title: '排序号', width: 60, fixed: true, align: 'center'
+                      }, {
+                          field: 'Enable', title: '状态', width: 100, halign: 'center', width: 100, fixed: true, formatter: function (value, row, index) {
+                              if (value) {
+                                  return '<div class="icon-ok" style="height:18px;">&nbsp;</div>'
+                              } else {
+                                  return '<div class="icon-cancel" style="height:18px;">&nbsp;</div>'
+                              }
+                          }
+                      }, {
+                          field: 'edit', title: '操作', width: 100, halign: 'center', width: 86, fixed: true, formatter: function (value, row, index) {
+                              return '<a class="editbtn" onclick="edit(' + index + ')">修改</a>'
+                          }
+                      }
+            ]],
+
+
+            onLoadSuccess: function () {
+                $('.editbtn').linkbutton({ iconCls: 'icon-edit', plain: true });
+                $(this).datagrid('fixRowHeight');
+            }
+        });
+    });
+    $(function () {
+        $('#editdialog').dialog({
+            width: 400,
+            height: 465,
+            modal: true,
+            closed: true,
+            buttons: [{
+                iconCls: 'icon-ok',
+                text: '保存',
+                handler: function () {
+                    var url;
+                    if ($('#editid').val() == 0) {
+                        url = "/bbscategory/Add"
+                    } else {
+                        url = "/bbscategory/Edit"
+                    }
+                    if ($('#editform').form('validate')) {
+
+                        var obj = $('#editform').serializeObject();
+                        var required=0;
+                        var option=0;
+                        for (var i in checkableItems) {
+                            if (obj["c" + i] == "required") {
+                                required |= i;
+                            } else if (obj["c" + i] == "option") {
+                                option |= i;
+                            }
+                        }
+                        console.log(required);
+                        console.log(option);
+                        $.ajaxStart();
+                        $('#editform').ajaxSubmit({
+                            url: url,
+                            dataType: 'json',
+                            data:{required:required,option:option},
+                            success: function (data) {
+                                $.ajaxEnd();
+                                $('#editdialog').dialog('close');
+                                if (data.ResultCode != 1) {
+                                    $.messager.alert('提示', data.message, "warning");
+                                }
+                                $('#table').datagrid('reload');
+
+                            }
+                        })
+                    }
+                },
+                plain: true
+            }, {
+                iconCls: 'icon-cancel',
+                text: '取消',
+                handler: function () {
+                    $('#editdialog').dialog('close')
+                },
+                plain: true
+            }]
+        })
+    })
+    function edit(index) {
+        var row = $('#table').datagrid('getRows')[index];
+        var obj = {};
+        for (var i in checkableItems) {
+            if (i & row.Required) {
+                obj["c" + i] = "required";
+            } else if (i & row.Option) {
+                obj["c" + i] = "option";
+            } else {
+                obj["c" + i] = "no";
+            }
+        }
+        var timenames = { TimeAreaOneStart: null, TimeAreaOneEnd: null, TimeAreaTwoStart: null, TimeAreaTwoEnd: null };
+        for (var name in timenames) {
+            if (row[name]) {
+                timenames[name] = row[name].Hours + ":" + row[name].Minutes;
+            }
+        }
+        $.extend(obj, timenames)
+        $.extend(row, obj)
+        $('#editform').form('reset').form('resetValidation').form('load', row);
+        $('#pic').filebox('setText', row.Src);
+        $('#editdialog').dialog('open').dialog('setTitle', '修改轮播图');
+    }
+    function rm(index) {
+        var row = $('#table').datagrid('getSelected');
+        if (row) {
+            $.ajaxStart()
+            $.post('/bbscategory/remove', { id: row.Id }, function (data) {
+                $.ajaxEnd();
+                $('#table').datagrid('load');
+            })
+        }
+    }
+
+</script>
+<style>
+    #editdialog p {
+        padding: 5px 0;
+    }
+</style>
+<div id="editdialog" style="padding:5px;text-align:center;overflow:hidden;">
+    <form id="editform" enctype="multipart/form-data" method="post">
+
+        <p>
+            <input id="editid" name="Id" value="0" hidden />
+            <input validateoncreate="false" prompt="请输入频道名称" validtype="length[0,20]" class="easyui-textbox" label="频道" labelwidth="80" labelalign="center" name="Name" style="width:99%;" required />
+        </p>
+
+        <p>
+            <input validateoncreate="false" prompt="请输入排序号" class="easyui-numberbox" label="排序号" labelwidth="80" labelalign="center" name="SN" style="width:99%;" required value="100" />
+        </p>
+        <p>
+            <input validateoncreate="false" class="easyui-combobox" editable="false" label="状态" labelwidth="80" labelalign="center" name="Enable" style="width:99%;" required data-options="data:[{text:'启用',value:true},{text:'禁用',value:false}],value:true" panelheight="80" />
+        </p>
+        <p>
+            <label class="textbox-label textbox-label-before" for="_easyui_textbox_input6" style="text-align: center; width: 59px; height: 30px; line-height: 30px;">时间</label>
+            <span class="textbox easyui-fluid numberbox" style="margin-left:-4px;width: 302px; height: 30px;">
+                <label style="line-height:30px;display:inline-block;"><input type="radio" name="c1" value="no" checked /> 禁填</label>
+                <label style="margin-left:80px;"><input type="radio" name="c1" value="option" /> 选填</label>
+                <label style="margin-left:80px;"><input type="radio" name="c1" value="required" /> 必填</label>
+            </span>
+
+        </p>
+        <p>
+
+        
+            <input id="tos" name="TimeAreaOneStart" class="easyui-timespinner" style="width:80px;" data-options="showSeconds:false,validType:['timespinnersmaller[\'toe\',\'第一阶段结束时间\']','timespinnersmaller[\'tws\',\'第二阶段开始时间\']','timespinnersmaller[\'twe\',\'第二阶段结束时间\']'],onChange:validTime" value="" />
+                -
+            <input id="toe" name="TimeAreaOneEnd" class="easyui-timespinner" style="width:80px;" data-options="showSeconds:false,validType:['timespinnerbigger[\'tos\',\'第一阶段开始时间\']','timespinnersmaller[\'tws\',\'第二阶段开始时间\']','timespinnersmaller[\'twe\',\'第二阶段结束时间\']'],onChange:validTime" value="" />&emsp;
+            <input id="tws" name="TimeAreaTwoStart" class="easyui-timespinner" style="width:80px;" data-options="showSeconds:false,validType:['timespinnersmaller[\'twe\',\'第二阶段结束时间\']','timespinnerbigger[\'tos\',\'第一阶段开始时间\']','timespinnerbigger[\'toe\',\'第一阶结束时间\']'],onChange:validTime" />
+                -
+            <input id="twe" name="TimeAreaTwoEnd" class="easyui-timespinner" style="width:80px;" data-options="showSeconds:false,validType:['timespinnerbigger[\'tos\',\'第一阶段开始时间\']','timespinnerbigger[\'toe\',\'第一阶段结束时间\']','timespinnerbigger[\'tws\',\'第二阶段开始时间\']'],onChange:validTime" />
+      
+
+        </p>
+        <p>
+            <label class="textbox-label textbox-label-before" for="_easyui_textbox_input6" style="text-align: center; width: 59px; height: 30px; line-height: 30px;">地点</label>
+            <span class="textbox easyui-fluid numberbox" style="margin-left:-4px;width: 302px; height: 30px;">
+                <label style="line-height:30px;display:inline-block;"><input type="radio" name="c2" value="no" checked /> 禁填</label>
+                <label style="margin-left:80px;"><input type="radio" name="c2" value="option" /> 选填</label>
+                <label style="margin-left:80px;"><input type="radio" name="c2" value="required" /> 必填</label>
+            </span>
+
+        </p>
+        <p>
+            <label class="textbox-label textbox-label-before" for="_easyui_textbox_input6" style="text-align: center; width: 59px; height: 30px; line-height: 30px;">人数限制</label>
+            <span class="textbox easyui-fluid numberbox" style="margin-left:-4px;width: 302px; height: 30px;">
+                <label style="line-height:30px;display:inline-block;"><input type="radio" name="c4" value="no" checked /> 禁填</label>
+                <label style="margin-left:80px;"><input type="radio" name="c4" value="option" /> 选填</label>
+                <label style="margin-left:80px;"><input type="radio" name="c4" value="required" /> 必填</label>
+            </span>
+
+        </p>
+        <p>
+            <label class="textbox-label textbox-label-before" for="_easyui_textbox_input6" style="text-align: center; width: 59px; height: 30px; line-height: 30px;">人均消费</label>
+            <span class="textbox easyui-fluid numberbox" style="margin-left:-4px;width: 302px; height: 30px;">
+                <label style="line-height:30px;display:inline-block;"><input type="radio" name="c8" value="no" checked /> 禁填</label>
+                <label style="margin-left:80px;"><input type="radio" name="c8" value="option" /> 选填</label>
+                <label style="margin-left:80px;"><input type="radio" name="c8" value="required" /> 必填</label>
+            </span>
+
+        </p>
+        <p>
+            <label class="textbox-label textbox-label-before" for="_easyui_textbox_input6" style="text-align: center; width: 59px; height: 30px; line-height: 30px;">活动主题</label>
+            <span class="textbox easyui-fluid numberbox" style="margin-left:-4px;width: 302px; height: 30px;">
+                <label style="line-height:30px;display:inline-block;"><input type="radio" name="c16" value="no" checked /> 禁填</label>
+                <label style="margin-left:80px;"><input type="radio" name="c16" value="option" /> 选填</label>
+                <label style="margin-left:80px;"><input type="radio" name="c16" value="required" /> 必填</label>
+            </span>
+
+        </p>
+    </form>
+</div>
+<script>
+    function validTime() {
+        
+        $('#tos,#toe,#tws,#twe').each(function () {
+            $(this).timespinner('isValid')
+        })
+    }
+</script>
+

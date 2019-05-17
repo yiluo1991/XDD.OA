@@ -1,0 +1,77 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+using XDD.Core.DataAccess;
+using XDD.Core.Model;
+
+namespace XDD.Web.Controllers
+{
+
+        [Authorize(Roles = "管理员")]
+    public class TicketOrderController : Controller
+    {
+        /// <summary>
+        ///     购票订单
+        /// </summary>
+        /// <returns></returns>
+        [Authorize(Roles = "管理员")]
+        public ActionResult Index()
+        {
+            return View();
+        }
+        public JsonResult Get(string keyword = null, int page = 1, int rows = 10)
+        {
+            XDDDbContext ctx = new XDDDbContext();
+            List<TicketOrder> list = new List<TicketOrder>();
+            IQueryable<TicketOrder> query;
+            if (string.IsNullOrEmpty(keyword))
+            {
+                query = ctx.TicketOrders;
+                //没有传递keyword或者keyword为""
+            }
+            else
+            {
+                //有传递keyword并且keyword的值不为空字符串
+                query = ctx.TicketOrders.Where(s => s.OrderNum.Contains(keyword) || s.RealName.Contains(keyword) || s.Member.NickName.Contains(keyword) || s.Agent.RealName.Contains(keyword) || s.Agent.NickName.Contains(keyword) || s.Id.ToString() == keyword || s.TicetPackage.Name.Contains(keyword));
+
+            }//查询
+            return Json(
+            new
+            {
+                total = query.Count(),
+                rows = query.OrderByDescending(s => s.CreateTime).Skip((page - 1) * rows).Take(rows).Select(s => new
+                {
+                    s.Id,
+                    s.RealName,
+                    s.OrderNum,
+                    s.OrderPrice,
+                    s.Price,
+                    s.CreateTime,
+                    s.Quantity,
+                    s.Mobile,
+                    s.Address,
+                    s.PackageCode,
+                    s.VCode,
+                    s.DeliveryPrice,
+                    Member = new { s.Member.RealName, s.Member.NickName,s.Member.Id },
+                    Status = s.Status,
+                    Agent = s.AgentId == null ? null : new { s.Agent.RealName, s.Agent.NickName ,s.Agent.Id},
+                    Supplier=s.Supplier.MemberId==null?null:new{s.Supplier.Member.NickName,s.Supplier.Member.RealName,s.SupplierId,s.Supplier.MemberId},
+                    TicetPackage = new { s.TicetPackage.Name, TicketName = s.TicetPackage.Ticket.Name },
+                    s.L1BalanceCharges,
+                    s.L2BalanceCharges
+                    //获取数据
+                }).ToList()
+
+
+            }, JsonRequestBehavior.AllowGet);
+        }
+
+
+    }
+}
+
+
+

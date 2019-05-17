@@ -1,0 +1,124 @@
+﻿@{
+    ViewBag.Title = "Index";
+}
+
+<script>
+    var buttons = $.extend([], $.fn.datebox.defaults.buttons);
+    buttons.splice(1, 0, { text: '清空', handler: function (target) { $(target).datebox('clear') } });
+    $(function () {
+        $('#withdrawals_datagrid_withdrawals').datagrid({
+            toolbar: '#withdrawals_toolbar_withdrawals',
+            border: false,
+            fitColumns: true,
+            pagination: true,
+            rownumbers: true,
+            singleSelect: true,
+            fit: true,
+            url: '/Withdraw/WithDrawals',
+            pageSize: 30,
+            columns: [[
+                  {
+                    field: 'MemberName', width: 100, title: '提现客户', align: 'center', formatter: function (value, row) {
+                          return row.MemberLoginName + ' | ' + row.MemberName;
+                      }
+                  },
+                   {
+                       field: 'BankName', width: 60, title: '发卡银行', align: 'center'
+                   },
+                    {
+                        field: 'BankOfDeposit', width: 60, title: '开户网点', align: 'center'
+                    },
+                      {
+                          field: 'BankCard', width: 60, title: '银行卡号', align: 'center'
+                      },
+                       {
+                           field: 'Money', width: 60, title: '申请金额', align: 'center'
+                       },
+                       {
+                           field: 'CreateTime', width: 60, title: '申请时间', align: 'center', formatter: function (value, row) {
+                               return $.formatJsonDate(value, '{0}-{1}-{2} {3}:{4}:{5}');
+                           }
+                       },
+                       {
+                           field: 'Status', width: 60, title: '申请状态', align: 'center', formatter: function (value) {
+                               switch (value) {
+                                   case 0: return '<span style="display:inline-block;background:gray;color:white;"  >未审核</span>';
+                                   case 1: return '<span style="display:inline-block;background:orange;color:white;"  >等待打款</span>';
+                                   case 2: return '<span style="display:inline-block;background:orange;color:white;"  >银行处理</span>';
+                                   case 3: return '<span style="display:inline-block;background:green;color:white;"  >提现成功</span>';
+                                   case 4: return '<span style="display:inline-block;background:red;color:white;" >提现失败</span>';
+                                   case 5: return '<span style="display:inline-block;background:red;color:white;" >代付失败</span>';
+                               }
+                           }
+                       },
+                        {
+                            field: 'Remark', width: 60, title: '备注', align: 'center'
+                        },
+                        {
+                            field: 'Edit', title: '操作', align: 'center', width: 180, fixed: true,
+                            formatter: function (value, row, index) {
+                                switch (row.Status) {
+                                    case 0: return '<a class="newlinkbutton bid" iconCls="icon-bid" plain="true" onclick="openAuditDialog(' + index + ')">核准</a>';
+                                    //case 1: return '<a class="newlinkbutton" iconCls="icon-bid" plain="true" onclick="openWithdrawalDialog(' + index + ')">提交代付</a><a class="newlinkbutton" iconCls="icon-bid" plain="true" onclick="inputOrderSN(' + index + ')">确认打款</a>';
+                                    //case 2: return '<a class="newlinkbutton" plain="true" iconCls="icon-event" onclick="openPTDialog(' + index + ',' + row.Status + ')">查看凭条</a><a class="newlinkbutton" iconCls="icon-bidtrans" plain="true" onclick="checkWithdrawalStatus(' + index + ')">查询结果</a>';
+                                    //case 3: return '<a class="newlinkbutton" plain="true" iconCls="icon-event" onclick="openPTDialog(' + index + ',' + row.Status + ')">查看凭条</a>';
+                                    //case 5: return '<a class="newlinkbutton" iconCls="icon-bid" plain="true" onclick="openWithdrawalDialog(' + index + ')">提交代付</a><a class="newlinkbutton" iconCls="icon-bid" plain="true" onclick="inputOrderSN(' + index + ')">确认打款</a>';
+                                    default: return '';
+                                }
+                            }
+                        }
+                     
+            ]
+            ],
+            onLoadSuccess: function () {
+                $('.bid').linkbutton({ iconCls: 'icon-bid', plain: true });
+            $(this).datagrid('fixRowHeight');
+        }
+
+        })
+    })
+</script>
+<div id="withdrawals_datagrid_withdrawals">
+    <div id="withdrawals_toolbar_withdrawals">
+        <table cellspacing="0" cellpadding="0">
+            <tbody>
+                <tr>
+                    <td>
+                        搜索：<a class="easyui-linkbutton qm" plain="true" data-day="0" data-end="0">今天</a><a class="easyui-linkbutton qm" plain="true" data-day="1" data-end="1">过去1天</a><a class="easyui-linkbutton qm" plain="true" data-day="7" data-end="1">过去7天</a>
+                        <input class="easyui-datebox" id="start" editable="false" style="width:100px;" data-options="buttons:buttons" /> 至 <input class="easyui-datebox" style="width:100px;" id="end" editable="false" data-options="buttons:buttons" />
+                        <select id="pt" class="easyui-combobox" style="width:100px;" data-options=" editable:false,data:[{value:'',text:'所有处理方式'},{value:'belowline',text:'线下人工处理'},{value:'wechatpay',text:'微信支付'}]"></select>
+                        <input id="sb" style="width:250px;" menu="#mm" class="easyui-searchbox" prompt="请输入查询关键字" data-options="searcher:function(value,name){$('#withdrawals_datagrid_withdrawals').datagrid('load',{paymentTypeIdentifier:$('#pt').combobox('getValue'),keyword:value,status:name,start:$('#start').datebox('getValue'),end:$('#end').datebox('getValue')})}">
+                        <div id="mm" style="width:150px">
+                            <div data-options="name:'all'"><span style="width:50px;display:inline-block">全部</span></div>
+                            <div data-options="name:'0'"><span style="width:50px;display:inline-block">未审核</span></div>
+                            <div data-options="name:'1'"><span style="width:50px;display:inline-block">等待打款</span></div>
+                            <div data-options="name:'2'"><span style="width:50px;display:inline-block">银行处理</span></div>
+                            <div data-options="name:'3'"><span style="width:50px;display:inline-block">提现成功</span></div>
+                            <div data-options="name:'4'"><span style="width:50px;display:inline-block">未通过</span></div>
+                        </div>
+                    </td>
+
+                    <td><div class="datagrid-btn-separator"></div></td>
+                    <td>
+                        <a href="javascript:void(0)" class="easyui-linkbutton" plain="true" iconcls="icon-collapse" onclick="collapseAll()">折叠</a>
+                    </td>
+                    <td><div class="datagrid-btn-separator"></div></td>
+                    <td>
+                        <a href="javascript:void(0)" class="easyui-linkbutton" plain="true" iconcls="icon-expand" onclick="expandAll()">展开</a>
+                    </td>
+                    <td><div class="datagrid-btn-separator"></div></td>
+
+                    <td><div class="datagrid-btn-separator"></div></td>
+                    <td>
+                        <a href="javascript:void(0)" class="easyui-linkbutton" plain="true" iconcls="icon-reload" onclick="$('#withdrawals_datagrid_withdrawals').datagrid('reload')">刷新</a>
+                    </td>
+                    <td><div class="datagrid-btn-separator"></div></td>
+                    <td>
+                        <a href="javascript:void(0)" class="easyui-linkbutton" plain="true" iconcls="icon-cancel" onclick="ChangeWithdrawalStatusToFailture()">设置为提现失败</a>
+                    </td>
+                    <td><div class="datagrid-btn-separator"></div></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

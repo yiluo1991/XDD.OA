@@ -1,0 +1,46 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+using XDD.Core.DataAccess;
+
+namespace XDD.Web.Controllers
+{
+    public class WordController : Controller
+    {
+        // GET: Word
+        [Authorize(Roles = "管理员")]
+
+        public ActionResult Index()
+        {
+            return View();
+        }
+        public JsonResult Get(string keyword,string id)
+        {
+            XDDDbContext ctx = new XDDDbContext();
+            if (id == null)
+            {
+                if (keyword != null)
+                {
+                    return Json(ctx.Words.Select(s => new { Id = s.Id, Content = s.Content, SN = s.SN , CreateTime = s.CreateTime,Tags=s.Tags}).Where(s => s.Content.Contains(keyword)).OrderBy(s => s.SN).ToList());
+                }
+                return Json(ctx.Words.Select(s => new { Id = s.Id, Content = s.Content, SN = s.SN, CreateTime = s.CreateTime, Tags = s.Tags }).OrderBy(s => s.SN).ToList());
+
+            }
+            else {
+                int bianhao = Convert.ToInt32(id);
+                return Json(ctx.Words.Select(s => new { Id = s.Id, Content = s.Content, SN = s.SN, CreateTime = s.CreateTime, Tags = s.Tags }).Where(s => s.Id == bianhao).OrderBy(s => s.SN).ToList(), JsonRequestBehavior.AllowGet);
+
+            }
+        }
+        public JsonResult Remove(List<int> ids)
+        {
+            XDDDbContext ctx = new XDDDbContext();
+            var list = ctx.Words.Where(s => ids.Contains(s.Id)).ToList();
+            ctx.Words.RemoveRange(list);
+            ctx.SaveChanges();
+            return Json(new { ResultCode = 1, Message = "保存成功" });
+        }
+    }
+}

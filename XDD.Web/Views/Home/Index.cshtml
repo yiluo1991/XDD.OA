@@ -1,0 +1,264 @@
+﻿
+@{
+
+}
+@section script{
+    <script src="~/Scripts/code/highstock.js"></script>
+    <script src="~/Scripts/code/themes/zhcn.js"></script>
+}
+
+<style>
+    #notetop {
+        flex: 1 1 auto;
+        display: flex;
+        flex-wrap: wrap;
+        padding: 6px;
+    }
+
+        #notetop > div {
+            display: flex;
+            flex: 1 1;
+            flex-direction: column;
+            padding: 6px;
+        }
+
+            #notetop > div > div {
+                flex: 1 1;
+                color: #fff;
+                padding: 5px;
+                display: flex;
+                flex-direction: column;
+                background: #ff7129;
+            }
+
+        #notetop h3 {
+            color: #fff;
+            flex: 1 1 10%;
+            font-size: 1.2vw;
+        }
+
+        #notetop span {
+            font-size: 2vw;
+            vertical-align: middle;
+        }
+
+    .bgorange {
+        background: #0aba6f !important;
+    }
+
+    .bgcyne {
+        background: #3b95ca !important;
+    }
+
+    #notetop table {
+        vertical-align: middle;
+        flex: 1 1 auto;
+        font-size: 1.4vw;
+        table-layout: fixed;
+    }
+
+        #notetop table td {
+            word-break: keep-all;
+            white-space: nowrap;
+        }
+
+    #notetop a {
+        color: #fff;
+        font-size: 1vw;
+        vertical-align: middle;
+    }
+</style>
+<div style="display:flex;flex-direction:column;justify-content:space-around;position:absolute;top:0;bottom:0;left:0;right:0;">
+    <div id="notetop" style="flex:1 1 30%">
+        @{
+            if (User.IsInRole("管理员") || User.IsInRole("票务管理"))
+            {
+                <div>
+                    <div>
+                        <h3>
+                            订单
+                        </h3>
+                        <table style="width:100%;">
+                            <colgroup>
+                                <col width="10">
+                                <col width="10">
+                            </colgroup>
+                            <tr>
+                                <td align="right">今日付款的订单</td>
+                                <td align="center"><a href="@(User.IsInRole("管理员") || User.IsInRole("票务管理") ? "/ticketorder" : "javascript:$.messager.alert('提示','无权访问','warning')")"><span id="o1">0</span> 笔</a></td>
+                            </tr>
+                            <tr>
+                                <td align="right">本月付款的订单</td>
+                                <td align="center"><a href="@(User.IsInRole("管理员") || User.IsInRole("票务管理") ? "/ticketorder" : "javascript:$.messager.alert('提示','无权访问','warning')")"><span id="o2">0</span> 笔</a></td>
+                            </tr>
+                            <tr>
+                                <td align="right">未核销订单</td>
+                                <td align="center"><a href="@(User.IsInRole("管理员") || User.IsInRole("票务管理") ? "/ticketorder" : "javascript:$.messager.alert('提示','无权访问','warning')")"><span id="o3">0</span> 笔</a></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            }
+        }
+
+        @{
+            if (User.IsInRole("管理员") || User.IsInRole("二手管理"))
+            {
+                <div>
+                    <div class="bgorange">
+                        <h3>交易市场</h3>
+                        <table style="width:100%;">
+                            <colgroup>
+                                <col width="10">
+                                <col width="10">
+                            </colgroup>
+                            <tr>
+                                <td align="right">今日交易量</td>
+                                <td align="center"><a href="@(User.IsInRole("管理员") || User.IsInRole("二手管理") ? "/commodityorder" : "javascript:$.messager.alert('提示','无权访问','warning')")"><span id="c1">0</span> 笔</a></td>
+                            </tr>
+                            <tr>
+                                <td align="right">本月交易量</td>
+                                <td align="center"><a href="@(User.IsInRole("管理员") || User.IsInRole("二手管理") ? "/commodityorder" : "javascript:$.messager.alert('提示','无权访问','warning')")"><span id="c2">0</span> 笔</a></td>
+                            </tr>
+                            <tr>
+                                <td align="right">冻结处理中</td>
+                                <td align="center"><a href="@(User.IsInRole("管理员") || User.IsInRole("二手管理") ? "/commodityorder" : "javascript:$.messager.alert('提示','无权访问','warning')")"><span id="c3">0</span> 笔</a></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            }
+        }
+
+        @{
+            if (User.IsInRole("管理员") || User.IsInRole("社交管理") || User.IsInRole("二手管理"))
+            {
+                <div>
+                    <div class="bgcyne">
+                        <h3>其他</h3>
+
+                        <table style="width:100%;">
+                            <colgroup>
+                                <col width="10">
+                                <col width="10">
+                            </colgroup>
+                            <tr>
+                                <td align="right">实名待审核</td>
+                                <td align="center"><a href="@(User.IsInRole("管理员") || User.IsInRole("社交管理") || User.IsInRole("二手管理") ? "/identity" : "javascript:$.messager.alert('提示','无权访问','warning')")"><span id="m1">0</span> 条</a></td>
+                            </tr>
+                            <tr>
+                                <td align="right">代理待审核</td>
+                                <td align="center"><a href="@(User.IsInRole("管理员") || User.IsInRole("票务管理") ? "/AgentApply" : "javascript:$.messager.alert('提示','无权访问','warning')")"><span id="m2">0</span> 条</a></td>
+                            </tr>
+                            <tr>
+                                <td align="right">提现待审核</td>
+                                <td align="center"><a href="@(User.IsInRole("管理员") ? "/withdraw" : "javascript:$.messager.alert('提示','无权访问','warning')")"><span id="m3">0</span> 条</a></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            }
+        }
+
+    </div>
+    <div style="flex:1 1 70%;display:flex;flex-direction:column; padding:0 12px;">
+        @{
+            if (User.IsInRole("管理员") || User.IsInRole("票务管理"))
+            {
+                <div id="hightchart" style="flex:1 1;"></div>
+
+            }
+        }
+    </div>
+    <script>
+        var chart;
+        $(function () {
+            $.get('/Home/Info', function (data) {
+                $('#o1').text(data.OrderInfo.Today)
+                $('#o2').text(data.OrderInfo.Month)
+                $('#o3').text(data.OrderInfo.UnCheckOut);
+                $('#c1').text(data.CommodityInfo.Today)
+                $('#c2').text(data.CommodityInfo.Month)
+                $('#c3').text(data.CommodityInfo.Freeze);
+                $('#m1').text(data.More.Identity)
+                $('#m2').text(data.More.Agent)
+                $('#m3').text(data.More.Withdraw);
+            })
+
+            if ($('#hightchart').length > 0) {
+                   $.get('/home/getchart', function (data) {
+                    data[0].yAxis = 1;
+                    data[0].color = 'orange';
+                    data[0].showInNavigator = true;
+
+                    data[0].type = 'column',
+                    chart = Highcharts.stockChart('hightchart', {
+                    legend: { enabled: true, margin: 0, padding: 0, symbolPadding: 0, x: 0, y: 8 },
+                        xAxis: {
+                        type: 'datetime',
+                            dateTimeLabelFormats: {
+                            day: '%b%e'
+                            }, events: {
+                            afterSetExtremes: function (e) {
+                                    var d1 = chart.series[0].yData;
+                                    var d2 = chart.series[1].yData;
+
+                                }
+                            },
+                        },
+                        yAxis: [{
+                        min: 0,
+                            minTickInterval: 1,
+                            title: {
+                            text: '件数'
+                            },
+                            labels: {
+                            align: 'left',
+                                x: 0
+                            },
+                            opposite: false
+                        }, { // Secondary yAxis
+                        title: {
+                            text: '交易金额'
+                            },
+                            min: 0,
+                            labels: {
+                            align: 'right',
+                                x: 0
+                            },
+                            opposite: true
+                        }],
+                        rangeSelector: {
+                        selected: 4
+                        },
+                        credits: { enabled: false },
+                        title: {
+                        text: '订单该交易历史数据'
+                        },
+                        plotOptions: {
+                        series: {
+                            showInLegend: true
+                            }
+                        },
+                        tooltip: {
+                        split: false,
+                            shared: true
+                        },
+                        series: data
+                    });
+                })
+            }
+         
+            $('#mainlayout').layout('panel', 'center').panel({
+                onResize: function () {
+                        chart.reflow()
+                }
+                })
+
+        })
+
+
+
+
+    </script>
+</div>

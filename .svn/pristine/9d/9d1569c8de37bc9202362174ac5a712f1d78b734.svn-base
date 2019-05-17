@@ -1,0 +1,81 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+using XDD.Core.DataAccess;
+using XDD.Core.Model;
+using System.Text;
+namespace XDD.Web.Controllers
+{
+    public class SupplierController : Controller
+    {
+        XDDDbContext Context = new XDDDbContext();
+        /// <summary>
+        ///     门票提供商管理
+        /// </summary>
+        /// <returns></returns>
+           [Authorize(Roles = "管理员")]
+        public ActionResult Index()
+        {
+            return View();
+        }
+
+           public JsonResult Get(string keyword, int page = 1, int rows = 15)
+           {
+               IQueryable<Supplier> query = Context.Suppliers;
+               if (!string.IsNullOrEmpty(keyword))
+               {
+                   query = query.Where(s => s.Description.Contains(keyword));
+               }
+               return Json(new
+               {
+                   total = query.Count(),
+                   rows = query.OrderBy(s => s.Description).Skip((page - 1) * rows).Take(rows).Select(s => new {
+                       s.Description,
+                       s.Id, 
+                       s.CreateTime,
+                       EmployeeId=s.Employee.Id,
+                       MemberId=s.Member.Id
+                   
+                   }).ToList()
+               }, JsonRequestBehavior.AllowGet);
+
+           }
+
+           public JsonResult Add(Supplier user)     
+           {
+               user.CreateTime = DateTime.Now;
+               Context.Suppliers.Add(user);
+               Context.SaveChanges();
+               return Json(new { ResultCode = 1, Message = "添加成功" });
+           }
+
+        public JsonResult Edit(Supplier user)
+        {
+
+            Supplier tager = Context.Suppliers.FirstOrDefault(s => s.Id == user.Id);
+            if (tager != null)
+            {
+
+               tager.Description = user.Description;
+               tager.EmployeeId = user.EmployeeId;
+               tager.CreateTime = user.CreateTime;
+               tager.MemberId = user.MemberId;
+            }
+            Context.SaveChanges();
+            return Json(new { ResultCode = 1, Message = "修改成功" });
+        }
+        public JsonResult Remove(List<int> id)
+        {
+            List<Supplier> tager = Context.Suppliers.Where(s => id.Contains(s.Id)).ToList();
+            if (tager != null)
+            {
+                Context.Suppliers.RemoveRange(tager);
+
+            }
+            Context.SaveChanges();
+            return Json(new { ResultCode = 1, Message = "删除成功" });
+        }
+    }
+}

@@ -1,0 +1,187 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Web.Http;
+using XDD.Core.DataAccess;
+using XDD.Core.Model;
+using XDD.Web.Models.WeChat;
+
+namespace XDD.Web.Controllers.API
+{
+    [RoutePrefix("api/BBS")]
+    public class BBSController : ApiController
+    {
+        XDDDbContext Context = new XDDDbContext();
+
+        /// <summary>
+        ///     获取文章分类列表
+        /// </summary>
+        /// <returns>文章分类列表</returns>
+        [Route("GetCategories")]
+        public object GetCategories()
+        {
+            return Context.BBSCategories.Where(s => s.Enable).OrderBy(s => s.SN).Select(s => new { Enable = s.Enable, Icon = s.Icon, Id = s.Id, Name = s.Name, Option = s.Option, Required = s.Required, SN = s.SN, TimeAreaOneEnd = s.TimeAreaOneEnd, TimeAreaOneStart = s.TimeAreaOneStart, TimeAreaTwoEnd = s.TimeAreaTwoEnd, TimeAreaTwoStart = s.TimeAreaTwoStart }).ToList();
+        }
+
+
+        /// <summary>
+        ///     分页获取文章列表
+        /// </summary>
+        /// <param name="req">分页请求</param>
+        /// <returns>文章列表</returns>
+        [Route("GetArticles"), HttpPost]
+        public PageResponse GetArticles(PageRequest req)
+        {
+            IQueryable<BBSArticle> query = Context.BBSArticles;
+            if (req.id.HasValue)
+            {
+                query = query.Where(s => s.CategoryId == req.id.Value);
+            }
+            if (!string.IsNullOrEmpty(req.keyword))
+            {
+                query = query.Where(s => s.Content.Contains(req.keyword) || s.Member.NickName.Contains(req.keyword) || s.Title.Contains(req.keyword) || s.Subject.Contains(req.keyword) || s.Address.Contains(req.keyword));
+            }
+            return new PageResponse()
+            {
+                Total = query.Count(),
+                Rows = query.OrderBy(s => s.SN).ThenByDescending(s => s.CreateTime).Skip((req.page - 1) * 10).Take(10).Select(s => new
+                {
+                    s.Title,
+                    s.CommentCount,
+                    s.ReadCount,
+                    s.CreateTime,
+                    s.Content,
+                    s.SN,
+                    s.Subject,
+                    s.CategoryId,
+                    s.MemberId,
+                    CategoryName = s.BBSCategory.Name,
+                    s.Paths,
+                    s.Member.AvatarUrl,
+                    s.Member.NickName,
+                    s.Id,
+                    s.IsBackgroundArticle
+                }).ToList()
+            };
+        }
+
+
+        /// <summary>
+        ///     获取文章
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
+        [Route("GetArticle"),HttpPost]
+        public DetailResponse GetArticle(SimpleStatusRequest req)
+        {
+            var query = Context.BBSArticles.Where(s => s.Id == req.Id);
+            if (query.Count() == 1)
+            {
+                return new DetailResponse
+                {
+
+                    Detail = query.Select(s => new
+                    {
+                        s.Title,
+                        s.CommentCount,
+                        s.ReadCount,
+                        s.CreateTime,
+                        s.Content,
+                        s.SN,
+                        s.Subject,
+                        s.CategoryId,
+                        CategoryName = s.BBSCategory.Name,
+                        s.Paths,
+                        s.Member.AvatarUrl,
+                        s.Member.NickName,
+                        s.Id,
+                        s.IsBackgroundArticle,
+                        s.Address,
+                        s.AllowComment,
+                        s.DateTime,
+                        s.MemberId,
+                        s.Payment,
+                        s.PeopleEnd,
+                        s.PeopleStart,
+                        s.ShowComment,
+                    }).First(),
+                    Message = "获取成功",
+                    ResultCode = 1
+                };
+            }
+            else
+            {
+                return new DetailResponse()
+                {
+                    ResultCode = 0,
+                    Message = "没有找到相应资源",
+                    Detail = null
+                };
+            }
+        }
+
+
+        /// <summary>
+        ///     获取评论
+        /// </summary>
+        /// <param name="req">分页请求</param>
+        /// <returns>分页评论</returns>
+        [Route("GetComments"), HttpPost]
+        public PageResponse GetComments(PageRequest req)
+        {
+            IQueryable<BBSComment> query = Context.BBSComments.Where(s => s.BBSArticleId == req.id.Value);
+            return new PageResponse()
+            {
+                Total = query.Count(),
+                Rows = query.OrderBy(s => s.SN).Skip((req.page - 1) * 10).Take(10).Select(s => new
+                {
+                    s.Id,
+                    s.SN,
+                    s.CreateTime,
+                    s.Comment,
+                    s.Member.NickName,
+                    MemberId = s.Member.Id,
+                    s.Member.AvatarUrl,
+                    s.Paths,
+                    s.RefferHasDeleted,
+                    Reffer = s.RefferId == null ? null : new
+                    {
+                        s.Reffer.Id,
+                        s.Reffer.SN,
+                        s.Reffer.Member.AvatarUrl,
+                        MemberId = s.Member.Id,
+                        s.Comment
+                    }
+                }).ToList()
+            };
+        }
+
+        /// <summary>
+        ///     获取评论总数
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
+        [Route("GetCommentCount"), HttpPost]
+        public SimpleStatusResponse GetCommentCount(SimpleStatusRequest req)
+        {
+            IQueryable<BBSComment> query = Context.BBSComments.Where(s => s.BBSArticleId == req.Id);
+            return new SimpleStatusResponse() { Num = query.Count(), ResultCode = 1 };
+        }
+
+        /// <summary>
+        ///     获取最后一条评论所在页号
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
+        [Route("GetLastCommentPage"), HttpPost]
+        public SimpleStatusResponse GetLastCommentPage(SimpleStatusRequest req)
+        {
+            IQueryable<BBSComment> query = Context.BBSComments.Where(s => s.BBSArticleId == req.Id);
+            return new SimpleStatusResponse() { Num = ((query.Count() - 1) / 10) + 1, ResultCode = 1 };
+        }
+
+
+    }
+}

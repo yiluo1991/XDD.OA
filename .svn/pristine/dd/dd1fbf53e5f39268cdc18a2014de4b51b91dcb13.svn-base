@@ -1,0 +1,137 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Text;
+using System.Web;
+using XDD.Core.Model;
+using XDD.Payment;
+
+namespace XDD.Web.Infrastructure
+{
+  
+    public static class PayHandler
+    {
+        private static object locko = new object();
+        public static void PaySuccess(DateTime now, PayOrderResult result, TicketOrder order, XDD.Core.DataAccess.XDDDbContext ctx)
+        {
+            order.TicetPackage.Ticket.SaleNum++;
+            #region 处理客户账户
+            var ms1 = new AccountStatement { BeforeBalance = order.Member.Account, CreateTime = now, RefferId = order.Id, Type = "微信支付充值", Money = result.Money, MemberId = order.MemberId };
+            order.Member.Account += result.Money;
+            var ms2 = new AccountStatement { BeforeBalance = order.Member.Account, CreateTime = now.AddMilliseconds(4), RefferId = order.Id, Type = "门票付款", Money = -result.Money, MemberId = order.MemberId };
+            order.Member.Account -= result.Money;
+            ctx.AccountStatements.Add(ms1);
+            ctx.AccountStatements.Add(ms2);
+            #endregion
+
+            if (order.L1BalanceCharges > 0 || order.L2BalanceCharges > 0)
+            {
+                #region 处理代理佣金
+                if (order.AgentId != null && !order.Agent.Status.HasFlag(MemberStatus.Freeze) && order.Agent.Status.HasFlag(MemberStatus.Agant))
+                {
+                    if (order.Agent.CaptainId == null)
+                    {
+                        if (order.L1BalanceCharges > 0)
+                        {
+                            var s1 = new AccountStatement { BeforeBalance = order.Agent.Account, CreateTime = now.AddMilliseconds(10), MemberId = order.Agent.Id, Money = order.L1BalanceCharges, RefferId = order.Id, Type = "一级代理佣金" };
+                            ctx.AccountStatements.Add(s1);
+                            order.Agent.Account += order.L1BalanceCharges;
+                        }
+
+                    }
+                    else
+                    {
+                        if (order.L2BalanceCharges > 0)
+                        {
+                            var s1 = new AccountStatement { BeforeBalance = order.Agent.Account, CreateTime = now.AddMilliseconds(10), MemberId = order.Agent.Id, Money = order.L2BalanceCharges, RefferId = order.Id, Type = "二级代理佣金" };
+                            ctx.AccountStatements.Add(s1);
+                            order.Agent.Account += order.L2BalanceCharges;
+                        }
+                        if (order.L1BalanceCharges > 0 && !order.Agent.Captain.Status.HasFlag(MemberStatus.Freeze) && order.Agent.Captain.Status.HasFlag(MemberStatus.Agant))
+                        {
+                            var s2 = new AccountStatement { BeforeBalance = order.Agent.Captain.Account, CreateTime = now.AddMilliseconds(10), MemberId = order.Agent.Captain.Id, Money = order.L1BalanceCharges, RefferId = order.Id, Type = "队员代理佣金" };
+                            ctx.AccountStatements.Add(s2);
+                            order.Agent.Captain.Account += order.L1BalanceCharges;
+                        }
+                    }
+                }
+                #endregion
+            }
+
+            #region 供应商付款
+            var ss1 = new AccountStatement { BeforeBalance = order.TicetPackage.Supplier.Member.Account, CreateTime = now.AddMilliseconds(15), RefferId = order.Id, Type = "门票收入", Money = order.DeliveryPrice, MemberId = order.TicetPackage.Supplier.Member.Id };
+            order.TicetPackage.Supplier.Member.Account += order.DeliveryPrice;
+            ctx.AccountStatements.Add(ss1);
+            #endregion
+            //处理门票状态
+            order.Status = OrderStatus.Success;
+            string str = "1234567890";
+            string y = "";
+            Random ran = new Random();
+            for (int x = 0; x < 6; x++)
+            {
+                int r = ran.Next(0, str.Length);
+                string a = str.Substring(r, 1);
+                y = y + a;
+            }
+            order.VCode = y;
+            ctx.SaveChanges();
+            string token = "";
+            lock (locko)
+            {
+                token = CacheManager.GetAppToken();
+            }
+            if (!string.IsNullOrEmpty(token)) {
+                var pid = CacheManager.GetPrepay_id(order.MemberId);
+                if (pid != null)
+                {
+                    var tid = "pDh-peuHBNCptLwxQldR-rUVMkDntWltOx09lAiKw5Y";
+                    WebClient client = new WebClient();
+                    var obj = new
+                    {
+                        touser = order.Member.AppOpenId,
+                        template_id = tid,
+                        page = "pages/ticketorder/list?tab=2",
+                        form_id = pid,
+                        data = new
+                        {
+                            keyword1 = new
+                            {
+                                value = order.TicetPackage.Ticket.Name + "-" + order.TicetPackage.Name
+                            },
+                            keyword2 = new
+                            {
+                                value = order.OrderPrice.ToString("C")
+                            },
+                            keyword3 = new
+                            {
+                                value = order.OrderNum
+                            },
+                        }
+                    };
+                    string json = (new System.Web.Script.Serialization.JavaScriptSerializer()).Serialize(obj);
+
+                    Encoding.UTF8.GetString(client.UploadData("https://api.weixin.qq.com/cgi-bin/message/wxopen/template/send?access_token=" + token, Encoding.UTF8.GetBytes(json)));
+
+                }
+            }
+            try
+            {
+                if (!string.IsNullOrEmpty(order.PackageCode) && !string.IsNullOrEmpty(order.TicetPackage.Supplier.Member.PlatformBindPhone))
+                {
+
+                    SMS.SMSManager.SendServiceSMS(order.TicetPackage.Supplier.Member.PlatformBindPhone, HttpUtility.UrlEncode(order.TicetPackage.Ticket.Name + "-" + order.TicetPackage.Name), HttpUtility.UrlEncode(order.RealName), HttpUtility.UrlEncode(order.Mobile),HttpUtility.UrlEncode(order.Address));
+                    SMS.SMSManager.SendMemberSMS(order.Mobile, HttpUtility.UrlEncode("13074861113"));
+                }
+            }
+            catch 
+            {
+                
+            }
+           
+            
+        }
+
+    }
+}

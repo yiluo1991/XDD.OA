@@ -1,0 +1,97 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+using XDD.Core.DataAccess;
+using XDD.Core.Model;
+
+namespace XDD.Web.Controllers
+{
+    public class MemberController : Controller
+    {
+        XDDDbContext Context = new XDDDbContext();
+        /// <summary>
+        ///     会员列表
+        /// </summary>
+        /// <returns></returns>
+        [Authorize(Roles="管理员")]
+        public ActionResult Index()
+        {
+            return View();
+        }
+
+          public JsonResult Get(string keyword, int page = 1, int rows = 15)
+           {
+               IQueryable<Member> query = Context.Members;
+               if (!string.IsNullOrEmpty(keyword))
+               {
+                   query = query.Where(s => s.NickName.Contains(keyword)||s.RealName.Contains(keyword)||s.PlatformBindPhone.Contains(keyword)||s.WeChatBindPhone.Contains(keyword));
+               }
+               return Json(new
+               {
+                   total = query.Count(),
+                   rows = query.OrderBy(s => s.NickName).Skip((page - 1) * rows).Take(rows).Select(s => new {
+                    s.Id,
+                    s.AppOpenId,
+                    s.WebOpenId,
+                    s.UnionId,
+                    s.NickName,
+                    s.AvatarUrl,
+                    s.RealName,
+                    s.Sex,
+                    s.Country,
+                    s.Province,
+                    s.City,
+                    s.WeChatBindPhone,
+                    s.PlatformBindPhone,
+                    s.Account,
+                    s.Session_key,
+                    s.Status,
+                    s.CaptainId,
+                    s.IsVirtualMember,
+                    s.RowVersion,
+                   
+                   }).ToList()
+               }, JsonRequestBehavior.AllowGet);
+
+           }
+ 
+        public JsonResult Add(Member user)
+        {
+            //user.Password = "123456";
+            //user.CreateTime = DateTime.Now;
+            Context.Members.Add(user);
+            Context.SaveChanges();
+            return Json(true);
+        }
+        public JsonResult Edit(Member user)
+        {
+            Member targetUser = Context.Members.FirstOrDefault(s => s.Id == user.Id);
+            if (targetUser != null)
+            {
+                targetUser.Status = user.Status;
+                
+            }
+            Context.SaveChanges();
+            return Json(true);
+        }
+        public JsonResult Remove(int id)
+        {
+            Member targetUser = Context.Members.FirstOrDefault(s => s.Id == id);
+            if (targetUser != null)
+            {
+                Context.Members.Remove(targetUser);
+            }
+            try
+            {
+            Context.SaveChanges();
+            return Json(true);
+            }catch(Exception){
+                return Json(false);
+            }
+
+        }
+    }
+}
+   

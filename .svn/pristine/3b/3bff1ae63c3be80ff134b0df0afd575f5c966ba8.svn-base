@@ -1,0 +1,302 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+}
+<script>
+    $(function () {
+        $('#table').datagrid({
+            toolbar: '#maintabletoolbar',
+            fit: true,
+            border: false,
+            fitColumns: true,
+            url: '/Word/Get',
+            rownumbers: true,
+            pageSize: 10,
+            pagination: true,
+            //checkOnSelect: false,
+            selectOnCheck: true,
+            singleSelect: false,
+            columns: [[
+                      {
+                          field: 'ck',
+                          checkbox: true
+                      },
+                      {
+                          field: 'Content',
+                          title: '留言内容',
+                          width: 120,
+                          halign: 'center'
+                      }, {
+                          field: 'CreateTime',
+                          title: '留言时间',
+                          width: 60,
+                          align: 'center',
+                          formatter:
+                              function (value) {
+                                  return $.formatJsonDate(value)
+                              }
+                      }, {
+                          field: 'SN',
+                          title: '排序号',
+                          width: 60,
+                          fixed: true,
+                          align: 'center'
+                      },
+                      {
+                          field: 'check',
+                          title: '操作',
+                          width: 100,
+                          halign: 'center',
+                          width: 160,
+                          fixed: true,
+                          formatter:
+                              function (value, row, index) {
+                                  return '<a class="event" onclick="check(' + index + ')" >查看</a><a class="edit" onclick="editpaixu(' + index + ')" >修改</a>'
+                              }
+                      }
+            ]],
+            onLoadSuccess: function () {
+                $('.event').linkbutton({ iconCls: 'icon-event', plain: true });
+                $('.edit').linkbutton({ iconCls: 'icon-edit', plain: true });
+
+                $(this).datagrid('fixRowHeight');
+            }
+        });
+    });
+
+    function rm(index) {
+        //var rows = $('#table').datagrid('getSelections');
+        var rows = $('#table').datagrid('getChecked');
+        if (rows.length > 0) {
+            var ids = [];
+            for (var i in rows) {
+                ids.push(rows[i].Id);
+            }
+            $.ajaxStart()
+            $.post('/Word/remove',
+                { ids: ids },
+                function (data) {
+                    $.ajaxEnd();
+                    $('#table').datagrid('load');
+                })
+        }
+    }
+    function rm1(index) {
+        var rows = $('#table').datagrid('getSelections');
+        //var rows = $('#table').datagrid('getChecked');
+        if (rows.length > 0) {
+            var ids = [];
+            for (var i in rows) {
+                ids.push(rows[i].Id);
+            }
+            $.ajaxStart()
+            $.post('/Word/remove', { ids: ids }, function (data) {
+                $.ajaxEnd();
+                $('#table').datagrid('load');
+            })
+        }
+    }
+
+    function rmcomments(index) {
+        window.event.stopPropagation();
+        var rows = $('#contentdatagrid').datagrid('getSelections');
+        if (rows.length > 0) {
+            var ids = [];
+            for (var i in rows) {
+                ids.push(rows[i].Id);
+            }
+            $.ajaxStart()
+            $.post('/Word/removeComments',
+                { ids: ids },
+                function (data) {
+                    $.ajaxEnd();
+                    $('#contentdatagrid').datagrid('load');
+                })
+        }
+    }
+    function editpaixu(index) {
+        $('#editdialog').dialog('open');
+        $('#editid').val( $('#table').datagrid('getRows')[index].Id)
+    }
+    function check(index) {
+        event.stopPropagation();
+        event.preventDefault();
+        //e.stopPropagation();
+        var row = $('#table').datagrid('getRows')[index];
+        $.ajax({
+            url: '/Word/Get',
+            type: 'POST',
+            data: { id: row.Id },
+            dataType: 'json',
+            success: function (data) {
+                var content = data.rows[0].Content.replace(/[\s]+/gi, "<br/>")
+                $('#content').html(content);
+                $('#checkdialog').dialog('open');
+                var id = data.rows[0].Id;
+                $('#contentdatagrid').datagrid({
+                    //data: [{ id: id }],
+                    queryParams: {
+                        id: id
+                    },
+                    fit: true,
+                    border: false,
+                    fitColumns: true,
+                    url: '/Word/GetComments',
+                    rownumbers: true,
+                    //checkOnSelect: fa lse,
+                    selectOnCheck: false,
+                    singleSelect: false,
+                    columns: [[
+                              {
+                                  field: 'ck', checkbox: true
+                              },
+                              {
+                                  field: 'Content', title: '评论内容', width: 120, halign: 'center',
+                                  formatter: function (value, row, index) {
+                                      var valuee = value.replace(/[\s]+/gi, "<br/>")
+                                      return '<span  >' + valuee + '</span>'
+                                  }
+                              }, {
+                                  field: 'CreateTime', title: '评论时间', width: 60, align: 'center', formatter: function (value) {
+                                      if (value) {
+                                          var date = value.replace('/Date(', "").replace(')/', "");
+                                          var dateobj = new Date(parseInt(date))
+                                          return dateobj.getFullYear() + "-" + (dateobj.getMonth() + 1) + "-" + dateobj.getDate();
+                                      }
+                                  }
+                              },
+                              {
+                                  field: 'check', title: '操作', width: 100, halign: 'center', width: 86, fixed: true, formatter: function (value, row, index) {
+                                      return '<a class="event1" onclick="rmcomments(' + index + ')">删除</a>'
+                                  }
+                              }
+                    ]],
+                    onLoadSuccess: function () {
+                        $('.event1').linkbutton({ iconCls: 'icon-cancel', plain: true });
+                        $(this).datagrid('fixRowHeight');
+                    }
+                });
+
+            }
+        })
+    }
+    $(function () {
+        $('#checkdialog').dialog({
+            title: '留言详情查看',
+            width: 800,
+            height: 500,
+            closed: false,
+            modal: true,
+            buttons: [{
+                iconCls: 'icon-remove',
+                text: '取消',
+                handler: function () {
+                    $('#checkdialog').dialog('close')
+                },
+                plain: true
+            }
+            ]
+        }).dialog('close');
+    })
+
+
+
+    $(function () {
+        $('#editdialog').dialog({
+            width: 300  ,
+            height: 150,
+            modal: true,
+            title:'修改排序号',
+            closed: true,
+            buttons: [{
+                iconCls: 'icon-ok',
+                text: '保存',
+                handler: function () {
+                    $.ajax({
+                        url: '/Word/editpaixu',
+                        type: 'POST',
+                        data: { id: $('#editid').val() ,SN:$('input[name="SN"]').val()},
+                        dataType: 'json',
+                        success: function () {
+                            $('#editdialog').dialog('close');
+                            $('#table').datagrid('reload');
+                        }
+                    })
+                },
+                plain: true
+            }, {
+                iconCls: 'icon-cancel',
+                text: '取消',
+                handler: function () {
+                    $('#editdialog').dialog('close')
+                },
+                plain: true
+            }]
+        })
+    })
+
+</script>
+
+<style>
+    #content {
+        padding: 10px;
+        font-size: 20px;
+        text-align: left;
+    }
+</style>
+
+
+
+<div id="table">
+    <div id="maintabletoolbar">
+        <table cellpadding="0" cellspacing="0">
+            <tr>
+                <td>
+                    <div class="datagrid-btn-separator"></div>
+                </td>
+                <td>
+                    <a class="easyui-linkbutton" iconcls="icon-remove" plain="true" onclick="rm()">删除</a>
+                </td>
+                <td>
+                    <div class="datagrid-btn-separator"></div>
+                </td>
+                <td>
+                    <input id="searchbox" class="easyui-searchbox" style="width:200px" prompt="请输入搜索的内容" data-options="searcher:function(value){$('#table').datagrid('load',{keyword:value})}" />
+                </td>
+                <td>
+                    <div class="datagrid-btn-separator"></div>
+                </td>
+                <td>
+                    <a class="easyui-linkbutton" iconcls="icon-reload" plain="true" onclick="$('#table').datagrid('reload')">刷新</a>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<div id="checkdialog" style="text-align:center;overflow:hidden;">
+    <div class="easyui-layout" style="width:100%;height:100%">
+        <div data-options="region:'west'"style="width:30%;">
+            <div id="content">
+
+            </div>
+
+        </div>
+        <div data-options="region:'east'"  style="width:70%;">
+            <div id="contentdatagrid">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="editdialog" style="padding:5px;text-align:center;overflow:hidden;">
+    <form id="editform" enctype="multipart/form-data" method="post">
+
+        <p>
+            <input id="editid" name="Id" value="0" hidden />
+            <input validateoncreate="false" prompt="请输入排序号" class="easyui-textbox" label="排序号" labelwidth="80" labelalign="center" name="SN" style="width:99%;" required />
+        </p>
+      
+    </form>
+</div>

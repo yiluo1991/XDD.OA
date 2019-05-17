@@ -1,0 +1,62 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+using XDD.Core.DataAccess;
+using XDD.Core.Model;
+
+namespace XDD.Web.Controllers
+{
+    public class WordTagController : Controller
+    {
+        // GET: WordTag
+        public ActionResult Index()
+        {
+            return View();
+        }
+
+        public JsonResult Get(string keyword)
+        {
+            XDDDbContext ctx = new XDDDbContext();
+            if (keyword != null)
+            {
+                return Json(ctx.WordTags.Where(s => s.Name.Contains(keyword)).OrderBy(s => s.SN).ToList());
+            }
+            return Json(ctx.WordTags.OrderBy(s => s.SN).ToList());
+        }
+
+        public JsonResult Add(WordTag tag)
+        {
+            XDDDbContext ctx = new XDDDbContext();
+            ctx.WordTags.Add(tag);
+            ctx.SaveChanges();
+            return Json(new { ResultCode = 1, Message = "添加成功" });
+        }
+
+        public JsonResult Edit(WordTag tag)
+        {
+            XDDDbContext ctx = new XDDDbContext();
+            var target = ctx.WordTags.FirstOrDefault(s => s.Id == tag.Id);
+            if (target == null)
+            {
+                return Json(new { ResultCode = 0, Message = "没有找到要修改的项" });
+            }
+            else
+            {
+                target.Name = tag.Name;
+                target.SN = tag.SN;
+                ctx.SaveChanges();
+                return Json(new { ResultCode = 1, Message = "修改成功" });
+            }
+        }
+
+        public JsonResult Remove(List<int> ids) {
+            XDDDbContext ctx = new XDDDbContext();
+            var list = ctx.WordTags.Where(s =>ids.Contains(s.Id)).ToList();
+            ctx.WordTags.RemoveRange(list);
+            ctx.SaveChanges();
+            return Json(new { ResultCode = 1, Message = "保存成功" });
+        }
+    }
+}

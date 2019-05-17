@@ -1,0 +1,466 @@
+﻿@{
+    ViewBag.Title = "Index";
+}
+<script src="~/Scripts/easyui-datagridview/datagrid-detailview.js"></script>
+
+<script>
+    var buttons = $.extend([], $.fn.datebox.defaults.buttons);
+    buttons.splice(1, 0, { text: '清空', handler: function (target) { $(target).datebox('clear') } });
+    $(function () {
+        $('#withdrawals_datagrid_withdrawals').datagrid({
+            toolbar: '#withdrawals_toolbar_withdrawals',
+            border: false,
+            fitColumns: true,
+            pagination: true,
+            rownumbers: true,
+            singleSelect: true,
+            fit: true,
+            url: '/Withdraw/WithDrawals',
+            pageSize: 30,
+            columns: [[
+                  {
+                      field: 'MemberName', width: 80, rowspan: 2, title: '提现客户', align: 'center', formatter: function (value, row) {
+                          return row.MemberLoginName + ' | ' + row.MemberName;
+                      }
+                  },
+                   {
+                       field: 'BankName', width: 60, rowspan: 2, title: '发卡银行', align: 'center'
+                   },
+                    {
+                        field: 'BankOfDeposit', width: 60, rowspan: 2, title: '开户网点', align: 'center'
+                    },
+                      {
+                          field: 'BankCard', width: 60, rowspan: 2, title: '银行卡号', align: 'center'
+                      },
+                       {
+                           title: '申请金额'
+                       },
+                       {
+                           field: 'CreateTime', width: 120, rowspan: 2, title: '申请时间', align: 'center', formatter: function (value, row) {
+                               return $.formatJsonDate(value, '{0}-{1}-{2} {3}:{4}:{5}');
+                           }
+                       },
+                       {
+                           field: 'Status', width: 60, rowspan: 2, title: '申请状态', align: 'center', formatter: function (value) {
+                               switch (value) {
+                                   case 0: return '<span style="display:inline-block;background:gray;color:white;"  >未审核</span>'
+                                   case 1: return '<span style="display:inline-block;background:orange;color:white;"  >等待打款</span>';
+                                   case 2: return '<span style="display:inline-block;background:red;color:white;"  >已拒绝</span>';
+                                   case 3: return '<span style="display:inline-block;background:orange;color:white;"  >正在打款</span>';
+                                   case 4: return '<span style="display:inline-block;background:green;color:white;" >提现完成</span>';
+                                   case 5: return '<span style="display:inline-block;background:red;color:white;"  >提现失败</span>';
+                               }
+                           }
+                       },
+                        {
+                            field: 'Remark', width: 60, rowspan: 2, title: '备注', align: 'center', formatter: function (value, row) {
+                                if (value == null) {
+                                    return '<span style="color:#777">--无--</span>'
+                                } else {
+                                    return '<span class="newtooltip icon-chat" style="vertical-align: middle;display:inline-block;width:16px;height:16px;" title="' + value.replace(/[\"\']/g, '') + '"></span>'
+                                }
+                            }
+                        },
+                        {
+                            field: 'Edit', title: '操作', rowspan: 2, align: 'center', width: 200, fixed: true,
+                            formatter: function (value, row, index) {
+                                switch (row.Status) {
+                                    case 0: return '<a class="newlinkbutton bid" onclick="openAuditDialog(' + index + ')" > 审核</a>'
+                                    case 1: return '<a class="newlinkbutton bid"  >微信代付</a><a class="newlinkbutton bid" onclick="inputOrderSN(' + index + ')">人工支付</a>'
+                                    case 4: return '<a class="newlinkbutton event" onclick="openPTDialog(' + index + ',' + row.Status + ')">查看凭条</a>';
+                                    default: return '';
+                                }
+                            }
+                        }
+            ], [
+               {
+                   field: 'Money', width: 100, rowspan: 1, title: '<span > 总额：</span><span id="totalAmount" style="border-bottom:1px solid #ccc;"></span><span></span>', align: 'center', formatter: function (value, row) {
+                       return "￥" + value//.toFixed(2);
+                   }
+               }
+            ]],
+            view: detailview,
+            detailFormatter: function (index, row) {
+                return '<table style="width:100%;padding:2px;" cellspacing="0" cellpadding="0" >\
+                                <colgroup>\
+                                    <col width="150" />\
+                                    <col width="50" />\
+                                    <col width="50" />\
+                                    <col width="50" />\
+                                    <col width="50" />\
+                                    <col width="50" />\
+                                    <col width="50" />\
+                                    <col width="50" />\
+                                </colgroup>\
+                                 <tbody>\
+                                    <tr>\
+                                        <td style="background-color:#f7f7f7;text-align:center;height:24px;" >提现记录编号</td>\
+                                        <td style="background-color:#f7f7f7;text-align:center;height:24px;" >账户总金额</td>\
+                                   </tr>\
+                                   <tr>\
+                                       <td style="background-color:#fff;text-align:center;height:24px;padding-right:3px;">' + row.Id + '</td>\
+                                        <td style="background-color:#fff;text-align:right;height:24px;padding-right:3px;">￥' + row.Account.toFixed(2) + '</td>\
+                                   </tr>\
+                                </tbody>\
+                           </table>'
+            },
+            onLoadSuccess: function (data) {
+                $(this).datagrid('clearSelections')
+                $('.newtooltip').removeClass('newtooltip').tooltip();
+                if (data.totalAmount) $('#totalAmount').text('￥' + $.fmoney(data.totalAmount, 2)); else $('#totalAmount').text('￥0.00');
+                $('.bid').linkbutton({ iconCls: 'icon-bid', plain: true });
+                $('.event').linkbutton({ iconCls: 'icon-event', plain: true });
+            },
+            onDblClickRow: function (index, row) {
+                $(this).datagrid('expandRow', index);
+            }
+        })
+
+        $('.qm').click(function () {
+            var day = parseInt($(this).data('day'));
+            var day2 = parseInt($(this).data('end'));
+            var start = $('#start').datebox('setValue', $.getDate((new Date().AddDay(-day))).Format('yyyy-MM-dd'))
+            var end = $('#end').datebox('setValue', $.getDate((new Date().AddDay(-day2))).Format('yyyy-MM-dd'));
+            $('#sb a').click();
+            $('#sb').next().find('.searchbox-button').click();
+        })
+    })
+</script>
+<script>
+    function openAuditDialog(index) {
+        var row = $('#withdrawals_datagrid_withdrawals').datagrid('getRows')[index];
+        var dialog = $('#withdraws_dialog_audit');
+        $.post('/Withdraw/GetWithdrawAuditInfo/' + row.Id, {}, function (data) {
+            if (data.resultCode == 1) {
+                data = data.data;
+                $('#hidden_Id').val(row.Id);
+                dialog.find('[name="MemberName"]').val(data.NickName + " | " + data.RealName);
+                dialog.find('[name="Withdrawable"]').val('￥' + fmoney(data.Account, 2));
+                dialog.find('[name="Amount"]').val('￥' + fmoney(data.Money, 2));
+                dialog.find('[name="Mobile"]').val(data.PlatformBindPhone);
+                dialog.find('[name="BankOfDeposit"]').val(data.BankOfDeposit);
+                dialog.find('[name="CreateTime"]').val($.formatJsonDate(data.CreateTime, "{0}-{1}-{2} {3}:{4}:{5}"));
+                dialog.find('[name="Bank"]').val(data.BankName == null ? "未设置" : data.BankName);
+                dialog.find('[name="Account"]').val(data.BankCard == null ? "--未设置--" : formatBankCard(data.BankCard))
+                dialog.find('[name="Remark"]').val('');
+                $('#verify_linkbutton_pass').linkbutton('select');
+                dialog.dialog('open')
+            } else {
+                $.messager.alert('提示', data.message, 'warning');
+            }
+        })
+    }
+    function formatBankCard(card) {
+        card = card.replace(/\D/g, '')
+        var ncard = '';
+        for (var n = 0; n < card.length; n = n + 4) {
+            ncard += card.substring(n, n + 4) + " ";
+        }
+        return ncard.replace(/(\s*$)/g, "");
+    }
+    function fmoney(s, n) //s:传入的float数字 ，n:希望返回小数点几位
+    {
+        n = n > 0 && n <= 20 ? n : 2;
+        s = parseFloat((s + "").replace(/[^\d\.-]/g, "")).toFixed(n) + "";
+        var l = s.split(".")[0].split("").reverse(),
+        r = s.split(".")[1];
+        t = "";
+        for (i = 0; i < l.length; i++) {
+            t += l[i] + ((i + 1) % 3 == 0 && (i + 1) != l.length ? "," : "");
+        }
+        return t.split("").reverse().join("") + "." + r;
+    }
+    function collapseAll() {
+        var rows = $('#withdrawals_datagrid_withdrawals').datagrid('getRows');
+        for (var i = 0; i < rows.length; i++) {
+            $('#withdrawals_datagrid_withdrawals').datagrid('collapseRow', i);
+        }
+    }
+
+    function expandAll() {
+        var rows = $('#withdrawals_datagrid_withdrawals').datagrid('getRows');
+        for (var i = 0; i < rows.length; i++) {
+            $('#withdrawals_datagrid_withdrawals').datagrid('expandRow', i);
+        }
+    }
+
+    function saveAudit() {
+        var row = $('#withdrawals_datagrid_withdrawals').datagrid('getSelected');
+        var id = $('#hidden_Id').val();
+        var status = $('#verify_linkbutton_pass').linkbutton('options').selected ? "1" : "2";
+        var remark = $('[name="Remark"]').val();
+        var rowIndex = $('#withdrawals_datagrid_withdrawals').datagrid('getRowIndex', row);
+        $('#withdraws_dialog_audit').dialog('close')
+        if (row == null) {
+            $.messager.alert('提示', '请选择要更改状态的提现记录', 'info');
+        } else {
+            $.ajaxStart();
+            $.post('/Withdraw/AuditWithDrawal/' + id, { status: status, remark: remark }, function (data) {
+                $.ajaxEnd();
+                if (data.resultCode == 0) {
+                    $.messager.alert('提示', data.message, 'warning');
+                } else {
+                    $('#withdrawals_datagrid_withdrawals').datagrid('updateRow', {
+                        index: rowIndex,
+                        row: data.row
+                    });
+                    $('.newlinkbutton').removeClass('newlinkbutton').linkbutton();
+                    $('.newtooltip').removeClass('newtooltip').tooltip();
+                    $('#withdrawals_datagrid_withdrawals').datagrid('fixRowHeight');
+                 
+                }
+            }, 'json')
+        } $('#withdrawals_datagrid_withdrawals').datagrid('reload');
+    }
+
+    function ChangeWithdrawalStatusToFailture() {
+        var row = $('#withdrawals_datagrid_withdrawals').datagrid('getSelected');
+        if (row != null) {
+            if (row.Status == 0 || row.Status == 2 || row.Status == 4 || row.Status == 5) {
+                $.messager.alert('提示', "所选提现申请不在可变更为提现失败的状态!", 'info')
+            }
+            else {
+                var status = "";
+                switch (row.Status) {
+                    case 1: status = "等待打款"; break;
+                    case 3: status = "正在打款"; break;
+                }
+                $.messager.confirm('确认设置为打款失败', '确认将以下客户提现申请设置为<span style="color:red">提现失败</span><br>当前状态：' + status + '<br><span style="padding-left:82px;"></span>提现客户：' + row.MemberLoginName + " | " + row.MemberName + '<br><span style="padding-left:82px;"></span>提现金额：' + row.Money.toFixed(2) + '元', function (r) {
+                    if (r) {
+                        $.post('/Withdraw/ChangeWithdrawalStatusToFailture/' + row.Id).success(function (data) {
+                            if (data.resultCode == 1) {
+                                $('#withdrawals_datagrid_withdrawals').datagrid('reload');
+                            } else {
+                                $.messager.alert('提示', data.message, 'warning');
+                            }
+                        })
+                    }
+                });
+                //将焦点设置在取消按钮上
+                var okSpans = $(".l-btn-text");
+                var len = okSpans.length;
+                for (var i = 0; i < len; i++) {
+                    var $okSpan = $(okSpans[i]);
+                    var okSpanHtml = $okSpan.html();
+                    if (okSpanHtml == "Cancel" || okSpanHtml == "取消") {
+                        $okSpan.parent().parent().trigger("focus");
+                    }
+                }
+            }
+        }
+    }
+
+
+    //线下打款确认
+    function inputOrderSN(index) {
+        var row = $('#withdrawals_datagrid_withdrawals').datagrid('getRows')[index];
+        $.messager.prompt('确认打款', '提现客户：' + row.MemberLoginName + " | " + row.MemberName + '<br>发卡银行：' + row.BankName + '<br>银行卡号：' + row.BankCard + '<br><span style="padding-left:82px;"></span>提现金额：' + row.Money.toFixed(2) + '元<br><span style="padding-left:82px;">银行交易号：</span>', function (r) {
+            if (r) {
+                $.post('/Withdraw/ConfirmRemittance/' + row.Id, { ordersn: r }).success(function (data) {
+                    if (data.resultCode == 1) {
+                        $('#withdrawals_datagrid_withdrawals').datagrid('reload');
+                    } else {
+                        $.messager.alert('提示', data.message, 'warning');
+                    }
+                })
+            }
+            else {
+                $.messager.alert('提示', '银行交易号为空或用户取消', 'warning');
+
+            }
+        });
+    }
+
+    function openPTDialog(index, status) {
+        var row = $('#withdrawals_datagrid_withdrawals').datagrid('getRows')[index];
+        var dialog = $('#withdraw_dialog_print');
+        switch (status) {
+            case 4:
+                $('.ordersn,.status').css('display', 'table-raw');
+                break;
+            default:
+                $('.ordersn,.status').css('display', 'none');
+                break;
+        }
+        $.get('/Withdraw/GetSlip/' + row.Id, {}, function (data) {
+            if (data.resultCode == 1) {
+                data = data.data;
+                $('#hidden_Id').val(row.Id);
+                dialog.find('.LoginName').text(data.MemberLoginName);
+                dialog.find('.Name').text(data.MemberName);
+                dialog.find('.Amount').text('￥' + fmoney(data.Money, 2));
+                dialog.find('.Mobile').text(data.PlatformBindPhone);
+                dialog.find('.CreateTime').text($.formatJsonDate(data.CreateTime, "{0}-{1}-{2} {3}:{4}:{5}"));
+                dialog.find('.Bank').text(data.BankName == null ? "未设置" : data.BankName);
+                dialog.find('.Branch').text(data.BankOfDeposit == null ? "未设置" : data.BankOfDeposit);
+                dialog.find('.Account').text(data.Account == null ? "--未设置--" : formatBankCard(data.Account))
+                dialog.find('.Remark').html(data.Remark);
+                dialog.find('.OrderSN').html(data.OrderSN);
+                dialog.find('.Status').text(data.Status == 0 ? '未审核' : data.Status == 1 ? '等待打款' : data.Status == 3 ? '正在打款 ' : data.Status == 4 ? '提现成功' : '未通过');
+                dialog.find('.Now').text($.formatJsonDate(data.PayTime, "{0}-{1}-{2} {3}:{4}:{5}"));
+                $('#verify_linkbutton_pass').linkbutton('select');
+                dialog.dialog('open')
+            } else {
+                $.messager.alert('提示', data.message, 'warning');
+            }
+        })
+    }
+</script>
+<style>
+    #withdraws_dialog_audit input {
+        background-color: #ccc;
+    }
+
+    .messager-input {
+        padding: 5px !important;
+    }
+    .height-25 {
+    height:25px
+    }
+</style>
+<div id="withdrawals_datagrid_withdrawals">
+    <div id="withdrawals_toolbar_withdrawals">
+        <table cellspacing="0" cellpadding="0">
+            <tbody>
+                <tr>
+                    <td>
+                        搜索：<a class="easyui-linkbutton qm" plain="true" data-day="0" data-end="0">今天</a><a class="easyui-linkbutton qm" plain="true" data-day="1" data-end="1">过去1天</a><a class="easyui-linkbutton qm" plain="true" data-day="7" data-end="1">过去7天</a>
+                        <input class="easyui-datebox" id="start" editable="false" style="width:100px;" data-options="buttons:buttons" /> 至 <input class="easyui-datebox" style="width:100px;" id="end" editable="false" data-options="buttons:buttons" />
+                        <select id="pt" class="easyui-combobox" style="width:100px;" data-options=" editable:false,data:[{value:'',text:'所有处理方式'},{value:'belowline',text:'线下人工处理'},{value:'wechatpay',text:'微信支付'}]"></select>
+                        <input id="sb" style="width:250px;" menu="#mm" class="easyui-searchbox" prompt="请输入查询关键字" data-options="searcher:function(value,name){$('#withdrawals_datagrid_withdrawals').datagrid('load',{paymentTypeIdentifier:$('#pt').combobox('getValue'),keyword:value,status:name,start:$('#start').datebox('getValue'),end:$('#end').datebox('getValue')})}">
+                        <div id="mm" style="width:150px">
+                            <div data-options="name:'all'"><span style="width:50px;display:inline-block">全部</span></div>
+                            <div data-options="name:'0'"><span style="width:50px;display:inline-block">未审核</span></div>
+                            <div data-options="name:'1'"><span style="width:50px;display:inline-block">等待打款</span></div>
+                            <div data-options="name:'2'"><span style="width:50px;display:inline-block">已拒绝</span></div>
+                            <div data-options="name:'3'"><span style="width:50px;display:inline-block">正在打款</span></div>
+                            <div data-options="name:'4'"><span style="width:50px;display:inline-block">提现完成</span></div>
+                            <div data-options="name:'5'"><span style="width:50px;display:inline-block">提现失败</span></div>
+                        </div>
+                    </td>
+
+                    <td><div class="datagrid-btn-separator"></div></td>
+                    <td>
+                        <a href="javascript:void(0)" class="easyui-linkbutton" plain="true" iconcls="icon-collapse" onclick="collapseAll()">折叠</a>
+                    </td>
+                    <td><div class="datagrid-btn-separator"></div></td>
+                    <td>
+                        <a href="javascript:void(0)" class="easyui-linkbutton" plain="true" iconcls="icon-expand" onclick="expandAll()">展开</a>
+                    </td>
+                    <td><div class="datagrid-btn-separator"></div></td>
+
+                    <td><div class="datagrid-btn-separator"></div></td>
+                    <td>
+                        <a href="javascript:void(0)" class="easyui-linkbutton" plain="true" iconcls="icon-reload" onclick="$('#withdrawals_datagrid_withdrawals').datagrid('reload')">刷新</a>
+                    </td>
+                    <td><div class="datagrid-btn-separator"></div></td>
+                    <td>
+                        <a href="javascript:void(0)" class="easyui-linkbutton" plain="true" iconcls="icon-cancel" onclick="ChangeWithdrawalStatusToFailture()">设置为提现失败</a>
+                    </td>
+                    <td><div class="datagrid-btn-separator"></div></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="easyui-dialog" id="withdraws_dialog_audit" style="width:340px;height:480px;padding:10px;overflow:hidden;" title="提现申请" iconcls="icon-bid" buttons="#verify_buttons_audit" modal="true" closed="true">
+    <div style="">
+        <input id="hidden_Id" style="display:none;" type="hidden" />
+        <span style="display:inline-block;width:100px;text-align:right;">申请客户：</span><input name="MemberName" style="width:200px;text-align:center;" readonly="readonly" type="text" />
+    </div>
+    <div style="padding-top:4px;">
+        <span style="display:inline-block;width:100px;text-align:right;">申请时间：</span><input name="CreateTime" style="width:200px;text-align:center;" readonly="readonly" type="text" />
+    </div>
+    <div style="padding-top:4px;">
+        <span style="display:inline-block;width:100px;text-align:right;">手机号：</span><input name="Mobile" style="width:200px;text-align:center;" readonly="readonly" type="text" />
+    </div>
+    <div style="padding-top:4px;">
+        <span style="display:inline-block;width:100px;text-align:right;">开户银行：</span><input name="Bank" style="width:200px;text-align:center;" readonly="readonly" type="text" />
+    </div>
+    <div style="padding-top:4px;">
+        <span style="display:inline-block;width:100px;text-align:right;">银行卡号：</span><input name="Account" style="width:200px;text-align:center;" readonly="readonly" type="text" />
+    </div>
+    <div style="padding-top:4px;">
+        <span style="display:inline-block;width:100px;text-align:right;">开户行名称：</span><input name="BankOfDeposit" style="width:200px;text-align:center;" readonly="readonly" type="text" />
+    </div>
+    <div style="padding-top:4px;">
+        <span style="display:inline-block;width:100px;text-align:right;">当前剩余可提现：</span><input name="Withdrawable" style="width:200px;text-align:right;" readonly="readonly" type="text" />
+    </div>
+
+    <div style="padding-top:4px;">
+        <span style="display:inline-block;width:100px;text-align:right;">申请金额：</span><input name="Amount" style="width:200px;text-align:right;" readonly="readonly" type="text" />
+    </div>
+    <div style="padding-top:4px;">
+        <span style="display:inline-block;width:100px;text-align:right;">审核结果：</span><a id="verify_linkbutton_pass" class="easyui-linkbutton" data-options="selected:true,group:'Status',toggle:true,iconCls:'icon-pass',width:95">通过</a><a class="easyui-linkbutton" data-options="group:'Status',toggle:true,iconCls:'icon-nopass',width:95" style="margin-left:10px;">不通过</a>
+    </div>
+    <div style="padding-top:4px;">
+        <span style="display:inline-block;width:100px;text-align:right;float:left;">备注：</span>
+        <textarea name="Remark" style="width:200px;resize:none;height:100px;"></textarea>
+    </div>
+    <div id="verify_buttons_audit">
+        <a class="easyui-linkbutton" iconcls="icon-save" plain="true" onclick="saveAudit()">确定</a>
+        <a class="easyui-linkbutton" iconcls="icon-cancel" plain="true" onclick="$('#withdraws_dialog_audit').dialog('close')">取消</a>
+    </div>
+</div>
+
+<div class="easyui-dialog" id="withdraw_dialog_print" title="查看凭条" buttons="#withdraw_toolbar_print" style="height:410px;width:500px" closed="true">
+    <div id="print">
+        <table style="width:100%">
+            <colgroup>
+                <col width="100" />
+                <col width="360" />
+            </colgroup>
+            <tbody>
+                <tr class="height-25">
+                    <td align="center" colspan="2" style="font-weight:bold;"><b style="color:red;" class="LoginName"></b>的银行账户信息</td>
+                </tr>
+                <tr class="height-25">
+                    <td align="right">申请时间：</td>
+                    <td><span class="CreateTime"></span></td>
+                </tr>
+                <tr class="height-25">
+                    <td align="right">手机号：</td>
+                    <td><span class="Mobile"></span></td>
+                </tr>
+                <tr class="height-25">
+                    <td align="right">开户银行：</td>
+                    <td><span class="Bank"></span></td>
+                </tr>
+                <tr class="height-25">
+                    <td align="right">银行卡号：</td>
+                    <td><span class="Account"></span></td>
+                </tr>
+                <tr class="height-25">
+                    <td align="right">开户行名称：</td>
+                    <td><span class="Branch"></span></td>
+                </tr>
+                <tr class="height-25">
+                    <td align="right">提现金额：</td>
+                    <td><span class="Amount"></span></td>
+                </tr>
+                <tr class="height-25">
+                    <td align="right">打印日期：</td>
+                    <td><span class="Now"></span></td>
+                </tr>
+                <tr class="height-25">
+                    <td align="right">提现单号：</td>
+                    <td><span class="OrderSN"></span></td>
+                </tr>
+                <tr class="status height-25">
+                    <td align="right">提现状态：</td>
+                    <td><span class="Status"></span></td>
+                </tr>
+                <tr class="height-25">
+                    <td align="right">其他信息：</td>
+                    <td><span class="Remark"></span></td>
+                </tr>
+
+            </tbody>
+        </table>
+
+    </div>
+    <div id="withdraw_toolbar_print">
+        <a class="easyui-linkbutton" iconcls="icon-cancel" onclick="$('#withdraw_dialog_print').dialog('close')">取消</a>
+    </div>
+</div>

@@ -1,0 +1,208 @@
+﻿
+<div class="easyui-layout" data-options="fit:true">
+    <div id="table">
+        <div id="maintabletoolbar">
+            <table cellpadding="0" cellspacing="0">
+                <tr>
+                    <td>
+                        <div class="datagrid-btn-separator"></div>
+                    </td>
+                    <td>
+                        <input id="searchbox" class="easyui-searchbox" style="width:200px" prompt="请输入搜索的内容" data-options="searcher:function(value){$('#table').datagrid('load',{keyword:value})}" />
+                    </td>
+                    <td>
+                        <div class="datagrid-btn-separator"></div>
+                    </td>
+                    <td>
+                        <a class="easyui-linkbutton" iconcls="icon-reload" plain="true" onclick="$('#table').treegrid('reload')">刷新</a>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('#table').treegrid({
+            toolbar: '#maintabletoolbar',
+            fit: true,
+            border: false,
+            fitColumns: true,
+            //分页
+            pagination: true,
+            rownumbers: true,
+            pageList: [1, 2, 5, 10, 20, 30, 40, 50],
+            closable: true,
+            collapsible: true,
+            treeField: 'NickName',
+            url: '/Agent/Get',
+            rownumbers: true,
+            singleSelect: true,
+            columns: [[
+                  {
+                      field: 'NickName', title: '昵称', width: 60, align: 'center'
+                  }, {
+                      field: 'AvatarUrl', title: '头像', width: 60, align: 'center', formatter: function (value, row, index) {
+                          return '<img style="width:30px;height:30px;border-radius:50%"  src=' + value + ' />'
+                      }
+                  }, {
+                      field: 'RealName', title: '真实姓名', width: 60, align: 'center'
+                  }, {
+                      field: 'Sex', title: '性别', width: 60, align: 'center'
+                  }, {
+                      field: 'Country', title: '国家', width: 60, align: 'center'
+                  }, {
+                      field: 'Province', title: '省份', width: 60, align: 'center'
+                  }, {
+                      field: 'City', title: '城市', width: 60, align: 'center'
+                  }, {
+                      field: 'WeChatBindPhone', title: '微信号绑定的手机号', width: 70, align: 'center'
+                  }, {
+                      field: 'PlatformBindPhone', title: '平台绑定的手机号', width: 60, align: 'center'
+                  }, {
+                      field: 'Account', title: '账户余额', width: 60, align: 'center'
+                  }, {
+                      field: 'edit', title: '操作', width: 100, halign: 'center', width: 86, fixed: true, formatter: function (value, row, index) {
+                          return '<a class="editbtn" onclick="edit(' + index + ')">绩效查看</a>'
+                      }
+                  }
+            ]],
+
+
+            onLoadSuccess: function () {
+                $('.editbtn').linkbutton({ iconCls: 'icon-chartview', plain: true });
+            }
+        })
+    })
+    $(function () {
+        $('#accdialog').dialog({
+            width: 400,
+            height: 465,
+            modal: true,
+            closed: true,
+            buttons: [{
+                iconCls: 'icon-ok',
+                text: '保存',
+                handler: function () {
+                    var url;
+                    if ($('#editid').val() == 0) {
+                        url = "/TicketOrder/Add"
+                    } else {
+                        url = "/TicketOrder/Edit"
+                    }
+                    if ($('#editform').form('validate')) {
+
+                        var obj = $('#editform').serializeObject();
+                        var required = 0;
+                        var option = 0;
+                        for (var i in checkableItems) {
+                            if (obj["c" + i] == "required") {
+                                required |= i;
+                            } else if (obj["c" + i] == "option") {
+                                option |= i;
+                            }
+                        }
+                        console.log(required);
+                        console.log(option);
+                        $.ajaxStart();
+                        $('#editform').ajaxSubmit({
+                            url: url,
+                            dataType: 'json',
+                            data: { required: required, option: option },
+                            success: function (data) {
+                                $.ajaxEnd();
+                                $('#accdialog').dialog('close');
+                                if (data.ResultCode != 1) {
+                                    $.messager.alert('提示', data.message, "warning");
+                                }
+                                $('#table').datagrid('reload');
+
+                            }
+                        })
+                    }
+                },
+                plain: true
+            }, {
+                iconCls: 'icon-cancel',
+                text: '取消',
+                handler: function () {
+                    $('#editdialog').dialog('close')
+                },
+                plain: true
+            }]
+        })
+    })
+    $(function () {
+        //$('#accdialog').dialog({
+        //    width: 900,
+        //    height: 500,
+        //    modal: true,
+        //    closed: true,
+        //}),
+        $('#table1').datagrid({
+            toolbar: '#maintabletoolbar1',
+            fit: true,
+            border: false,
+            multiple: true,
+            multivalue:true,
+            fitColumns: true,
+            url: '/Agent/Order',
+            pagination: true,
+            rownumbers: true,
+            pageList: [1, 2, 5, 10, 20, 30, 40, 50],
+            closable: true,
+            collapsible: true,
+            rownumbers: true,
+            singleSelect: true,
+            columns: [[
+                  {
+                      field: 'Id', title: 'Id', width: 60, fixed: true, halign: 'center'
+                  }, {
+                      field: 'OrderNum', title: '提交订单号', width: 60, fixed: true, halign: 'center'
+                  }, {
+                      field: 'OrderPrice', title: '提交价格', width: 60, halign: 'center'
+                  }, {
+                      field: 'Price', title: '实际价格', width: 60, halign: 'center'
+                  }, {
+                      field: 'CreateTime', title: '支付时间', width: 60, align: 'center'
+                  }, {
+                      field: 'Status', title: '状态', width: 60, align: 'center'
+                  }, {
+                      field: 'TicetPackage', title: '票券套餐', width: 60, align: 'center'
+                  }, {
+                      field: 'Supplier', title: '供应商', width: 60, align: 'center'
+                  }, {
+                      field: 'Member', title: '会员 ', width: 60, align: 'center'
+                  }, {
+                      field: 'Agent', title: '代理', width: 50, align: 'center'
+                  }, {
+                      field: 'L1BalanceCharges', title: '一级代理实际佣金', width: 100, align: 'center'
+                  }, {
+                      field: 'L2BalanceCharges', title: '二级代理实际佣金', width: 100, align: 'center'
+                  }
+
+            ]],
+        })
+    })
+    function edit(index) {
+        //alert(index)
+        var row = $('#table').treegrid('getRows')[index];
+        $('#accdialog').dialog('open').dialog('setTitle', '绩效查看');
+        $('#editform').form('reset').form('resetValidation').form('load', row);
+
+    }
+</script>
+<div class="easyui-layout" data-options="fit:true">
+    <div id="accdialog">
+        <div id="table1">
+            <div id="maintabletoolbar1">
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+
+

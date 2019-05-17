@@ -1,0 +1,222 @@
+﻿<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <style type="text/css">
+        body, html {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            font-family: "微软雅黑";
+        }
+
+        #allmap {
+            width: 100%;
+            height: 500px;
+        }
+
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+
+        td {
+            text-align: center;
+        }
+
+        tr td:nth-child(3) {
+            text-align: left;
+        }
+    </style>
+    <script src="Scripts/jquery-1.10.2.js"></script>
+    <script src="/Scripts/map.js"></script>
+    <title>地图事件</title>
+</head>
+<body>
+    <!--<div>-->
+     <div id="point"></div>
+    <!--</div>-->
+    <div id="allmap"></div>
+    <div id="ss"></div>
+    <button onclick="$('#allmap').baiduMap('center', { lng:110, lat: 24});">居中某位置</button>
+    <input id="txt" /><button onclick="  $('#allmap').baiduMap('search',document.getElementById('txt').value)">搜索</button>
+ 
+
+    <div style="padding:10px;width:940px;margin:0 auto;">
+        <h2>控件属性</h2>
+        <table border="1" cellpadding="5" cellspacing="0">
+            <colgroup>
+                <col width="100">
+                <col width="100">
+                <col>
+                <col width="100">
+            </colgroup>
+            <tr><th>属性名</th><th>属性值类型</th><th>描述</th><th>默认值</th></tr>
+            <tr>
+                <td>lng</td>
+                <td>float</td>
+                <td>地图初始化时显示中心位置的经度</td>
+                <td>118.156801</td>
+            </tr>
+            <tr>
+                <td>lat</td>
+                <td>float</td>
+                <td>地图初始化时显示中心位置的纬度</td>
+                <td>24.485408</td>
+            </tr>
+            <tr>
+                <td>controllers</td>
+                <td>boolean</td>
+                <td>是否显示控件</td>
+                <td>true</td>
+            </tr>
+            <tr>
+                <td>wheelZoom</td>
+                <td>boolean</td>
+                <td>是否启用滚轮调整比例尺</td>
+                <td>true</td>
+            </tr>
+            <tr>
+                <td>suggestId</td>
+                <td>string</td>
+                <td>绑定搜索输入框预测功能的输入框id，不开启预测可不设置</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>level</td>
+                <td>int</td>
+                <td>比例尺等级，3-19，越小比例尺越大，即地图越缩小</td>
+                <td>12</td>
+            </tr>
+            <tr>
+                <td>cursor</td>
+                <td>string</td>
+                <td>默认鼠标形状</td>
+                <td>default</td>
+            </tr>
+        </table>
+        <h2>控件事件</h2>
+        <table border="1" cellpadding="5" cellspacing="0">
+            <colgroup>
+                <col width="150">
+                <col width="100">
+                <col>
+
+            </colgroup>
+            <tr><th>事件名</th><th>事件参数</th><th>描述</th></tr>
+            <tr>
+                <td>onClick</td>
+                <td>event</td>
+                <td>点击地图的时候触发。event中包含point</td>
+            </tr>
+        </table>
+        <h2>方法</h2>
+        <table border="1" cellpadding="5" cellspacing="0">
+            <colgroup>
+                <col width="150">
+                <col width="100">
+                <col>
+            </colgroup>
+            <tr><th>方法名</th><th>方法属性</th><th>描述</th></tr>
+            <tr>
+                <td>center</td>
+                <td>point,level</td>
+                <td>
+                    居中显示指定经纬度位置
+                    <ul>
+                      
+                        <li>
+                            point包含：
+                            <br />lng:经度
+                            <br />lat:纬度，居中
+                        </li>
+                        <li>
+                            level:比例尺
+                        </li>
+                    </ul>
+
+                </td>
+            </tr>
+            <tr>
+                <td>clearMarker</td>
+                <td>none</td>
+                <td>清空标注点。</td>
+            </tr>
+            <tr>
+                <td>addMarker</td>
+                <td>point</td>
+                <td>
+                    添加标注点
+                    <ul>
+                        <li>
+                            point包含：
+                            <br />lng:经度
+                            <br />lat:纬度，居中
+                        </li>
+                    </ul>
+                </td>
+            </tr>
+            <tr>
+                <td>removeMarker</td>
+                <td>point</td>
+                <td>
+                    删除指定经纬度的标注
+                    <ul>
+                        <li>
+                            point包含：
+                            <br />lng:经度
+                            <br />lat:纬度，居中
+                        </li>
+                    </ul>
+                </td>
+            </tr>
+            <tr>
+                <td>search</td>
+                <td>value</td>
+                <td>根据关键词搜索地图。</td>
+            </tr>
+            <tr>
+                <td>map</td>
+                <td>none</td>
+                <td>获取地图对象。</td>
+            </tr>
+        </table>
+    </div>
+</body>
+</html>
+
+<script type="text/javascript">
+
+  
+    function getLocation() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(showPosition);
+        }
+        else { console.log("Geolocation is not supported by this browser."); }
+    }
+    function showPosition(position) {
+        alert()
+    }
+    getLocation();
+    var point;
+    $('#allmap').baiduMap({
+        lng: 118.156801,//默认经度
+        lat: 24.485408, //默认纬度
+        controllers: true,   //显示控制器
+        wheelZoom: true,  //启用滚轮缩放
+        suggestId: '#txt', //启用输入预测
+        level: 12,    //比例尺等级
+        cursor: 'default',  //默认鼠标样式
+        onClick: function (e) {
+
+            //点击地图事件，e.point记录着经纬度
+          // alert(e.point.lng)
+            if (point) $(this).baiduMap('removeMarker', point);
+            point={ lng: e.point.lng, lat: e.point.lat };
+            marker = $(this).baiduMap('addMarker', point);
+            
+        }
+    });
+</script>

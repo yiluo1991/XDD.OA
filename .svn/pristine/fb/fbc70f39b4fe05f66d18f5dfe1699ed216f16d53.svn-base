@@ -1,0 +1,199 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Data.Entity;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Web.Helpers;
+using XDD.Core.Model;
+
+namespace XDD.Core.DataAccess
+{
+    public class XDDDataInit : CreateDatabaseIfNotExists<XDDDbContext>
+    {
+        protected override void Seed(XDDDbContext context)
+        {
+
+
+            base.Seed(context);
+            context.Banners.Add(new Banner { Enable = true, Src = "http://xdd.lihangsoft.com/Images/Banner/20180801134110890.jpg", Url = "", Name = "测试数据", SN = 1 });
+            context.Banners.Add(new Banner { Enable = true, Src = "http://xdd.lihangsoft.com/Images/Banner/20180801112022497.jpg", Url = "", Name = "测试数据", SN = 2 });
+            context.NavIcons.Add(new NavIcon { Src = "http://xdd.lihangsoft.com/Images/Banner/20180801124101631.png", Name = "测试", Url = "#", SN = 100, Enable = true });
+            context.NavIcons.Add(new NavIcon { Src = "http://xdd.lihangsoft.com/Images/Banner/20180801124111021.png", Name = "测试", Url = "#", SN = 100, Enable = true });
+            context.NavIcons.Add(new NavIcon { Src = "http://xdd.lihangsoft.com/Images/Banner/20180801124119339.png", Name = "测试", Url = "#", SN = 100, Enable = true });
+            context.NavIcons.Add(new NavIcon { Src = "http://xdd.lihangsoft.com/Images/Banner/20180801125319719.png", Name = "测试", Url = "#", SN = 100, Enable = true });
+            context.NavIcons.Add(new NavIcon { Src = "http://xdd.lihangsoft.com/Images/Banner/20180801125337036.png", Name = "测试", Url = "#", SN = 100, Enable = true });
+            context.NavIcons.Add(new NavIcon { Src = "http://xdd.lihangsoft.com/Images/Banner/20180801125352853.png", Name = "测试", Url = "#", SN = 100, Enable = true });
+            context.NavIcons.Add(new NavIcon { Src = "http://xdd.lihangsoft.com/Images/NavIcon/20180801134520656.jpg", Name = "测试", Url = "#", SN = 100, Enable = true });
+            context.NavIcons.Add(new NavIcon { Src = "http://xdd.lihangsoft.com/Images/Banner/20180801133909669.jpg", Name = "测试", Url = "#", SN = 100, Enable = true });
+            var tagNams = new String[] { "天气", "厦门", "每日短语", "生活", "美食推荐", "表白", "游戏", "吐槽" };
+            foreach (var item in tagNams)
+            {
+                context.WordTags.Add(new WordTag() { Name = item, SN = 100 });
+            }
+            ///管理员
+            context.Employees.Add(new Employee()
+            {
+                CreateTime = DateTime.Now,
+                Enable = true,
+                LoginName = "admin",
+                Password = Crypto.HashPassword("123456"),
+                RoleName = "管理员"
+            });
+
+
+            #region 菜单
+            ///菜单
+
+            context.PermissionGroups.Add(new PermissionGroup()
+            {
+                DisplayName = "留言板管理",
+                SN = 2,
+                Tag = "#",
+                Url = "#",
+                Headshot = "order",
+                Children = new List<PermissionGroup> {
+                    new  PermissionGroup{
+                     DisplayName="热门话题管理",
+                     SN=2,
+                     Url="/WordTag/Index"
+                    },
+                    new PermissionGroup{
+                        DisplayName="留言管理",
+                        SN=1,
+                        Url="/Word/Index"
+                    }
+                }
+            });
+            context.PermissionGroups.Add(new PermissionGroup()
+            {
+                DisplayName = "基础设置",
+                SN = 1,
+                Tag = "#",
+                Url = "#",
+                Headshot = "credit",
+                Children = new List<PermissionGroup> {
+                  new PermissionGroup{
+                        DisplayName="首页导航图标管理",
+                        SN=1,
+                        Url="/NavIcon/Index"
+                    },
+                     new PermissionGroup{
+                        DisplayName="轮播图管理",
+                        SN=1,
+                        Url="/Banner/Index"
+                    },
+                     new PermissionGroup{
+                        DisplayName="后台账号管理",
+                        SN=1,
+                        Url="/Employee/Index"
+                    }
+                }
+            });
+            context.PermissionGroups.Add(new PermissionGroup()
+            {
+                DisplayName = "交流社区管理",
+                SN = 3,
+                Tag = "#",
+                Url = "#",
+                Headshot = "log",
+                Children = new List<PermissionGroup> { 
+                    new PermissionGroup{
+                        DisplayName="频道分类管理",
+                        SN=1,
+                        Url="/BBSCategory/Index"
+                    },
+                    new PermissionGroup{
+                        DisplayName="频道文章管理",
+                        SN=2,
+                        Url="/BBSArticle/Index"
+                    }
+                }
+            });
+            context.PermissionGroups.Add(new PermissionGroup()
+            {
+                DisplayName = "会员管理",
+                SN = 4,
+                Tag = "#",
+                Url = "#",
+                Headshot = "member",
+                Children = new List<PermissionGroup> {
+                 new PermissionGroup{
+                        DisplayName="会员列表",
+                        SN=1,
+                        Url="/Member/Index"
+                    },
+                     new PermissionGroup{
+                        DisplayName="实名认证审核",
+                        SN=2,
+                        Url="/Identity/Index"
+                    }
+                
+                }
+            });
+            context.PermissionGroups.Add(new PermissionGroup()
+            {
+                DisplayName = "资金中心",
+                SN = 5,
+                Tag = "#",
+                Url = "#",
+                Headshot = "finance",
+                Children = new List<PermissionGroup> { }
+            });
+            context.PermissionGroups.Add(new PermissionGroup()
+            {
+                DisplayName = "代理中心",
+                SN = 6,
+                Tag = "#",
+                Url = "#",
+                Headshot = "platform",
+                Children = new List<PermissionGroup> { 
+                
+                }
+            });
+            context.PermissionGroups.Add(new PermissionGroup()
+            {
+                DisplayName = "票务中心",
+                SN = 7,
+                Tag = "#",
+                Url = "#",
+                Headshot = "product",
+                Children = new List<PermissionGroup> { 
+                    new PermissionGroup{
+                        DisplayName="门票分类管理",
+                        SN=2,
+                        Url="/TicketCategory/Index"
+                    },
+                     new PermissionGroup{
+                        DisplayName="门票提供商管理",
+                        SN=2,
+                        Url="/Supplier/Index"
+                    }
+                }
+            });
+            context.PermissionGroups.Add(new PermissionGroup()
+            {
+                DisplayName = "二手市场管理",
+                SN = 8,
+                Tag = "#",
+                Url = "#",
+                Headshot = "bid",
+                Children = new List<PermissionGroup> { }
+            });
+            #endregion
+
+            context.BBSCategories.Add(new BBSCategory { Name = "电影", SN = 1, Enable = true });
+            context.BBSCategories.Add(new BBSCategory { Name = "早安晚安", SN = 2, Enable = true });
+            context.BBSCategories.Add(new BBSCategory { Name = "学习", SN = 3, Enable = true });
+            context.BBSCategories.Add(new BBSCategory { Name = "运动", SN = 4, Enable = true });
+            context.BBSCategories.Add(new BBSCategory { Name = "二次元", SN = 5, Enable = true });
+            context.BBSCategories.Add(new BBSCategory { Name = "吃饭", SN = 6, Enable = true });
+            context.BBSCategories.Add(new BBSCategory { Name = "美食", SN = 7, Enable = true });
+            context.BBSCategories.Add(new BBSCategory { Name = "桌游", SN = 8, Enable = true });
+            context.BBSCategories.Add(new BBSCategory { Name = "学车", SN = 9, Enable = true });
+            context.BBSCategories.Add(new BBSCategory { Name = "摄影约拍", SN = 10, Enable = true });
+
+            context.SaveChanges();
+        }
+    }
+}

@@ -1,0 +1,149 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Web.Http;
+using XDD.Core.DataAccess;
+using XDD.Core.Model;
+using XDD.Web.Models.WeChat;
+namespace XDD.Web.Controllers.API
+{
+/// <summary>
+///     门票接口
+/// </summary>
+    [RoutePrefix("api/Ticket")]
+    public class TicketController : ApiController
+    {
+
+        XDDDbContext ctx = new XDDDbContext();
+
+        /// <summary>
+        ///     分页获取门票列表
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
+        [Route("GetTickets"), HttpPost]
+        public PageResponse GetTickets(PageRequest req)
+        {
+           IQueryable<Ticket> query=ctx.Tickets.Where(s=>s.Enable&&s.OnSale&&s.TicketCategory.Enable);
+           if (req.id.HasValue) {
+               query = query.Where(s => s.TicketCategoryId == req.id.Value);
+           }
+           if (!string.IsNullOrEmpty(req.keyword))
+           {
+               query = query.Where(s => s.TicketCategory.Name.Contains(req.keyword) || s.ShopName.Contains(req.keyword) || s.Address.Contains(req.keyword));
+           }
+           return new PageResponse()
+           {
+               Total = query.Count(),
+               Rows = query.OrderBy(s => s.SN).ThenByDescending(s => s.CreateTime).Skip((req.page - 1) * 10).Take(10).Select(s => new { 
+                 s.Address,
+                 s.Name,
+                 s.Enable,
+                 s.OnSale,
+                 s.Pic,
+                 s.Price,
+                 s.SaleNum,
+                 s.ShopName,
+                 s.OrginPrice,
+                 s.EarlyDay,
+                 s.SN,
+                 TicketCategoryName=s.TicketCategory.Name,
+                 s.Lat,
+                 s.Id,
+                 s.Lng
+               }).ToList()
+           };
+        }
+
+        /// <summary>
+        ///     分页获取热门门票，SN小于100
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
+        [Route("GetHotTickets"), HttpPost]
+        public PageResponse GetHotTickets(PageRequest req)
+        {
+            IQueryable<Ticket> query = ctx.Tickets.Where(s => s.Enable && s.OnSale && s.TicketCategory.Enable&&s.SN<100);
+            if (req.id.HasValue)
+            {
+                query = query.Where(s => s.TicketCategoryId == req.id.Value);
+            }
+            if (!string.IsNullOrEmpty(req.keyword))
+            {
+                query = query.Where(s => s.TicketCategory.Name.Contains(req.keyword) || s.ShopName.Contains(req.keyword) || s.Address.Contains(req.keyword));
+            }
+            return new PageResponse()
+            {
+                Total = query.Count(),
+                Rows = query.OrderBy(s => s.SN).ThenByDescending(s => s.CreateTime).Skip((req.page - 1) * 10).Take(10).Select(s => new
+                {
+                    s.Address,
+                    s.Name,
+                    s.Enable,
+                    s.OnSale,
+                    s.Pic,
+                    s.Price,
+                    s.EarlyDay,
+                    s.SaleNum,
+                    s.ShopName,
+                    s.OrginPrice,
+                    s.SN,
+                    TicketCategoryName = s.TicketCategory.Name,
+                    s.Lat,
+                    s.Id,
+                    s.Lng
+                }).ToList()
+            };
+        }
+
+        /// <summary>
+        ///     获取门票
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
+        [Route("GetTicket"), HttpPost]
+        public DetailResponse GetTicket(SimpleStatusRequest req) {
+            var target = ctx.Tickets.FirstOrDefault(s => s.Id == req.Id&&s.TicketCategory.Enable);
+            if (target != null)
+            {
+                return new DetailResponse { Detail=new{
+                    target.Address,
+                    target.Content,
+                    target.CreateTime,
+                    target.Enable,
+                    target.Id,
+                    target.Lat,
+                    target.Lng,
+                    target.Name,
+                    target.OnSale,
+                    target.Pic,
+                    target.Price,
+                    target.SaleNum,
+                    target.OrginPrice,
+                    target.EarlyDay,
+                    target.ShopName,
+                    target.SN,
+                    TicketCategoryName = target.TicketCategory.Name,
+                    target.TicketCategoryId,
+                    TicketPackages=target.TicketPackages.Select(t=>new{ t.Name, t.Price, t.Stock, t.SN}).OrderBy(s=>s.SN).ToList()
+                }, Message = "获取成功", ResultCode = 1 };
+            }
+            else
+            {
+                return new DetailResponse { Detail = null, Message = "没有找到门票信息", ResultCode = 0 };
+            }
+        }
+
+        /// <summary>
+        ///     获取文章分类列表
+        /// </summary>
+        /// <returns>文章分类列表</returns>
+        [Route("GetCategories")]
+        public object GetCategories()
+        {
+            return ctx.TicketCategories.Where(s => s.Enable).OrderBy(s => s.SN).Select(s => new { Enable = s.Enable, Icon = s.Icon, Id = s.Id, Name = s.Name , s.SN}).ToList();
+        }
+    }
+}
