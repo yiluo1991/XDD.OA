@@ -86,11 +86,21 @@ namespace XDD.Web.Infrastructure
             }
             try
             {
-                if (!string.IsNullOrEmpty(order.PackageCode) && !string.IsNullOrEmpty(order.Supplier.Member.PlatformBindPhone))
+                if (!string.IsNullOrEmpty(order.PackageCode) )
                 {
-
-                    SMS.SMSManager.SendServiceSMS(order.Supplier.Member.PlatformBindPhone, HttpUtility.UrlEncode(order.TicetPackage.Ticket.Name + "-" + order.TicetPackage.Name), HttpUtility.UrlEncode(order.RealName), HttpUtility.UrlEncode(order.Mobile),HttpUtility.UrlEncode(order.Address));
-                    SMS.SMSManager.SendMemberSMS(order.Mobile, HttpUtility.UrlEncode("13074861113"));
+                    if (!string.IsNullOrEmpty(order.Supplier.Member.PlatformBindPhone))
+                    {
+                     //  SMS.SMSManager.SendServiceSMS(order.Supplier.Member.PlatformBindPhone, HttpUtility.UrlEncode(order.TicetPackage.Ticket.Name + "-" + order.TicetPackage.Name), HttpUtility.UrlEncode(order.RealName), HttpUtility.UrlEncode(order.Mobile),HttpUtility.UrlEncode(order.Address));
+                        //    SMS.SMSManager.SendMemberSMS(order.Mobile, HttpUtility.UrlEncode("13074861113"));
+                          SMS.SMSManager.SendMemberSMS(order.Mobile, order.Supplier.Member.PlatformBindPhone);
+                    }
+                }
+                else
+                {
+                    if (!string.IsNullOrEmpty(order.Supplier.Member.PlatformBindPhone))
+                    {
+                        SMS.SMSManager.SendNoticeSMS(new List<string> { "", "一笔新的门票/服务订单", order.Mobile, "-票券商核销平台" }, order.Supplier.Member.PlatformBindPhone);
+                    }
                 }
             }
             catch 
@@ -133,7 +143,7 @@ namespace XDD.Web.Infrastructure
                     {
                         if (order.L1BalanceCharges > 0)
                         {
-                            var s1 = new AccountStatement { BeforeBalance = order.Agent.Account, CreateTime = now.AddMilliseconds(10), MemberId = order.Agent.Id, Money = order.L1BalanceCharges, RefferId = order.Id, Type = "一级代理佣金" };
+                            var s1 = new AccountStatement { BeforeBalance = order.Agent.Account, CreateTime = now.AddMilliseconds(10), MemberId = order.Agent.Id, Money = order.L1BalanceCharges, RefferId = order.Id, Type = "分享佣金佣金" };
                             ctx.AccountStatements.Add(s1);
                             order.Agent.Account += order.L1BalanceCharges;
                         }

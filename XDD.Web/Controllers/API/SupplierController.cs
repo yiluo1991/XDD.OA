@@ -133,7 +133,6 @@ namespace XDD.Web.Controllers.API
             IQueryable<TicketOrder> query = ctx.TicketOrders.Where(s => s.Supplier.MemberId == id);
             switch (req.id)
             {
-
                 case 1:
                     query = query.Where(s => s.Status == OrderStatus.Paied || s.Status == OrderStatus.Success);
                     break;

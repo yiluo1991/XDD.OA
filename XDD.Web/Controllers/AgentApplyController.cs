@@ -37,7 +37,7 @@ namespace XDD.Web.Controllers
                 int index = sexList.FindIndex(s => s == keyword);
                 int indext = StatusList.FindIndex(s => s == keyword);
                 query = ctx.AgentApplys.Where(s => s.RealName.Contains(keyword) || s.Member.NickName.Contains(keyword) || s.Employee.RealName.Contains(keyword) || s.IdCard.Contains(keyword) || (int)s.Sex == index || (int)s.Status == indext);
-              
+         
             }
             return Json(
                 new
@@ -80,6 +80,9 @@ namespace XDD.Web.Controllers
                 target.Feedback = feedback;//审批的反馈信息
                 if (stastus == VerifyStatus.Allow)
                 {
+                    target.Member.RealName = target.RealName;
+                    target.Member.Sex = target.Sex;
+                    if (!target.Member.Status.HasFlag(MemberStatus.Identity)) target.Member.Status |= MemberStatus.Identity;
                     if (!target.Member.Status.HasFlag(MemberStatus.Agant)) target.Member.Status |= MemberStatus.Agant;
                     target.Member.CaptainId = target.CaptainId;
                 }

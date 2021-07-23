@@ -17,6 +17,21 @@ namespace XDD.Web.Controllers
         {
             return View();
         }
+        public JsonResult SetView(int id, int count)
+        {
+            var target = ctx.Commodities.FirstOrDefault(s => s.Id == id);
+            if (target == null)
+            {
+                return Json(new { ResultCode = 0, message = "没有找到要设置的记录" });
+            }
+            else
+            {
+                target.ViewCount = count;
+                ctx.SaveChanges();
+                return Json(new { ResultCode = 1, message = "设置成功" });
+            }
+        }
+
         public JsonResult GetComodities(string keyword,TradeType? type,int page=1,int rows=10) {
             IQueryable<Commodity> query = ctx.Commodities.Where(s => s.Enable==true);
             int id;

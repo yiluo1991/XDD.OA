@@ -36,6 +36,21 @@ namespace XDD.Web.Controllers
             }
         }
 
+        public JsonResult SetView(int id,int count)
+        {
+            var target = Context.BBSArticles.FirstOrDefault(s => s.Id == id);
+            if (target == null)
+            {
+                return Json(new { ResultCode = 0, message = "没有找到要设置的记录" });
+            }
+            else
+            {
+                target.ReadCount = count;
+                Context.SaveChanges();
+                return Json(new { ResultCode = 1, message = "设置成功" });
+            }
+        }
+
         public JsonResult AllowGet(string keyword, int categoryId = 0, int page = 1, int rows = 15)//搜索
 
         {

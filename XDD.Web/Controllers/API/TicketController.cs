@@ -410,6 +410,7 @@ namespace XDD.Web.Controllers.API
                     s.PackageCode,
                     s.CreateTime,
                     s.Price,
+                    
                     s.Request,
                     s.HasRequest,
                     s.TicetPackage.Ticket.Pic,

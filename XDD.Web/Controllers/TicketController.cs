@@ -69,6 +69,11 @@ namespace XDD.Web.Controllers
         [ValidateInput(false)]
         public JsonResult AddTicket(Ticket ticket)
         {
+
+            XDDDbContext ctx = new XDDDbContext();
+
+           
+
             if (Request.Files.Count > 0)
             {
                 var file = Request.Files[0];

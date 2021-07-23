@@ -403,7 +403,7 @@ namespace XDD.Web.Controllers.API
         [TokenAuthorize]
         public DetailResponse SendCode(string mobile)
         {
-            if (Regex.IsMatch(mobile, @"^((13[0-9])|(14[5,7,9])|(15[^4])|(18[0-9])|(17[0,1,3,5,6,7,8]))\d{8}$"))
+            if (Regex.IsMatch(mobile, @"^1\d{10}$"))
             {
                 int id = Convert.ToInt32(TicketWoker.GetTicket(Request.Headers.GetValues("token").First()).Name);
                 //string str = "QWERTYUPASDFGHJKLZXCVBNM1234567890";

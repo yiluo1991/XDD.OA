@@ -8,8 +8,15 @@
     <div id="maintabletoolbar">
         <table cellpadding="0" cellspacing="0">
             <tr>
+
                 <td>
                     <a id="add" class="easyui-linkbutton" iconcls="icon-add" plain="true" onclick=" $('#changeform').form('reset').form('resetValidation'); $('#changedialog').dialog('open').dialog('setTitle', '添加文章' )">添加</a>
+                </td>
+                <td>
+                    <div class="datagrid-btn-separator"></div>
+                </td>
+                <td>
+                    <a class="easyui-linkbutton" iconcls="icon-eye" plain="true" onclick="setView()">设置阅读数</a>
                 </td>
                 <td>
                     <div class="datagrid-btn-separator"></div>
@@ -34,6 +41,31 @@
     </div>
 </div>
 <script>
+
+    function setView() {
+        var row = $('#table').datagrid('getSelected');
+        if (row) {
+
+
+            $.messager.prompt("阅读数", "请输入新的阅读数（当前阅读数" + row.ReadCount + "）", function (r) {
+                if (r != undefined) {
+                    var num = parseInt(r);
+                    if (!isNaN(num)) {
+                        $.post('/BBSArticle/SetView', { id: row.Id, count: num }, function (data) {
+
+                            if (data.ResultCode == 1) {
+
+                            } else {
+                                $.messager.alert('提示', data.message, 'info')
+                            }
+                            $('#table').datagrid('reload');
+
+                        })
+                    }
+                }
+            })
+        }
+    }
     $(function () {
         $('#table').datagrid({
             toolbar: '#maintabletoolbar',
@@ -50,79 +82,79 @@
             singleSelect: true,
             columns: [[
                 { field: 'Id', title: 'ID', width: 60, fixed: true, align: 'center' },
-                  {
-                      field: 'CategoryName', title: '分类名', width: 50, fixed: true, align: 'center'
-                  }, {
-                      field: 'Title', title: '标题', width: 50, align: 'center'
-                  }, {
-                      field: 'SN', title: '排序号', width: 50, fixed: true, align: 'center'
-                  }, {
-                      field: 'Subject', title: '主题', width: 60, fixed: true, align: 'center'
-                  }, {
-                      field: 'ReadCount', title: '阅读数', width: 50, fixed: true, align: 'center'
-                  }, {
-                      field: 'CommentCount', title: '评论数', fixed: true, width: 50, align: 'center'
-                  }, {
-                      field: 'CreateTime', title: '创建时间', width: 130, fixed: true, align: 'center', formatter: function (value) { return $.formatJsonDate(value) }
-                  }, {
-                      field: 'MemberId', title: '会员ID|会员昵称|会员真名', width: 70, align: 'center', formatter: function (value, row) {
-                          return row.M + " | " + row.MemberId + " | " + row.RealName
-                      }
-                  },
-                  {
-                      field: 'IsBackgroundArticle', title: '是否后台文章', width: 80, fixed: true, align: 'center', formatter: function (val, row, index) {
-                          switch (row.IsBackgroundArticle) {
-                              case false: return '<input  data-id="' + row.Id + '" name="sbutton" onText="是" offText="否"  > '
-                              case true: return '<input  data-id="' + row.Id + '" name="sbutton" onText="是" offText="否" checked="true" >'
-                              default: return '';
-                          }
-                      }
-                  },
-                  {
-                      field: 'AllowComment', title: '可评论', width: 60, fixed: true, align: 'center', formatter: function (value, row) {
-                          switch (row.AllowComment) {
-                              case false: return '<input  data-id="' + row.Id + '" class="btnpinglun" onText="是" offText="否"  > '
-                              case true: return '<input  data-id="' + row.Id + '" class="btnpinglun" onText="是" offText="否" checked="true" >'
-                              default: return '';
-                          }
-                      }
-                  },
-                  {
-                      field: 'ShowComment', title: '显示评论', width: 60, fixed: true, align: 'center', formatter: function (value, row) {
-                          switch (row.ShowComment) {
-                              case false: return '<input  data-id="' + row.Id + '" class="btnxianshi" onText="是" offText="否"  > '
-                              case true: return '<input  data-id="' + row.Id + '" class="btnxianshi" onText="是" offText="否" checked="true" >'
-                              default: return '';
-                          }
-                      }
-                  },
-                      {
-                      field: 'HomeShow', title: '显示主页', width: 60, fixed: true, align: 'center', formatter: function (value, row) {
-                          switch (row.HomeShow) {
-                              case false: return '<input  data-id="' + row.Id + '" class="btnzhuye" onText="是" offText="否"  > '
-                              case true: return '<input  data-id="' + row.Id + '" class="btnzhuye" onText="是" offText="否" checked="true" >'
-                              default: return '';
-                          }
-                      }
-                  },
-                       {
-                           field: 'see', title: '查看评论', width: 100, align: 'center', fixed: true,
-                           formatter: function (value, row, index) {
-                               return '<a class=" searchbtn"  onclick="see(' + index + ')">查看</a>';
-                           }
-                       },
-                  {
-                      field: 'edit', title: '操作', width: 160, align: 'center', fixed: true,
-                      formatter: function (value, row, index) {
-                          switch (row.IsBackgroundArticle) {
-                              case false: return '<a class=" searchbtn"  onclick="look(' + index + ')">查看</a>';
-                              case true: return '<a class="searchbtn" onclick="look(' + index + ')">查看</a> <a class="editbtn"  onclick="change(' + index + ')">修改</a>';
-                              default: return '';
+                {
+                    field: 'CategoryName', title: '分类名', width: 50, fixed: true, align: 'center'
+                }, {
+                    field: 'Title', title: '标题', width: 50, align: 'center'
+                }, {
+                    field: 'SN', title: '排序号', width: 50, fixed: true, align: 'center'
+                }, {
+                    field: 'Subject', title: '主题', width: 60, fixed: true, align: 'center'
+                }, {
+                    field: 'ReadCount', title: '阅读数', width: 50, fixed: true, align: 'center'
+                }, {
+                    field: 'CommentCount', title: '评论数', fixed: true, width: 50, align: 'center'
+                }, {
+                    field: 'CreateTime', title: '创建时间', width: 130, fixed: true, align: 'center', formatter: function (value) { return $.formatJsonDate(value) }
+                }, {
+                    field: 'MemberId', title: '会员ID|会员昵称|会员真名', width: 70, align: 'center', formatter: function (value, row) {
+                        return row.M + " | " + row.MemberId + " | " + row.RealName
+                    }
+                },
+                {
+                    field: 'IsBackgroundArticle', title: '是否后台文章', width: 80, fixed: true, align: 'center', formatter: function (val, row, index) {
+                        switch (row.IsBackgroundArticle) {
+                            case false: return '<input  data-id="' + row.Id + '" name="sbutton" onText="是" offText="否"  > '
+                            case true: return '<input  data-id="' + row.Id + '" name="sbutton" onText="是" offText="否" checked="true" >'
+                            default: return '';
+                        }
+                    }
+                },
+                {
+                    field: 'AllowComment', title: '可评论', width: 60, fixed: true, align: 'center', formatter: function (value, row) {
+                        switch (row.AllowComment) {
+                            case false: return '<input  data-id="' + row.Id + '" class="btnpinglun" onText="是" offText="否"  > '
+                            case true: return '<input  data-id="' + row.Id + '" class="btnpinglun" onText="是" offText="否" checked="true" >'
+                            default: return '';
+                        }
+                    }
+                },
+                {
+                    field: 'ShowComment', title: '显示评论', width: 60, fixed: true, align: 'center', formatter: function (value, row) {
+                        switch (row.ShowComment) {
+                            case false: return '<input  data-id="' + row.Id + '" class="btnxianshi" onText="是" offText="否"  > '
+                            case true: return '<input  data-id="' + row.Id + '" class="btnxianshi" onText="是" offText="否" checked="true" >'
+                            default: return '';
+                        }
+                    }
+                },
+                {
+                    field: 'HomeShow', title: '显示主页', width: 60, fixed: true, align: 'center', formatter: function (value, row) {
+                        switch (row.HomeShow) {
+                            case false: return '<input  data-id="' + row.Id + '" class="btnzhuye" onText="是" offText="否"  > '
+                            case true: return '<input  data-id="' + row.Id + '" class="btnzhuye" onText="是" offText="否" checked="true" >'
+                            default: return '';
+                        }
+                    }
+                },
+                {
+                    field: 'see', title: '查看评论', width: 100, align: 'center', fixed: true,
+                    formatter: function (value, row, index) {
+                        return '<a class=" searchbtn"  onclick="see(' + index + ')">查看</a>';
+                    }
+                },
+                {
+                    field: 'edit', title: '操作', width: 160, align: 'center', fixed: true,
+                    formatter: function (value, row, index) {
+                        switch (row.IsBackgroundArticle) {
+                            case false: return '<a class=" searchbtn"  onclick="look(' + index + ')">查看</a>';
+                            case true: return '<a class="searchbtn" onclick="look(' + index + ')">查看</a> <a class="editbtn"  onclick="change(' + index + ')">修改</a>';
+                            default: return '';
 
 
-                          }
-                      }
-                  }
+                        }
+                    }
+                }
             ]],
             onLoadSuccess: function () {
                 $('.editbtn').linkbutton({ iconCls: 'icon-edit', plain: true });
@@ -294,57 +326,57 @@
             selectOnCheck: false,
 
             columns: [[
-                      //{
-                      //    field: 'ck', checkbox: true
-                      //},
-                      {
-                          field: 'Content', title: '评论内容', width: 120, halign: 'center',
-                          formatter: function (value, row, index) {
-                              if (value) {
-                                  var valuee = value.replace(/[\s]+/gi, "<br/>")
-                                  return '<span  >' + valuee + '</span>'
-                              }
-                              else {
-                                  return value
-                              }
-                          }
-                      }, {
-                          field: 'CreateTime', title: '评论时间', width: 60, align: 'center', formatter: function (value) {
-                              return $.formatJsonDate(value)
+                //{
+                //    field: 'ck', checkbox: true
+                //},
+                {
+                    field: 'Content', title: '评论内容', width: 120, halign: 'center',
+                    formatter: function (value, row, index) {
+                        if (value) {
+                            var valuee = value.replace(/[\s]+/gi, "<br/>")
+                            return '<span  >' + valuee + '</span>'
+                        }
+                        else {
+                            return value
+                        }
+                    }
+                }, {
+                    field: 'CreateTime', title: '评论时间', width: 60, align: 'center', formatter: function (value) {
+                        return $.formatJsonDate(value)
 
-                          }
-                      }, {
-                          field: 'Paths', title: '评论图片', align: 'center', width: 130, fixed: true, formatter: function (value, row, index) {
-                              if (value != null) {
-                                  var images = value.split('|');
-                                  var linkArr = [];
-                                  for (var i = 0; i < images.length; i++) {
-                                      if (images[i] != "") {
-                                          linkArr.push('<a style="display:none;z-index:999999"  class="easyui-linkbutton gall gall' + index + '" ' + ' rel="[gall' + index + ']" href="' + images[i] + '" target="_blank">图片' + (i + 1) + '</ a>');
-                                      }
-                                  }
-                                  if (linkArr.length > 0) {
-                                      return linkArr.join('') + '<a class="verifyimage" onclick="$(\'.gall' + index + '\').first().click()">共' + linkArr.length + '张 点击查看</ a>'
-                                  } else {
+                    }
+                }, {
+                    field: 'Paths', title: '评论图片', align: 'center', width: 130, fixed: true, formatter: function (value, row, index) {
+                        if (value != null) {
+                            var images = value.split('|');
+                            var linkArr = [];
+                            for (var i = 0; i < images.length; i++) {
+                                if (images[i] != "") {
+                                    linkArr.push('<a style="display:none;z-index:999999"  class="easyui-linkbutton gall gall' + index + '" ' + ' rel="[gall' + index + ']" href="' + images[i] + '" target="_blank">图片' + (i + 1) + '</ a>');
+                                }
+                            }
+                            if (linkArr.length > 0) {
+                                return linkArr.join('') + '<a class="verifyimage" onclick="$(\'.gall' + index + '\').first().click()">共' + linkArr.length + '张 点击查看</ a>'
+                            } else {
 
-                                  }
-                              }
-                              else {
-                                  return '<span style="color:red">没有评论图片</span>'
-                              }
-                          }
-                      },
-                      {
-                          field: 'check', title: '操作', width: 100, halign: 'center', width: 86, fixed: true, formatter: function (value, row, index) {
-                              return '<a class="event1" onclick="rmcomments(' + index + ')">删除</a>'
-                          }
-                      }
+                            }
+                        }
+                        else {
+                            return '<span style="color:red">没有评论图片</span>'
+                        }
+                    }
+                },
+                {
+                    field: 'check', title: '操作', width: 100, halign: 'center', width: 86, fixed: true, formatter: function (value, row, index) {
+                        return '<a class="event1" onclick="rmcomments(' + index + ')">删除</a>'
+                    }
+                }
             ]],
             onLoadSuccess: function () {
                 $('.event1').linkbutton({ iconCls: 'icon-cancel', plain: true });
                 $(this).datagrid('fixRowHeight');
                 $('.gall').foxibox({ border: 10, scale: true });
-             
+
             }
         });
     }
@@ -366,9 +398,9 @@
             $('#changedialog').dialog('open').dialog('setTitle', '修改文章内容');
             if (row.DateTime && row.DateTime.indexOf('D') > 0) {
                 row.DateTime = $.formatJsonDate(row.DateTime).substr(11);
-             
+
             }
-            
+
             $('#changeform').form('reset').form('resetValidation').form('load', row);
             editor.txt.html(row.Content);
             if (row.Paths) {
@@ -385,11 +417,11 @@
         var row = $('#table').datagrid('getRows')[index];
         if (row) {
             $('#changedialog').dialog('open').dialog('setTitle', '查看文章内容');
-            if (row.DateTime && row.DateTime.indexOf('D')>0) {
+            if (row.DateTime && row.DateTime.indexOf('D') > 0) {
                 row.DateTime = $.formatJsonDate(row.DateTime).substr(11);
-              
+
             }
-           
+
             $('#changeform').form('reset').form('resetValidation').form('load', row);
             editor.txt.html(row.Content);
             if (row.Paths) {
@@ -422,10 +454,10 @@
     #editdialog p, #changedialog p {
         padding: 5px 0;
     }
-    #foxibox_overlay,#foxibox_container,#foxibox_details{
-        z-index:99999999!important;
-    }
 
+    #foxibox_overlay, #foxibox_container, #foxibox_details {
+        z-index: 99999999 !important;
+    }
 </style>
 <div id="changedialog" style="padding:5px;text-align:center;overflow:hidden;">
     <form id="changeform" enctype="multipart/form-data" method="post">
@@ -498,20 +530,20 @@
     editor.customConfig.uploadImgServer = '/BBSArticle/UploadImg';
     editor.customConfig.uploadImgMaxLength = 1;
     editor.customConfig.menus = [
-     'undo',  // 撤销
-    'redo',  // 重复,
-    'head',  // 标题
-    'bold',  // 粗体
-    'fontSize',  // 字号
-    'fontName',  // 字体
-    'italic',  // 斜体
-    'underline',  // 下划线
-    'strikeThrough',  // 删除线
-    'foreColor',  // 文字颜色
-    'backColor',  // 背景颜色
-    'justify',  // 对齐方式
-    'image',  // 插入图片
-    'video'  // 插入视频
+        'undo',  // 撤销
+        'redo',  // 重复,
+        'head',  // 标题
+        'bold',  // 粗体
+        'fontSize',  // 字号
+        'fontName',  // 字体
+        'italic',  // 斜体
+        'underline',  // 下划线
+        'strikeThrough',  // 删除线
+        'foreColor',  // 文字颜色
+        'backColor',  // 背景颜色
+        'justify',  // 对齐方式
+        'image',  // 插入图片
+        'video'  // 插入视频
     ]
     editor.create();
 </script>

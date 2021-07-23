@@ -151,7 +151,7 @@ namespace XDD.Web.Controllers.API
             {
                 req.Money = Decimal.Round(req.Money, 2);
                 int memberId = Convert.ToInt32(TicketWoker.GetTicket(Request.Headers.GetValues("token").First()).Name);
-                var member = ctx.Members.FirstOrDefault(s => s.Id == memberId&&s.RealName!=null&&(s.RealName.Length>0)&&!s.Status.HasFlag(MemberStatus.Freeze));
+                var member = ctx.Members.FirstOrDefault(s => s.Id == memberId&&!s.Status.HasFlag(MemberStatus.Freeze));
                 if (member != null)
                 {
                     if (req.Money <= member.Account && req.Money > 0)
